@@ -3,7 +3,7 @@
 
 generator client {
     provider        = "prisma-client-js"
-    previewFeatures = "mongoDb"
+    previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {
@@ -18,7 +18,7 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? 
+    refresh_token     String? // @db.Text
     access_token      String? // @db.Text
     expires_at        Int?
     token_type        String?
