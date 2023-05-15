@@ -61,6 +61,10 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  /**ADD PAGES if you're creating custom pages for signin, login, etc
+   * Else if defaults to the path api/auth/signin, etc.
+   * @see https://next-auth.js.org/configuration/pages
+  */
 };
 
 /**
