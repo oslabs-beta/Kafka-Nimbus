@@ -1,4 +1,3 @@
-import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
   type NextAuthOptions,
@@ -50,7 +49,7 @@ export const authOptions: NextAuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
-      
+
     }),
     /**
      * ...add more providers here.
@@ -69,9 +68,20 @@ export const authOptions: NextAuthOptions = {
  *
  * @see https://next-auth.js.org/configuration/nextjs
  */
-export const getServerAuthSession = (ctx: {
-  req: GetServerSidePropsContext["req"];
-  res: GetServerSidePropsContext["res"];
-}) => {
-  return getServerSession(ctx.req, ctx.res, authOptions);
+// export const getServerAuthSession = (ctx: {
+//   req: GetServerSidePropsContext["req"];
+//   res: GetServerSidePropsContext["res"];
+// }) => {
+//   return getServerSession(ctx.req, ctx.res, authOptions);
+// };
+
+
+/**
+ * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file
+ * AS OF NEXT13, you no longer need to pass in the req res from getServerSideProps
+ * @see https://next-auth.js.org/configuration/nextjs
+*/
+
+export const getServerAuthSession = () => {
+  return getServerSession(authOptions);
 };
