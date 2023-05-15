@@ -4,7 +4,7 @@ import { getServerAuthSession } from '~/server/auth';
 export const ServerSessionPage = async () => {
   const sessionData = await getServerAuthSession();
   if (!sessionData) {
-    redirect('api/auth/signin?callbackUrl=/test/server'); //Add manual route ('signin?callbackUrl=/test/server')
+    redirect('../../api/auth/signin?callbackUrl=/test/server'); //Add manual route ('signin?callbackUrl=/test/server')
   }
   return (
     <div>

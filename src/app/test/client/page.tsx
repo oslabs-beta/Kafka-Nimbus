@@ -7,7 +7,7 @@ export const ClientSessionPage = () => {
   const { data: sessionData } = useSession({
     required: true,
     onUnauthenticated() {
-      redirect('api/auth/signin?callbackUrl=/test/client') //Add manual route ('signin?callbackUrl=/test/client')
+      redirect('../../api/auth/signin?callbackUrl=/test/client') //Add manual route ('signin?callbackUrl=/test/client')
     }
   })
   return (
