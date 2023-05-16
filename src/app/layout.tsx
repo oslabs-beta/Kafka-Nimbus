@@ -1,8 +1,8 @@
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
-// import { SessionProvider } from "next-auth/react";
 import { Provider } from "./components/Provider";
 import { Providers } from "../redux/provider";
+import NavBar from "./components/NavBar";
 import '../styles/globals.css';
 
 // import { api } from "~/utils/api";
@@ -35,6 +35,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <Provider>
+            <NavBar/>
             {children}
           </Provider>
         </Providers>

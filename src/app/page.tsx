@@ -7,6 +7,7 @@ import { AuthShowcase } from "./components/AuthShowcase";
 import { api } from "~/utils/api";
 import { withTRPC } from '@trpc/next';
 import { appRouter } from '../server/api/root';
+import { SessionProvider } from "next-auth/react";
 
 // export const metadata: Metadata = {
 //   title: 'Kafka-Nimbus',
