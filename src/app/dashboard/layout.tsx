@@ -1,7 +1,6 @@
-import { Provider } from "./components/Provider";
-import { Providers } from "../redux/provider";
-import "../styles/globals.css";
-import NavBar from "./components/NavBar";
+
+import { Provider } from "../components/Provider";
+import { Providers } from "../../redux/provider";
 
 export default function RootLayout({
   children,
@@ -13,7 +12,6 @@ export default function RootLayout({
       <body>
         <Providers>
           <Provider>
-            <NavBar />
             {children}
           </Provider>
         </Providers>
@@ -21,6 +19,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-// export default api.withTRPC(MyApp);
-// export default MyApp;

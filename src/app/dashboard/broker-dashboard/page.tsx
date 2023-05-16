@@ -3,7 +3,20 @@ import React, { useState } from 'react';
 
 const BrokerDashboard = () => {
   // Initialize the data state with an array of objects representing rows
-  const [data, setData] = useState<Array<{ ID: string; Address: string; Size: string; Leader: string; }>>([]);
+  const [data, setData] = useState<Array<{ ID: string; Address: string; Size: string; Leader: string; }>>([
+    {
+      ID: '1',
+      Address: '123 Main St',
+      Size: 'Large',
+      Leader: 'John Doe',
+    },
+    {
+      ID: '2',
+      Address: '456 Elm St',
+      Size: 'Medium',
+      Leader: 'Jane Smith',
+    },
+  ]);
 
   // Function to add a new row of data to the table
   const addRow = () => {
