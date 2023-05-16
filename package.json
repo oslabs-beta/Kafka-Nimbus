@@ -20,6 +20,7 @@
     "@trpc/next": "^10.26.0",
     "@trpc/react-query": "^10.26.0",
     "@trpc/server": "^10.26.0",
+    "daisyui": "^2.51.6",
     "mongodb": "^5.4.0",
     "next": "^13.4.1",
     "next-auth": "^4.21.0",
