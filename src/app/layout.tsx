@@ -2,6 +2,7 @@ import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 // import { SessionProvider } from "next-auth/react";
 import { Provider } from "./components/Provider";
+import { Providers } from "../redux/provider";
 import '../styles/globals.css';
 
 // import { api } from "~/utils/api";
@@ -32,9 +33,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Provider>
-          {children}
-        </Provider>
+        <Providers>
+          <Provider>
+            {children}
+          </Provider>
+        </Providers>
       </body>
     </html>
   );
