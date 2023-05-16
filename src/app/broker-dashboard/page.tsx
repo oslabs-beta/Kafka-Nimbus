@@ -1,43 +1,50 @@
-import React from 'react'
+'use client'
+import React, { useState } from 'react';
 
+const BrokerDashboard = () => {
+  // Initialize the data state with an array of objects representing rows
+  const [data, setData] = useState<Array<{ ID: string; Address: string; Size: string; Leader: string; }>>([]);
 
-const page = () => {
+  // Function to add a new row of data to the table
+  const addRow = () => {
+    const newRow = {
+      ID: 'id',
+      Address: 'New Person',
+      Size: 'New Job',
+      Leader: 'New Color',
+    };
+
+    setData([...data, newRow]);
+  };
+
   return (
     <>
-    <div className="overflow-x-auto">
-    <table className="table w-full">
-        <thead>
-        <tr>
-            <th></th>
-            <th>Name</th>
-            <th>Job</th>
-            <th>Favorite Color</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <th>1</th>
-            <td>Cy Ganderton</td>
-            <td>Quality Control Specialist</td>
-            <td>Blue</td>
-        </tr>
-        <tr className="hover">
-            <th>2</th>
-            <td>Hart Hagerty</td>
-            <td>Desktop Support Technician</td>
-            <td>Purple</td>
-        </tr>
-        <tr>
-            <th>3</th>
-            <td>Brice Swyre</td>
-            <td>Tax Accountant</td>
-            <td>Red</td>
-        </tr>
-        </tbody>
-    </table>
-    </div>
+      <div className="overflow-x-auto">
+        <table className="table w-full">
+          <thead>
+            <tr>
+              <th></th>
+              <th>ID</th>
+              <th>Address</th>
+              <th>Size</th>
+              <th>Leader</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row) => (
+              <tr key={row.ID}>
+                <th>{row.ID}</th>
+                <td>{row.Address}</td>
+                <td>{row.Size}</td>
+                <td>{row.Leader}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button onClick={addRow}>Add Row</button>
     </>
-  )
-}
+  );
+};
 
-export default page
+export default BrokerDashboard;
