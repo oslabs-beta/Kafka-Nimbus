@@ -4,6 +4,8 @@ import { type Session } from "next-auth";
 import { Provider } from "./components/Provider";
 import "../styles/globals.css";
 import NavBar from "./components/NavBar";
+import { Providers } from "../redux/provider";
+import '../styles/globals.css';
 
 // import { api } from "~/utils/api";
 
@@ -33,10 +35,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Provider>
-          <NavBar />
-          {children}
-        </Provider>
+        <Providers>
+          <Provider>
+            {children}
+          </Provider>
+        </Providers>
       </body>
     </html>
   );
