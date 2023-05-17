@@ -6,8 +6,6 @@ import topicReducer from './features/topicSlice'
 import consumerReducer from './features/consumerSlice'
 import createClusterReducer from "./features/createClusterSlice";
 
-
-
 export const store = configureStore({
   reducer: {
     brokers: brokerReducer,
@@ -16,7 +14,6 @@ export const store = configureStore({
     createCluster: createClusterReducer
   }
 })
-
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
