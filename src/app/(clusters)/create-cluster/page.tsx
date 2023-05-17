@@ -1,12 +1,10 @@
-import * as React from 'react';
+import * as React from "react";
+import CloudProvider from "../(components)/CloudProvider";
 
-export interface IAppProps {
-}
+export default function App() {
+  const providerHandler = () => {
+    
+  };
 
-export default function App (props: IAppProps) {
-  return (
-    <div>
-      asfasd
-    </div>
-  );
+  return <CloudProvider  />;
 }

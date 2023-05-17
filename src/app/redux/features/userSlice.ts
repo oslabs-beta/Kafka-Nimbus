@@ -1,3 +1,4 @@
+"use client";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type userID = {
@@ -5,12 +6,12 @@ type userID = {
 };
 
 const initialState = {
-    value: '',
-    username:'',
+  value: "",
+  username: "",
 } as userID;
 
 export const user = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     getusername: (state, action) => {

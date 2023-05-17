@@ -1,9 +1,13 @@
+"use client";
+
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from './features/userSlice'
+import userReducer from "./features/userSlice";
+import createClusterReducer from "./features/createClusterSlice";
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
+    createCluster: createClusterReducer,
   },
 });
 
