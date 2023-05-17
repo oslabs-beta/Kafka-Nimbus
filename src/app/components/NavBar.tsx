@@ -33,10 +33,10 @@ const NavBar = () => {
   );
 
   return (
-    <div className="navbar bg-base-100 mx-auto flex max-w-7xl items-center justify-between  p-6 lg:px-8 border-b-2">
+    <div className="navbar bg-base-100 mx-auto flex w-full items-center justify-between  p-6 lg:px-8 border-b-2">
       <div className="flex cursor-pointer flex-row align-middle">
         <Image src={logo} alt="logo" className="mr-2 h-8 w-8" />
-        <a className="btn btn-ghost text-xl normal-case">Kafka Nimbus</a>
+        <a className="btn btn-ghost text-xl normal-case" href="/">Kafka Nimbus</a>
       </div>
 
       <div className="overflow-hidden rounded-full hover:bg-slate-300">
