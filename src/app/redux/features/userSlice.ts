@@ -17,9 +17,12 @@ export const user = createSlice({
     getusername: (state, action) => {
       state.username = action.payload;
     },
+    getID: (state, action) => {
+      state.id += action.payload;
+    }
   },
 });
 
-export const { getusername } = user.actions;
+export const { getusername, getID } = user.actions;
 
 export default user.reducer;

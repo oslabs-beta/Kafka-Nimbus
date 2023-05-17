@@ -10,8 +10,6 @@ interface PageProps {
   };
 }
 
-
-
 const ClusterDashboard = async ({ params }: PageProps) => {
   // error handling
   let clusters: Array<Cluster> = [];

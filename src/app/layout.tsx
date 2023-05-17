@@ -1,4 +1,4 @@
-import { Provider } from "./components/Provider";
+import { AuthProvider } from "./components/AuthProvider";
 import NavBar from "./components/NavBar";
 import { Providers } from "./redux/provider";
 import "../styles/globals.css";
@@ -17,12 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Provider>
+        <AuthProvider>
           <Providers>
             <NavBar />
             {children}
           </Providers>
-        </Provider>
+        </AuthProvider>
       </body>
     </html>
   );
