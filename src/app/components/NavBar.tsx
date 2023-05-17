@@ -2,7 +2,10 @@
 import React, { useState } from "react";
 import logo from "../../../public/logoword.svg";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
+import Link from 'next/link';
+
+
 
 const NavBar = () => {
   const { data: sessionData } = useSession();
@@ -27,7 +30,7 @@ const NavBar = () => {
         <a>Settings</a>
       </li>
       <li>
-        <a>Logout</a>
+        <a onClick={() => void signOut({ callbackUrl: '/' })}>Logout</a>
       </li>
     </ul>
   );
@@ -35,8 +38,8 @@ const NavBar = () => {
   return (
     <div className="navbar bg-base-100 mx-auto flex w-full items-center justify-between  p-6 lg:px-8 border-b-2">
       <div className="flex cursor-pointer flex-row align-middle">
-        <Image src={logo} alt="logo" className="mr-2 h-8 w-8" />
-        <a className="btn btn-ghost text-xl normal-case" href="/">Kafka Nimbus</a>
+        <Link href="/"><Image src={logo} alt="logo" className="mr-2 h-8 w-8" /></Link>
+        <Link className="btn btn-ghost text-xl normal-case" href="/">Kafka Nimbus</Link>
       </div>
 
       <div className="overflow-hidden rounded-full hover:bg-slate-300">
