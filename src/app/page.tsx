@@ -2,52 +2,37 @@
 
 import { type NextPage } from "next";
 import Link from "next/link";
-// import { AuthShowcase } from "./components/AuthShowcase";
+import { AuthShowcase } from "./components/AuthShowcase";
 import { api } from "~/utils/api";
 import { withTRPC } from '@trpc/next';
 import { appRouter } from '../server/api/root';
+import { SessionProvider } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
+
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
 
   return (
     <>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
+      <main className="hero min-h-screen w-full bg-base-200">
+
+        <div className="container flex flex-col align-middle justify-center py-16 ">
+
+          <div className=' flex flex-col align-middle max-w-md justify-center'>
+            <h1 className='text-5xl font-bold'>Deploy Kafka Clusters to the Cloud</h1>
+            <p className='py-6'>All in one solution for managing and deploying your clusters to the cloud</p>
+            <Link href="https://github.com/Kafka-Nimbus/Kafka-Nimbus-GUI/blob/main/README.md">
+              <button className='btn btn-primary bg-gradient-to-b from-[#2e026d] to-[#15162c]'>Get Started</button>
             </Link>
           </div>
+
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">
-              {hello.data ? hello.data.greeting : "Loading tRPC query..."}
+              {/* {hello.data ? hello.data.greeting : "Loading tRPC query..."} */}
             </p>
             <AuthShowcase />
           </div>
+
         </div>
       </main>
     </>
@@ -56,31 +41,3 @@ const Home: NextPage = () => {
 
 // export default Home;
 export default api.withTRPC(Home);
-
-//Removes weird bug when adding AuthShowcase directly into pages.tsx instead of exporting and importing this component.
-// [next-auth]: `useSession` must be wrapped in a <SessionProvider />
-import { signIn, signOut, useSession } from "next-auth/react";
-
-export const AuthShowcase: React.FC = () => {
-  const { data: sessionData } = useSession();
-
-  // const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-  //   undefined, // no input
-  //   { enabled: sessionData?.user !== undefined },
-  // );
-
-  return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl text-white">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-        {/* {secretMessage && <span> - {secretMessage}</span>} */}
-      </p>
-      <button
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={sessionData ? () => void signOut() : () => void signIn()}
-      >
-        {sessionData ? "Sign out" : "Sign in"}
-      </button>
-    </div>
-  );
-};

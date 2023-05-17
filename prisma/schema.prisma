@@ -47,8 +47,19 @@ model User {
     createdAt     DateTime  @default(now())
     accounts      Account[]
     sessions      Session[]
+    clusters      Cluster[]
 
     @@map("users")
+}
+
+model Cluster {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    name      String   @unique
+    createdAt DateTime @default(now())
+    data      Json
+    img       String
+    User      User?    @relation(fields: [userId], references: [id])
+    userId    String?  @db.ObjectId
 }
 
 model VerificationToken {
@@ -59,4 +70,23 @@ model VerificationToken {
 
     @@unique([identifier, token])
     @@map("verification_tokens")
+}
+
+model Broker {
+    brokerid          String   @id @default(auto()) @map("_id") @db.ObjectId
+    brokerAddress     String   @unique
+    brokerSize        String   
+    brokerLeader      String   
+}
+
+model Topic {
+    topicid          String   @id @default(auto()) @map("_id") @db.ObjectId
+    topicEndpoint    String   @unique
+    topicCount       String   
+}
+
+model Consumer {
+    consumerid          String   @id @default(auto()) @map("_id") @db.ObjectId
+    consumerEndpoint    String   @unique
+    consumerCount       String   
 }
