@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { PrismaClient, Broker } from '@prisma/client';
+import { PrismaClient, Topic } from '@prisma/client';
 
 interface PageProps {
   params: {
@@ -7,13 +7,13 @@ interface PageProps {
   };
 }
 
-const brokerDashboard = async ({ params }: PageProps) => {
+const topicDashboard = async ({ params }: PageProps) => {
   // error handling
-  let brokers: Array<Broker> = [];
+  let topics: Array<Topic> = [];
   try {
     const prisma = new PrismaClient();
 
-    brokers = await prisma.broker.findMany({
+    topics = await prisma.topic.findMany({
       where: {
         userId: params.userId,
       },
@@ -29,18 +29,16 @@ const brokerDashboard = async ({ params }: PageProps) => {
             <tr>
               <th></th>
               <th>ID</th>
-              <th>Address</th>
-              <th>Size</th>
-              <th>Leader</th>
+              <th>Endpoint</th>
+              <th>Count</th>
             </tr>
           </thead>
           <tbody>
-            {brokers.map((broker) => (
-              <tr key={broker.brokerid}>
-                <th>{broker.brokerid}</th>
-                <td>{broker.brokerAddress}</td>
-                <td>{broker.brokerSize}</td>
-                <td>{broker.brokerLeader}</td>
+            {topics.map((topic) => (
+              <tr key={topic.topicid}>
+                <th>{topic.topicid}</th>
+                <td>{topic.topicEndpoint}</td>
+                <td>{topic.topicCount}</td>
               </tr>
             ))}
           </tbody>
@@ -50,4 +48,4 @@ const brokerDashboard = async ({ params }: PageProps) => {
   );
 };
 
-export default brokerDashboard;
+export default topicDashboard;

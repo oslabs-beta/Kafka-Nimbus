@@ -60,3 +60,22 @@ model VerificationToken {
     @@unique([identifier, token])
     @@map("verification_tokens")
 }
+
+model Broker {
+    brokerid          String   @id @default(auto()) @map("_id") @db.ObjectId
+    brokerAddress     String   @unique
+    brokerSize        String   
+    brokerLeader      String   
+}
+
+model Topic {
+    topicid          String   @id @default(auto()) @map("_id") @db.ObjectId
+    topicEndpoint    String   @unique
+    topicCount       String   
+}
+
+model Consumer {
+    consumerid          String   @id @default(auto()) @map("_id") @db.ObjectId
+    consumerEndpoint    String   @unique
+    consumerCount       String   
+}

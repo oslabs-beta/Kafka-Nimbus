@@ -1,9 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from './features/userSlice'
+import brokerReducer from './features/brokerSlice'
+import topicReducer from './features/topicSlice'
+import consumerReducer from './features/consumerSlice'
+
 
 export const store = configureStore({
   reducer: {
-    user: userReducer,
+    brokers: brokerReducer,
+    topics: topicReducer,
+    consumers: consumerReducer
   },
 });
 
