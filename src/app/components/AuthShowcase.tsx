@@ -10,10 +10,6 @@ export const AuthShowcase: React.FC = () => {
   //   undefined, // no input
   //   { enabled: sessionData?.user !== undefined },
   // );
-  console.log("sessionData: ",sessionData)
-  // console.log("ID: ", sessionData.user.id)
-  const dashLink = '/cluster-dashboard/' + sessionData.user.id;
-  // `../cluster-dashboard/${sessionData.id}`
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <p className="text-center text-2xl text-white">
@@ -21,13 +17,13 @@ export const AuthShowcase: React.FC = () => {
 
         {/* {secretMessage && <span> - {secretMessage}</span>} */}
       </p>
-      <Link href={dashLink}><button
+      <button
         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={sessionData ? () => void signOut() : () => void signIn()
+        onClick={sessionData ? () => void signOut() : () => void signIn(undefined, { callbackUrl: '/cluster-dashboard' })
         }
       >
         {sessionData ? "Sign out" : "Sign in"}
-      </button></Link>
+      </button>
     </div>
   );
 };
