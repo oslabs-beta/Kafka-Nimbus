@@ -23,6 +23,13 @@ const brokerDashboard = async ({ params }: PageProps) => {
   }
   return (
     <>
+      <div>
+        <button className="btn flex-col float-right ml-2 items-center">Create Broker</button>
+      </div>
+      <div className='flex h-[20vh] text-6xl flex-col items-center justify-center'>
+        Brokers
+      </div>
+
       <div className="overflow-x-auto">
         <table className="table w-full">
           <thead>

@@ -19,8 +19,8 @@ export default function DashboardPage() {
   return (
     <>
     <div><Link href="/dashboard/broker-dashboard">Brokers</Link></div>
-    <div><Link href="/dashboard/cg-dashboard">Topics</Link></div>
-    <div><Link href="/dashboard/topic-dashboard">Consumers</Link></div>
+    <div><Link href="/dashboard/consumer-dashboard">Consumers</Link></div>
+    <div><Link href="/dashboard/topic-dashboard">Topics</Link></div>
   </>
   )
 }
