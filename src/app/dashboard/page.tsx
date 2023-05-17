@@ -20,7 +20,7 @@ export default function DashboardPage() {
     <>
     <div><Link href="/dashboard/broker-dashboard">Brokers</Link></div>
     <div><Link href="/dashboard/cg-dashboard">Topics</Link></div>
-    <div><Link href="/dashboard/topics-dashboard">Consumers</Link></div>
+    <div><Link href="/dashboard/topic-dashboard">Consumers</Link></div>
   </>
   )
 }

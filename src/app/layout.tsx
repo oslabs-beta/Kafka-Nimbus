@@ -1,7 +1,13 @@
 import { Provider } from "./components/Provider";
-import { Providers } from "../redux/provider";
-import "../styles/globals.css";
 import NavBar from "./components/NavBar";
+import { Providers } from "./redux/provider";
+import "../styles/globals.css";
+
+
+export const metadata = {
+  title: "Kafka Nimbus",
+  description: "Deploy Kafka Clusters to the cloud.",
+};
 
 export default function RootLayout({
   children,
@@ -11,16 +17,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>
-          <Provider>
+        <Provider>
+          <Providers>
             <NavBar />
             {children}
-          </Provider>
-        </Providers>
+          </Providers>
+        </Provider>
       </body>
     </html>
   );
 }
 
-// export default api.withTRPC(MyApp);
-// export default MyApp;

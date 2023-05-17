@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^4.17.3",
+    "@heroicons/react": "^2.0.18",
     "@next-auth/prisma-adapter": "^1.0.5",
     "@prisma/client": "^4.11.0",
     "@reduxjs/toolkit": "^1.9.5",
