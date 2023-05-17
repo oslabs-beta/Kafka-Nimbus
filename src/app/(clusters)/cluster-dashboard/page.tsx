@@ -1,27 +1,29 @@
 import React from "react";
 import { PrismaClient, Cluster } from "@prisma/client";
+import { redirect } from 'next/navigation';
+import { getServerAuthSession } from '~/server/auth';
 
 import ClusterCard from "~/app/components/ClusterCard";
 import CreateClusterCard from "~/app/components/CreateClusterCard";
 
-interface PageProps {
-  params: {
-    userId: string;
-  };
-}
 
-const ClusterDashboard = async ({ params }: PageProps) => {
+const ClusterDashboard = async () => {
+  const sessionData = await getServerAuthSession();
+  if (!sessionData) {
+    redirect('../../api/auth/signin?callbackUrl=/cluster-dashboard');
+  }
+
   // error handling
   let clusters: Array<Cluster> = [];
   try {
     const prisma = new PrismaClient();
-
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     clusters = await prisma.cluster.findMany({
       where: {
-        userId: params.userId,
+        userId: sessionData?.user?.id,
       },
     });
+
   } catch (error) {
     console.log(error);
   }
@@ -33,10 +35,10 @@ const ClusterDashboard = async ({ params }: PageProps) => {
         <div className="flex flex-row gap-4">
           {clusters
             ? clusters.map((cluster: Cluster) => {
-                return <ClusterCard key={cluster.id} cluster={cluster} />;
-              })
+              return <ClusterCard key={cluster.id} cluster={cluster} />;
+            })
             : null}
-          <CreateClusterCard userId={params.userId}/>
+          <CreateClusterCard userId={sessionData?.user?.id} />
         </div>
       </div>
     </>
