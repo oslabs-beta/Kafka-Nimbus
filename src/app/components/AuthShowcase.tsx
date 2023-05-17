@@ -19,7 +19,7 @@ export const AuthShowcase: React.FC = () => {
       </p>
       <button
         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={sessionData ? () => void signOut() : () => void signIn(undefined, { callbackUrl: '/cluster-dashboard' })
+        onClick={sessionData ? () => void signOut({ callbackUrl: '/' }) : () => void signIn(undefined, { callbackUrl: '/cluster-dashboard' })
         }
       >
         {sessionData ? "Sign out" : "Sign in"}
