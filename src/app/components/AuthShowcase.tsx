@@ -11,7 +11,7 @@ export const AuthShowcase: React.FC = () => {
   //   { enabled: sessionData?.user !== undefined },
   // );
   return (
-    <div className="flex flex-col items-center justify-center gap-4">
+    <div className="flex flex-col items-center justify-center gap-4 bg-slate-500">
       <p className="text-center text-2xl text-white">
         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
 
