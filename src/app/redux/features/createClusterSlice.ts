@@ -11,6 +11,8 @@ const initialState = {
   region: "",
   clusterName: "",
   brokerNumbers: 0,
+  storagePerBroker: 0,
+  clusterSize: '',
 };
 
 // Create a slice using Redux Toolkit
@@ -36,6 +38,12 @@ const configSlice = createSlice({
     setBrokerNumbers: (state, action: PayloadAction<number>) => {
       state.brokerNumbers = action.payload;
     },
+    setStoragePerBroker: (state, action: PayloadAction<number>) => {
+      state.storagePerBroker = action.payload;
+    },
+    setClusterSize: (state, action: PayloadAction<string>) => {
+      state.clusterSize = action.payload;
+    },
   },
 });
 
@@ -47,6 +55,8 @@ export const {
   setRegion,
   setClusterName,
   setBrokerNumbers,
+  setStoragePerBroker,
+  setClusterSize,
 } = configSlice.actions;
 
 export default configSlice.reducer;

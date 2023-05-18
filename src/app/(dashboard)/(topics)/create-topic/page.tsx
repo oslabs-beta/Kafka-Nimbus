@@ -65,7 +65,8 @@ const TopicInfo: React.FC<ProviderProps> = ({}) => {
               Replication Count
             </label>
             <select
-              className="select-bordered select w-full max-w-xs"
+              // className="select-bordered select w-full max-w-xs"
+              className="select-bordered select w-full max-w-xs "
               onChange={partitionChangeHandler}
             >
               <option disabled value={"How many replications"}>

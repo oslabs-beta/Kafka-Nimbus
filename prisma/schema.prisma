@@ -45,6 +45,8 @@ model User {
     emailVerified DateTime? @map("verifiedAt")
     image         String?
     createdAt     DateTime  @default(now())
+    vpcId         String?
+    subnetID      String[]
     accounts      Account[]
     sessions      Session[]
     clusters      Cluster[]
@@ -53,13 +55,25 @@ model User {
 }
 
 model Cluster {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    name      String   @unique
-    createdAt DateTime @default(now())
-    data      Json
-    img       String
-    User      User?    @relation(fields: [userId], references: [id])
-    userId    String?  @db.ObjectId
+    id                 String     @id @default(auto()) @map("_id") @db.ObjectId
+    name               String     @unique
+    createdAt          DateTime   @default(now())
+    data               Json
+    img                String
+    User               User?      @relation(fields: [userId], references: [id])
+    userId             String?    @db.ObjectId
+    awsAccessKey       String?
+    awsSecretAccessKey String?
+    securityGroup      String[]
+    brokerPerZone      Int?
+    instanceSize       String?
+    zones              Int?
+    storagePerBroker   Int?
+    kafkaArn           String?
+    bootStrapServer    String[]
+    brokers            Broker[]
+    topics             Topic[]
+    consumers          Consumer[]
 }
 
 model VerificationToken {
@@ -73,23 +87,30 @@ model VerificationToken {
 }
 
 model Broker {
-    brokerid          String   @id @default(auto()) @map("_id") @db.ObjectId
-    brokerAddress     String   @unique
-    brokerSize        String   
-    brokerLeader      String   
+    brokerid         String   @id @default(auto()) @map("_id") @db.ObjectId
+    brokerAddress    String   @unique
+    brokerSize       String
+    brokerLeader     String
+    listNodeResponse Json?
+    Cluster          Cluster? @relation(fields: [clusterId], references: [id])
+    clusterId        String?  @db.ObjectId
 }
 
 model Topic {
-    topicid          String   @id @default(auto()) @map("_id") @db.ObjectId
-    topicEndpoint    String   @unique
-    topicCount       String   
+    topicid       String   @id @default(auto()) @map("_id") @db.ObjectId
+    topicEndpoint String   @unique
+    topicCount    String
+    Cluster       Cluster? @relation(fields: [clusterId], references: [id])
+    clusterId     String?  @db.ObjectId
     topicName        String   
     partitions       Int   
     replication      Int
 }
 
 model Consumer {
-    consumerid          String   @id @default(auto()) @map("_id") @db.ObjectId
-    consumerEndpoint    String   @unique
-    consumerCount       String  
+    consumerid       String   @id @default(auto()) @map("_id") @db.ObjectId
+    consumerEndpoint String   @unique
+    consumerCount    String
+    Cluster          Cluster? @relation(fields: [clusterId], references: [id])
+    clusterId        String?  @db.ObjectId
 }
