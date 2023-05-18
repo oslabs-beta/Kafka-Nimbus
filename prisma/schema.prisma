@@ -50,6 +50,8 @@ model User {
     awsSecretAccessKey String?
     region        String?
     subnetID      String[]
+    vpcId         String?
+    subnetID      String[]
     accounts      Account[]
     sessions      Session[]
     clusters      Cluster[]
@@ -103,6 +105,9 @@ model Topic {
     topicCount    String
     Cluster       Cluster? @relation(fields: [clusterId], references: [id])
     clusterId     String?  @db.ObjectId
+    topicName        String   
+    partitions       Int   
+    replication      Int
 }
 
 model Consumer {
