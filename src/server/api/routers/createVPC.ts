@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { z } from 'zod';
 import AWS from 'aws-sdk';
-import uuid from 'uuid';
+import prisma from '../../db'
+
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 
@@ -21,6 +22,12 @@ export const createVPCRouter = createTRPCRouter({
     }))
     .query(({ input }) => {
       resolve: async () => {
+        AWS.config.update({
+          accessKeyId: input.aws_access_key_id,
+          secretAccessKey: input.aws_secret_access_key,
+          region: input.region,
+        })
+
         try{
           // create the vpc
           const vpcData: any = await ec2.createVpc({
@@ -79,10 +86,28 @@ export const createVPCRouter = createTRPCRouter({
             RouteTableId: routeTableId,
           }).promise();
           console.log(`Added route for IGW ${igwId} to Route Table ${routeTableId}`);
+
+          /**
+           * Send required info to db
+           */
+
+
+
         }
         catch (error) {
           console.log('Ran into error creating VPC and subnets ', error)
         }
       }
-    })
+    }),
+
+  createCluster: publicProcedure
+    .input(z.object({
+      EbsStorageSize : z.number(),
+      InstanceType : z.string(),
+      ClusterName : z.string(),
+      NumberOfBrokers : z.number(),
+    }))
+    .query(({ input }) => {
+      
+    }),
 })
