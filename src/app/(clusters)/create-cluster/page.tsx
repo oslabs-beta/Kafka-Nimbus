@@ -5,6 +5,8 @@ import AwsSecrets from "../(components)/AwsSecrets";
 import RegionInput from "../(components)/RegionInput";
 import ClusterNameInput from "../(components)/ClusterNameInput";
 import BrokerCountInput from "../(components)/BrokerCounterInput";
+import StoragePerBroker from "../(components)/StoragePerBroker";
+import ClusterSize from "../(components)/ClusterSize";
 
 type ComponentState = {
   inFocus: string
@@ -26,8 +28,12 @@ const CreateClusterPage = () => {
       return <RegionInput inFocusHandler={inFocusHandler}/>
     case "name":
       return <ClusterNameInput inFocusHandler={inFocusHandler}/>
+    case "size":
+      return <ClusterSize inFocusHandler={inFocusHandler}/>
     case "brokers":
       return <BrokerCountInput inFocusHandler={inFocusHandler}/>
+    case "storage":
+      return <StoragePerBroker inFocusHandler={inFocusHandler}/>
   }
 };
 
