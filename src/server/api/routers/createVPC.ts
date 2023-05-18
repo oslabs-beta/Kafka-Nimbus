@@ -33,6 +33,52 @@ export const createVPCRouter = createTRPCRouter({
           const vpcId: string = vpcData.Vpc.VpcId;
           console.log(`Created VPC with id ${vpcId}`)
 
+          // Create the IGW
+          const igwData: any = await ec2.createInternetGateway({}).promise();
+          // checking it exists
+          if (!igwData.InternetGateway) {
+            throw new Error('IGW creation failed');
+          }
+          const igwId: string = igwData.InternetGateway.InternetGatewayId
+
+          // attach IGW to VPC
+          await ec2.attachInternetGateway({ InternetGatewayId: igwId, VpcId: vpcId}).promise();
+          console.log(`Attached Internet Gateway ${igwId} to VPC ${vpcId}`);
+
+          // Create subnets
+          const subnet1Data: any = await ec2.createSubnet(
+            { 
+              CidrBlock: '10.0.0.0/24', 
+              VpcId: vpcId, 
+              AvailabilityZone: 'us-east-2a'
+          }).promise();
+          const subnet2Data: any = await ec2.createSubnet(
+            { 
+              CidrBlock: '10.0.1.0/24', 
+              VpcId: vpcId, 
+              AvailabilityZone: 'us-east-2b'
+          }).promise();
+          const subnet1Id: string = subnet1Data.Subnet.SubnetId;
+          const subnet2Id: string = subnet2Data.Subnet.SubnetId;
+          console.log(`Created subnet with id ${subnet1Id}`);
+          console.log(`Created subnet with id ${subnet2Id}`);
+
+          // Create route table connections
+          const routeTables: any = await ec2.describeRouteTables({
+            Filters: [{
+              Name: 'vpc-id',
+              Values: [vpcId]
+            }]
+          }).promise();
+          const routeTableId: string = routeTables.RouteTables[0].RouteTableId;
+
+          // Create route for IGW
+          await ec2.createRoute({
+            DestinationCidrBlock: '0.0.0.0/0',
+            GatewayId: igwId,
+            RouteTableId: routeTableId,
+          }).promise();
+          console.log(`Added route for IGW ${igwId} to Route Table ${routeTableId}`);
         }
         catch (error) {
           console.log('Ran into error creating VPC and subnets ', error)
