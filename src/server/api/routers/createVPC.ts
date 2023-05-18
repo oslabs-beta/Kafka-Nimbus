@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 import uuid from 'uuid';
@@ -28,7 +30,6 @@ export const createVPCRouter = createTRPCRouter({
           if (!vpcData.Vpc || !vpcData.Vpc.VpcId) {
             throw new Error('VPC creation failed');
           }
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const vpcId: string = vpcData.Vpc.VpcId;
           console.log(`Created VPC with id ${vpcId}`)
 
