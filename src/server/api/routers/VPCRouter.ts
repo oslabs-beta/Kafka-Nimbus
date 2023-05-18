@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { prisma } from '../../db'
@@ -11,13 +10,8 @@ const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 import {
   createTRPCRouter,
   publicProcedure,
-  protectedProcedure,
 } from "~/server/api/trpc";
 
-
-/**
- * TODO: implement db fetches, so that we can store db stuff and fetch db stuff
- */
 export const createVPCRouter = createTRPCRouter({
   createVPC: publicProcedure
     .input(z.object({
@@ -26,8 +20,7 @@ export const createVPCRouter = createTRPCRouter({
       aws_secret_access_key: z.string(),
       region: z.string()
     }))
-    .query(({ input }) => {
-      resolve: async () => {
+    .query(async ({ input }) => {
         AWS.config.update({
           accessKeyId: input.aws_access_key_id,
           secretAccessKey: input.aws_secret_access_key,
@@ -107,7 +100,10 @@ export const createVPCRouter = createTRPCRouter({
                 vpcId: vpcId,
                 subnetID: {
                   push: subnets
-                }
+                },
+                awsAccessKey: input.aws_access_key_id,
+                awsSecretAccessKey: input.aws_secret_access_key,
+                region: input.region,
               }
             })
           }
@@ -121,16 +117,47 @@ export const createVPCRouter = createTRPCRouter({
           console.log('Ran into error creating VPC and subnets ', error)
         }
       }
-    }),
+    ),
 
-  createCluster: publicProcedure
+  /**
+   * given a id of a user, will return the respective vpcId
+   */
+  findVPC: publicProcedure 
     .input(z.object({
-      EbsStorageSize : z.number(),
-      InstanceType : z.string(),
-      ClusterName : z.string(),
-      NumberOfBrokers : z.number(),
+      id :z.string(),
     }))
-    .query(({ input }) => {
-
+    .query(async ({input}) => {
+      try {
+        const userResponse = await prisma.user.findUnique({
+          where: {
+            id: input.id
+          },
+        })
+        return userResponse?.vpcId;
+      }
+      catch (error) {
+        console.log("Encountered error finding the user in the database", error)
+      }
     }),
+
+  /**
+   * given a id of a user, will return the respective list of subnets
+   */
+  findSubnets: publicProcedure 
+  .input(z.object({
+    id :z.string(),
+  }))
+  .query(async ({input}) => {
+    try {
+      const userResponse = await prisma.user.findUnique({
+        where: {
+          id: input.id
+        },
+      })
+      return userResponse?.subnetID;
+    }
+    catch (error) {
+      console.log("Encountered error finding the user in the database", error)
+    }
+  })
 })
