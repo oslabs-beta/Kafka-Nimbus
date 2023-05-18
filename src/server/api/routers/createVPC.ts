@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { z } from 'zod';
 import AWS from 'aws-sdk';
-import prisma from '../../db'
+import { prisma } from '../../db'
+import type { User } from '@prisma/client';
 
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
@@ -13,9 +14,14 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
+
+/**
+ * TODO: implement db fetches, so that we can store db stuff and fetch db stuff
+ */
 export const createVPCRouter = createTRPCRouter({
   createVPC: publicProcedure
     .input(z.object({
+      id  : z.string(),
       aws_access_key_id : z.string(),
       aws_secret_access_key: z.string(),
       region: z.string()
@@ -90,7 +96,24 @@ export const createVPCRouter = createTRPCRouter({
           /**
            * Send required info to db
            */
-
+          const subnets : string[] = [subnet1Id, subnet2Id]
+          try {
+            // updates the user in the database with the vpc and subnet ids
+            await prisma.user.update({
+              where: {
+                id: input.id
+              },
+              data: {
+                vpcId: vpcId,
+                subnetID: {
+                  push: subnets
+                }
+              }
+            })
+          }
+          catch (error) {
+            console.log('Ran into error updating user, lost VPC, fix in cli., ', error);
+          }
 
 
         }
@@ -108,6 +131,6 @@ export const createVPCRouter = createTRPCRouter({
       NumberOfBrokers : z.number(),
     }))
     .query(({ input }) => {
-      
+
     }),
 })

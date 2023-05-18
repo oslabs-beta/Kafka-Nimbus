@@ -45,6 +45,8 @@ model User {
     emailVerified DateTime? @map("verifiedAt")
     image         String?
     createdAt     DateTime  @default(now())
+    vpcId         String?
+    subnetID      String[]
     accounts      Account[]
     sessions      Session[]
     clusters      Cluster[]
@@ -62,8 +64,6 @@ model Cluster {
     userId             String?  @db.ObjectId
     awsAccessKey       String?
     awsSecretAccessKey String?
-    vpcId              String?
-    subnetId           String[]
     securityGroup      String[]
     brokerPerZone      Int?
     instanceSize       String?
