@@ -50,8 +50,6 @@ model User {
     awsSecretAccessKey String?
     region        String?
     subnetID      String[]
-    vpcId         String?
-    subnetID      String[]
     accounts      Account[]
     sessions      Session[]
     clusters      Cluster[]
