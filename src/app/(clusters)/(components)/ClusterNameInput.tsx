@@ -18,7 +18,7 @@ const ClusterNameInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch(setClusterName(name));
-    inFocusHandler("brokers");
+    inFocusHandler("size");
   };
 
   return (

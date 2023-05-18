@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '~/app/redux/hooks';
+import { useAppDispatch } from '~/app/redux/hooks';
 import { setBrokerNumbers } from '~/app/redux/features/createClusterSlice';
 
 interface ProviderProps {
@@ -11,7 +11,7 @@ const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const dispatch = useAppDispatch();
   const [number, setNumber] = useState(0);
   const brokerNumArray: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-  const clusterState = useAppSelector((state) => state);
+  
 
   const onSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setNumber(Number(e.target.value));
