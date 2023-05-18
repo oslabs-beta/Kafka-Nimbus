@@ -11,7 +11,6 @@ const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 import {
   createTRPCRouter,
   publicProcedure,
-  protectedProcedure,
 } from "~/server/api/trpc";
 
 
@@ -26,8 +25,7 @@ export const createVPCRouter = createTRPCRouter({
       aws_secret_access_key: z.string(),
       region: z.string()
     }))
-    .query(({ input }) => {
-      resolve: async () => {
+    .query(async ({ input }) => {
         AWS.config.update({
           accessKeyId: input.aws_access_key_id,
           secretAccessKey: input.aws_secret_access_key,
@@ -107,7 +105,10 @@ export const createVPCRouter = createTRPCRouter({
                 vpcId: vpcId,
                 subnetID: {
                   push: subnets
-                }
+                },
+                awsAccessKey: input.aws_access_key_id,
+                awsSecretAccessKey: input.aws_secret_access_key,
+                region: input.region,
               }
             })
           }
@@ -121,16 +122,10 @@ export const createVPCRouter = createTRPCRouter({
           console.log('Ran into error creating VPC and subnets ', error)
         }
       }
-    }),
-
-  createCluster: publicProcedure
+    ),
+  findVPC: publicProcedure 
     .input(z.object({
-      EbsStorageSize : z.number(),
-      InstanceType : z.string(),
-      ClusterName : z.string(),
-      NumberOfBrokers : z.number(),
-    }))
-    .query(({ input }) => {
+      id :z.string(),
 
-    }),
+    }))
 })
