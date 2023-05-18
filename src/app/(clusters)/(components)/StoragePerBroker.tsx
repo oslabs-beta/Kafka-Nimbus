@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { useAppDispatch } from '~/app/redux/hooks';
+import { useAppDispatch, useAppSelector } from '~/app/redux/hooks';
 import { setStoragePerBroker } from '~/app/redux/features/createClusterSlice';
 
 interface ProviderProps {
@@ -10,9 +10,11 @@ interface ProviderProps {
 const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const dispatch = useAppDispatch();
   const [numValue, setNumValue] = useState<number>(0);
+  const { createCluster } = useAppSelector((state) => state);
 
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
+    console.log(createCluster);
     dispatch(setStoragePerBroker(numValue));
   };
 
@@ -20,6 +22,7 @@ const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler }) => {
     const value = Number(event.target.value);
     setNumValue(value);
   };
+  
 
   return (
     <div className='flex h-[70vh] flex-col items-center justify-center'>
