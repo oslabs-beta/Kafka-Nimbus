@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { z } from 'zod';
 import AWS from 'aws-sdk';
+import { v4 } from 'uuid';
 import { prisma } from '../../db'
 import type { User, Cluster } from '@prisma/client';
 
@@ -23,6 +25,8 @@ export const clusterRouter = createTRPCRouter({
     }))
     .query(async({ input }) => {
       // First, find the user object in the database using id
+      let vpcId = '';
+      let subnetIds: string[] = [];
       try {
         const userResponse: User | null = await prisma.user.findUnique({
           where: {
@@ -32,18 +36,121 @@ export const clusterRouter = createTRPCRouter({
         if (!userResponse || !userResponse.vpcId) {
           throw new Error('User doesn\'t exist in database')
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const vpcId: string = userResponse.vpcId;
-        
-        
+        // store the vpcId and subnets l
+        vpcId = userResponse.vpcId;
+        subnetIds = userResponse.subnetID;
       }
       catch (error) {
         console.log('Error accessing database, ', error);
       }
         // Create security groups within the vpc
-      return;
+      if (!vpcId) {
+        throw new Error('vpcId assignment error');
+      }
+      // create security group for msk cluster
+      const randString: string = v4(); 
+      const createSecurityGroupParams = {
+        Description: 'Security group for MSK Cluster',
+        GroupName: 'MSKSecurityGroup' + randString,
+        VpcId: vpcId
+      }
+
+      try {
+        const createSecurityGroupData = await ec2.createSecurityGroup(createSecurityGroupParams).promise();
+        const groupId: string = createSecurityGroupData?.GroupId;
+
+        const authorizeSecurityGroupParams = {
+          GroupId: groupId,
+          IpPermissions: [
+            {
+              IpProtocol: 'tcp',
+              FromPort: 9092,
+              ToPort: 9092,
+              IpRanges: [{ CidrIp: '0.0.0.0/0'}]  // all access open
+            },
+            {
+              IpProtocol: 'tcp',
+              FromPort: 9094,
+              ToPort: 9094,
+              IpRanges: [{ CidrIp: '0.0.0.0/' }] // all access
+            }
+          ]
+        }
+        await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
+        console.log(`Added inbound rules to security group ${groupId}`);
+
+        // kafka params
+        const kafkaParams = {
+          BrokerNodeGroupInfo: {
+            BrokerAZDistribution: 'DEFAULT',  // We should always keep it like this, could change in future
+            ClientSubnets: subnetIds,
+            InstanceType: input.instanceSize,
+            SecurityGroups: [...groupId],
+            StorageInfo: {
+              EbsStorageInfo: {
+                VolumeSize: input.storagePerBroker,
+              },
+            },
+          },
+          clusterName: input.name,
+          KafkaVersion: '2.8.1',        // allow user to choose version?
+          NumberOfBrokerNodes: input.brokerPerZone,
+          EncryptionInfo: {
+            EncryptionInTransit: {
+              ClientBroker: 'PLAINTEXT',
+            }
+          },
+          OpenMonitoring: {
+            Prometheus: {
+              JmxExporter: {
+                EnabledInBroker: true
+              },
+              NodeExporter: {
+                EnabledInBroker: true
+              },
+            },
+          },
+        };
+
+        const kafkaData = await kafka.createCluster(kafkaParams).promise();
+        if (!kafkaData?.ClusterArn) {
+          throw new Error("Error creating the msk cluster");
+        }
+        const kafkaArn: string = kafkaData.ClusterArn;
+        console.log(`Created Kafka Cluster with ARN ${kafkaArn}`)
+
+        /**
+         * Now we want to store stuff in the database
+         */
+        const response = await prisma.cluster.create({
+          data: {
+            name: input.name,
+            userId: input.id,
+            securityGroup: groupId,
+            brokerPerZone: input.brokerPerZone,
+            instanceSize: input.instanceSize,
+            zones: input.zones,
+            storagePerBroker: input.storagePerBroker,
+            kafkaArn: kafkaArn,
+          }
+        })
+        if (!response) {
+          throw new Error('Could not create cluster in dateabase');
+        }
+
+        return response;
+
+      }
+      catch (err) {
+        console.log('Error creating kafka cluster using SDK | ', err)
+      }
+    }),
+
+  checkClusterStatus: publicProcedure
+    .input(z.object({
+      
+    }))
+    .query(async({ input }) => {
+
     })
-
-
-
-})
+});
