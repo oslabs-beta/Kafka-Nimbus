@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { prisma } from '../../db'
@@ -13,10 +12,6 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-
-/**
- * TODO: implement db fetches, so that we can store db stuff and fetch db stuff
- */
 export const createVPCRouter = createTRPCRouter({
   createVPC: publicProcedure
     .input(z.object({
@@ -123,9 +118,46 @@ export const createVPCRouter = createTRPCRouter({
         }
       }
     ),
+
+  /**
+   * given a id of a user, will return the respective vpcId
+   */
   findVPC: publicProcedure 
     .input(z.object({
       id :z.string(),
-
     }))
+    .query(async ({input}) => {
+      try {
+        const userResponse = await prisma.user.findUnique({
+          where: {
+            id: input.id
+          },
+        })
+        return userResponse?.vpcId;
+      }
+      catch (error) {
+        console.log("Encountered error finding the user in the database", error)
+      }
+    }),
+
+  /**
+   * given a id of a user, will return the respective list of subnets
+   */
+  findSubnets: publicProcedure 
+  .input(z.object({
+    id :z.string(),
+  }))
+  .query(async ({input}) => {
+    try {
+      const userResponse = await prisma.user.findUnique({
+        where: {
+          id: input.id
+        },
+      })
+      return userResponse?.subnetID;
+    }
+    catch (error) {
+      console.log("Encountered error finding the user in the database", error)
+    }
+  })
 })
