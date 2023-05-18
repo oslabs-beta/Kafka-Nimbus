@@ -1,4 +1,3 @@
-import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
   type NextAuthOptions,
@@ -6,7 +5,7 @@ import {
 } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { env } from "~/env.mjs";
+// import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 
 /**
@@ -48,9 +47,9 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
-      
+      clientId: process.env.GITHUB_ID || "",
+      clientSecret: process.env.GITHUB_SECRET || "",
+
     }),
     /**
      * ...add more providers here.
@@ -62,6 +61,10 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  /**ADD PAGES if you're creating custom pages for signin, login, etc
+   * Else if defaults to the path api/auth/signin, etc.
+   * @see https://next-auth.js.org/configuration/pages
+  */
 };
 
 /**
@@ -69,9 +72,20 @@ export const authOptions: NextAuthOptions = {
  *
  * @see https://next-auth.js.org/configuration/nextjs
  */
-export const getServerAuthSession = (ctx: {
-  req: GetServerSidePropsContext["req"];
-  res: GetServerSidePropsContext["res"];
-}) => {
-  return getServerSession(ctx.req, ctx.res, authOptions);
+// export const getServerAuthSession = (ctx: {
+//   req: GetServerSidePropsContext["req"];
+//   res: GetServerSidePropsContext["res"];
+// }) => {
+//   return getServerSession(ctx.req, ctx.res, authOptions);
+// };
+
+
+/**
+ * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file
+ * AS OF NEXT13, you no longer need to pass in the req res from getServerSideProps
+ * @see https://next-auth.js.org/configuration/nextjs
+*/
+
+export const getServerAuthSession = () => {
+  return getServerSession(authOptions);
 };
