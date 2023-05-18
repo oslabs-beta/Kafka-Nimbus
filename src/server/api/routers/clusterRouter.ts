@@ -148,9 +148,35 @@ export const clusterRouter = createTRPCRouter({
 
   checkClusterStatus: publicProcedure
     .input(z.object({
-      
+      name: z.string()
     }))
     .query(async({ input }) => {
+      try {
+        const clusterResponse = await prisma.cluster.findUnique({
+          where: {
+            name: input.name
+          }
+        })
+        if (!clusterResponse) {
+          throw new Error('Didn\'t find cluster in db');
+        }
+        const kafkaArn: string = clusterResponse?.kafkaArn;
+        
+        const sdkResponse = await kafka.describeCluster(
+          {ClusterArn: kafkaArn}
+          ).promise();
 
+          if (!sdkResponse) {
+            throw new Error('SDK couldn\'t find the cluster');
+          }
+          const curState: string = sdkResponse.ClusterInfo?.State;
+
+          console.log(curState);
+          return curState;
+
+      }
+      catch (err) {
+        console.log('error fetching data from database', err)
+      }
     })
 });
