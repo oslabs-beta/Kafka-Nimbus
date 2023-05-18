@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { useAppDispatch } from "~/app/redux/hooks";
 import {
   setAwsId,
-  setAwsSecret,
+  setAwsSecret
 } from "~/app/redux/features/createClusterSlice";
 
 interface ProviderProps {
@@ -32,6 +32,7 @@ const AwsSecrets: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   };
 
   return (
+    <Suspense
     <div className="flex h-[70vh] flex-col items-center justify-center">
       <h1 className="mb-8 text-2xl font-bold">AWS Credentials</h1>
       <div className="form-control w-full max-w-xs ">

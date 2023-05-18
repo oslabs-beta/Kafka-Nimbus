@@ -83,10 +83,13 @@ model Topic {
     topicid          String   @id @default(auto()) @map("_id") @db.ObjectId
     topicEndpoint    String   @unique
     topicCount       String   
+    topicName        String   
+    partitions       Int   
+    replication      Int
 }
 
 model Consumer {
     consumerid          String   @id @default(auto()) @map("_id") @db.ObjectId
     consumerEndpoint    String   @unique
-    consumerCount       String   
+    consumerCount       String  
 }

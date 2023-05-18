@@ -7,6 +7,8 @@ export default {
   },
   plugins: [require("daisyui")],
   daisyui: {
-    themes: ["light"],
+    themes: ['lofi'],
+    base: true,
+    utils: true,
   },
 } satisfies Config;

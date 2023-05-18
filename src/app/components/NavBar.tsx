@@ -36,7 +36,7 @@ const NavBar = () => {
   );
 
   return (
-    <div className="navbar bg-base-100 mx-auto flex w-full items-center justify-between  p-6 lg:px-8 border-b-2">
+    <div className="navbar relative bg-base-100 mx-auto flex w-full items-center justify-between p-6 lg:px-8 border-b-2">
       <div className="flex cursor-pointer flex-row align-middle">
         <Link href="/"><Image src={logo} alt="logo" className="mr-2 h-8 w-8" /></Link>
         <Link className="btn btn-ghost text-xl normal-case" href="/">Kafka Nimbus</Link>
