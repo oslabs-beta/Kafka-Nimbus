@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { v4 } from 'uuid';
@@ -25,10 +24,9 @@ export const clusterRouter = createTRPCRouter({
     }))
     .query(async({ input }) => {
       // First, find the user object in the database using id
-      let vpcId = '';
-      let subnetIds: string[] = [];
+
       try {
-        const userResponse: User | null = await prisma.user.findUnique({
+        const userResponse = await prisma.user.findUnique({
           where: {
             id: input.id
           }
@@ -37,27 +35,25 @@ export const clusterRouter = createTRPCRouter({
           throw new Error('User doesn\'t exist in database')
         }
         // store the vpcId and subnets l
-        vpcId = userResponse.vpcId;
-        subnetIds = userResponse.subnetID;
-      }
-      catch (error) {
-        console.log('Error accessing database, ', error);
-      }
-        // Create security groups within the vpc
-      if (!vpcId) {
-        throw new Error('vpcId assignment error');
-      }
-      // create security group for msk cluster
-      const randString: string = v4(); 
-      const createSecurityGroupParams = {
-        Description: 'Security group for MSK Cluster',
-        GroupName: 'MSKSecurityGroup' + randString,
-        VpcId: vpcId
-      }
+        const vpcId = userResponse.vpcId;
+        const subnetIds = userResponse.subnetID;
+        const configArn = userResponse.configArn;
+        
+          // Create security groups within the vpc
+        if (!vpcId) {
+          throw new Error('vpcId assignment error');
+        }
+        // create security group for msk cluster
+        const randString: string = v4(); 
+        const createSecurityGroupParams = {
+          Description: 'Security group for MSK Cluster',
+          GroupName: 'MSKSecurityGroup' + randString,
+          VpcId: vpcId
+        }
 
-      try {
         const createSecurityGroupData = await ec2.createSecurityGroup(createSecurityGroupParams).promise();
-        const groupId: string = createSecurityGroupData?.GroupId;
+        let groupId: string | undefined = createSecurityGroupData?.GroupId;
+        if (groupId === undefined) groupId = '';
 
         const authorizeSecurityGroupParams = {
           GroupId: groupId,
@@ -97,7 +93,8 @@ export const clusterRouter = createTRPCRouter({
           NumberOfBrokerNodes: input.brokerPerZone,
           EncryptionInfo: {
             EncryptionInTransit: {
-              ClientBroker: 'PLAINTEXT',
+              ClientBroker: 'TLS', // Changing from PLAINTEXT to TLS for disabling plaintext traffic
+              InCluster: true, // Enabling encryption within the cluster
             }
           },
           OpenMonitoring: {
@@ -107,8 +104,19 @@ export const clusterRouter = createTRPCRouter({
               },
               NodeExporter: {
                 EnabledInBroker: true
+              }
+            }
+          },
+          ClientAuthentication: {
+            Sasl: {
+              Scram: {
+                Enabled: true,
               },
             },
+          },
+          ConfigurationInfo: {
+            Arn: configArn, // Providing the ARN for kafka-ACL
+            Revision: 1,
           },
         };
 
@@ -146,6 +154,8 @@ export const clusterRouter = createTRPCRouter({
       }
     }),
 
+
+    
   checkClusterStatus: publicProcedure
     .input(z.object({
       name: z.string()

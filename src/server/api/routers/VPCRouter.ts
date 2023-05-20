@@ -1,3 +1,7 @@
+/**
+ *  Todo on file, add more type safety, ignoring a lot of things on initial code-through
+ */
+
 
 import { z } from 'zod';
 import AWS from 'aws-sdk';
@@ -6,11 +10,16 @@ import type { User } from '@prisma/client';
 
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
+import { KafkaClient, CreateConfigurationCommand } from '@aws-sdk/client-kafka';
+import fs from 'fs';
+
+
 
 import {
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
+import { user } from '~/app/redux/features/userSlice';
 
 export const createVPCRouter = createTRPCRouter({
   createVPC: publicProcedure
@@ -26,10 +35,11 @@ export const createVPCRouter = createTRPCRouter({
           secretAccessKey: input.aws_secret_access_key,
           region: input.region,
         })
+        const client = new KafkaClient({region: input.region})
 
         try{
           // create the vpc
-          const vpcData: any = await ec2.createVpc({
+          const vpcData = await ec2.createVpc({
             CidrBlock: '10.0.0.0/16',
           }).promise();
           // make sure data is correct
@@ -40,43 +50,43 @@ export const createVPCRouter = createTRPCRouter({
           console.log(`Created VPC with id ${vpcId}`)
 
           // Create the IGW
-          const igwData: any = await ec2.createInternetGateway({}).promise();
+          const igwData = await ec2.createInternetGateway({}).promise();
           // checking it exists
           if (!igwData.InternetGateway) {
             throw new Error('IGW creation failed');
           }
-          const igwId: string = igwData.InternetGateway.InternetGatewayId
+          const igwId: string = igwData.InternetGateway.InternetGatewayId;
 
           // attach IGW to VPC
           await ec2.attachInternetGateway({ InternetGatewayId: igwId, VpcId: vpcId}).promise();
           console.log(`Attached Internet Gateway ${igwId} to VPC ${vpcId}`);
 
           // Create subnets
-          const subnet1Data: any = await ec2.createSubnet(
+          const subnet1Data = await ec2.createSubnet(
             { 
               CidrBlock: '10.0.0.0/24', 
               VpcId: vpcId, 
               AvailabilityZone: 'us-east-2a'
           }).promise();
-          const subnet2Data: any = await ec2.createSubnet(
+          const subnet2Data = await ec2.createSubnet(
             { 
               CidrBlock: '10.0.1.0/24', 
               VpcId: vpcId, 
               AvailabilityZone: 'us-east-2b'
           }).promise();
-          const subnet1Id: string = subnet1Data.Subnet.SubnetId;
-          const subnet2Id: string = subnet2Data.Subnet.SubnetId;
+          const subnet1Id: string = subnet1Data.Subnet?.SubnetId;
+          const subnet2Id: string = subnet2Data.Subnet?.SubnetId;
           console.log(`Created subnet with id ${subnet1Id}`);
           console.log(`Created subnet with id ${subnet2Id}`);
 
           // Create route table connections
-          const routeTables: any = await ec2.describeRouteTables({
+          const routeTables = await ec2.describeRouteTables({
             Filters: [{
               Name: 'vpc-id',
               Values: [vpcId]
             }]
           }).promise();
-          const routeTableId: string = routeTables.RouteTables[0].RouteTableId;
+          const routeTableId: string = routeTables.RouteTable[0].RouteTableId;
 
           // Create route for IGW
           await ec2.createRoute({
@@ -85,6 +95,19 @@ export const createVPCRouter = createTRPCRouter({
             RouteTableId: routeTableId,
           }).promise();
           console.log(`Added route for IGW ${igwId} to Route Table ${routeTableId}`);
+
+          // create cluster config file
+          const ServerProperties = fs.readFileSync('server.properties', 'utf8');
+          const configParams = {
+            Description: 'Configuration settings for custom cluster',
+            KafkaVersion: ['2.8.1'],
+            Name: 'Kafka-NimbusConfiguration',
+            ServerProperties: ServerProperties,
+          }
+
+          const configData = await client.send(new CreateConfigurationCommand(configParams));
+          const configArn: string = configData.Arn;
+          console.log(`Created config with Arn ${configArn}`);
 
           /**
            * Send required info to db
@@ -104,14 +127,13 @@ export const createVPCRouter = createTRPCRouter({
                 awsAccessKey: input.aws_access_key_id,
                 awsSecretAccessKey: input.aws_secret_access_key,
                 region: input.region,
+                configArn: configArn
               }
             })
           }
           catch (error) {
             console.log('Ran into error updating user, lost VPC, fix in cli., ', error);
           }
-
-
         }
         catch (error) {
           console.log('Ran into error creating VPC and subnets ', error)
