@@ -190,6 +190,28 @@ export const clusterRouter = createTRPCRouter({
               throw new Error('SDK couldn\'t find the cluster');
             }
             const curState = sdkResponse.ClusterInfo?.State;
+
+            // if the state is active, we want to update public access
+            // to SERVICE_PROVIDED_EIPS
+            if (curState === 'ACTIVE') {
+              const updateParams = {
+                ClusterArn: kafkaArn,
+                ConnectivityInfo: {
+                  PublicAccess: {
+                    Type: 'SERVICE_PROVIDED_EIPS'
+                  }
+                },
+                CurrentVersion: '2.8.1'
+              }
+              kafka.updateConnectivity(updateParams, (err, data) => {
+                if (err) {
+                  console.log('Encountered error , ', err);
+                }
+                else {
+                  console.log('Successfully updated public access');
+                }
+              })
+            }
   
             console.log(curState);
             return curState;
@@ -216,6 +238,8 @@ export const clusterRouter = createTRPCRouter({
           /**
            * Add functionality to also delete respective EC2 instance
            */
+
+          return deletedCluster;
         }
         catch (err) {
           console.log('Error deleting from aws , ', err);
