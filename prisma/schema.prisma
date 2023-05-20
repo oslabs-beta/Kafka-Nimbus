@@ -39,21 +39,21 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(auto()) @map("_id") @db.ObjectId
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime? @map("verifiedAt")
-    image         String?
-    createdAt     DateTime  @default(now())
-    vpcId         String?
-    awsAccessKey       String?
-    awsSecretAccessKey String?
-    region        String?
-    configArn     String?
-    subnetID      String[]
-    accounts      Account[]
-    sessions      Session[]
-    clusters      Cluster[]
+    id                  String    @id @default(auto()) @map("_id") @db.ObjectId
+    name                String?
+    email               String?   @unique
+    emailVerified       DateTime? @map("verifiedAt")
+    image               String?
+    createdAt           DateTime  @default(now())
+    vpcId               String    @default("")
+    awsAccessKey        String    @default("")
+    awsSecretAccessKey  String    @default("")
+    region              String    @default("")
+    configArn           String    @default("")
+    subnetID            String[]
+    accounts            Account[]
+    sessions            Session[]
+    clusters            Cluster[]
 
     @@map("users")
 }
