@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useAppSelector } from '~/app/redux/hooks';
+import { useSession } from 'next-auth/react';
 import CloudProvider from '../(components)/CloudProvider';
 import AwsSecrets from '../(components)/AwsSecrets';
 import RegionInput from '../(components)/RegionInput';
@@ -21,6 +22,7 @@ const CreateClusterPage = () => {
   const [inFocus, setInFocus] = useState<ComponentState['inFocus']>('provider');
   const [callDatabase, setCallDatabase] = useState<boolean>(false);
   const { createCluster } = useAppSelector((state) => state);
+  const {data: sessionData} = useSession()
 
   const inFocusHandler = (string: string) => {
     setInFocus(string);
@@ -30,18 +32,13 @@ const CreateClusterPage = () => {
     const {
       awsId,
       awsSecret,
-      brokerNumbers,
       region,
-      clusterName,
-      provider,
-      storagePerBroker,
-      clusterSize,
     } = createCluster;
 
     const response = api.createVPC.createVPC.useQuery({
       aws_access_key_id: awsId,
       aws_secret_access_key: awsSecret,
-      id: ,
+      id: sessionData?.user.id ? sessionData?.user.id: ""  ,
       region: region
     });
   };
