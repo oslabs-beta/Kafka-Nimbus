@@ -49,6 +49,7 @@ model User {
     awsAccessKey       String?
     awsSecretAccessKey String?
     region        String?
+    configArn     String?
     subnetID      String[]
     accounts      Account[]
     sessions      Session[]

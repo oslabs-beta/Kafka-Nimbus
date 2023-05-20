@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { v4 } from 'uuid';
