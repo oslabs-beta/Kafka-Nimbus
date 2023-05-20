@@ -2,7 +2,6 @@ import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { v4 } from 'uuid';
 import { prisma } from '../../db'
-import type { User, Cluster } from '@prisma/client';
 
 import {
   createTRPCRouter,
@@ -154,7 +153,18 @@ export const clusterRouter = createTRPCRouter({
       }
     }),
 
-
+  /**
+   * This route will return the cluster status
+   * @returns 
+   *  ACTIVE
+   * CREATING
+   * DELETING
+   * FAILED
+   * HEALING
+   * MAINTENANCE
+   * REBOOTING_BROKER
+   * UPDATING
+   */
     
   checkClusterStatus: publicProcedure
     .input(z.object({
@@ -170,23 +180,47 @@ export const clusterRouter = createTRPCRouter({
         if (!clusterResponse) {
           throw new Error('Didn\'t find cluster in db');
         }
-        const kafkaArn: string = clusterResponse?.kafkaArn;
-        
-        const sdkResponse = await kafka.describeCluster(
-          {ClusterArn: kafkaArn}
-          ).promise();
-
-          if (!sdkResponse) {
-            throw new Error('SDK couldn\'t find the cluster');
-          }
-          const curState: string = sdkResponse.ClusterInfo?.State;
-
-          console.log(curState);
-          return curState;
-
+        const kafkaArn = clusterResponse.kafkaArn;   // obtaining the arn of the cluster
+        if (kafkaArn) {
+          const sdkResponse = await kafka.describeCluster(
+            {ClusterArn: kafkaArn}
+            ).promise();
+  
+            if (!sdkResponse) {
+              throw new Error('SDK couldn\'t find the cluster');
+            }
+            const curState = sdkResponse.ClusterInfo?.State;
+  
+            console.log(curState);
+            return curState;
+        }
+        return 'Error finding cluster';
       }
       catch (err) {
         console.log('error fetching data from database', err)
       }
-    })
+    }),
+
+    deleteCluster: publicProcedure
+      .input(z.object({
+        name: z.string()
+      }))
+      .query(async({ input }) => {
+        try {
+          const deletedCluster = await prisma.cluster.delete({
+            where :{
+              name: input.name,
+            }
+          });
+
+          /**
+           * Add functionality to also delete respective EC2 instance
+           */
+        }
+        catch (err) {
+          console.log('Error deleting from aws , ', err);
+        }
+      })
+
+
 });
