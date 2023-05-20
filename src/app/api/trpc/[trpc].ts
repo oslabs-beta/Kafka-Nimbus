@@ -1,9 +1,12 @@
+'use client';
+import { createNextApiHandler } from '@trpc/server/adapters/next';
+
 import { env } from '~/env.mjs';
 import { createTRPCContext } from '~/server/api/trpc';
 import { appRouter } from '~/server/api/root';
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-const nextApiHandler = createTRPCContext({
+const nextApiHandler = createNextApiHandler({
   router: appRouter,
   createContext: createTRPCContext,
   onError:
@@ -17,9 +20,6 @@ const nextApiHandler = createTRPCContext({
 });
 
 // export API handler
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  return nextApiHandler
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  return nextApiHandler(req, res);
 }

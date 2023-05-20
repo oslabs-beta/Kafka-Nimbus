@@ -1,12 +1,13 @@
-import { AuthProvider } from "./components/AuthProvider";
-import NavBar from "./components/NavBar";
-import { Providers } from "./redux/provider";
-import "../styles/globals.css";
-
+import { AuthProvider } from './components/AuthProvider';
+import { ClientProvider } from '../utils/trpc-provider';
+// im just testing to see if this words
+import NavBar from './components/NavBar';
+import { Providers } from './redux/provider';
+import '../styles/globals.css';
 
 export const metadata = {
-  title: "Kafka Nimbus",
-  description: "Deploy Kafka Clusters to the cloud.",
+  title: 'Kafka Nimbus',
+  description: 'Deploy Kafka Clusters to the cloud.',
 };
 
 export default function RootLayout({
@@ -15,16 +16,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <AuthProvider>
-          <Providers>
-            <NavBar />
-            {children}
-          </Providers>
-        </AuthProvider>
-      </body>
-    </html>
+    <ClientProvider>
+      <html lang='en'>
+        <body>
+          <AuthProvider>
+            <Providers>
+              <NavBar />
+              {children}
+            </Providers>
+          </AuthProvider>
+        </body>
+      </html>
+   </ClientProvider>
   );
 }
-

@@ -5,10 +5,10 @@ import { setStoragePerBroker } from '~/app/redux/features/createClusterSlice';
 
 interface ProviderProps {
   inFocusHandler: (string: string) => void;
-  setCallDatabase: (boolean: boolean) => void
+  createClusterHandler: () => void
 }
 
-const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler, setCallDatabase }) => {
+const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler, createClusterHandler }) => {
   const dispatch = useAppDispatch();
   const [numValue, setNumValue] = useState<number>(0);
   const { createCluster } = useAppSelector((state) => state);
@@ -17,7 +17,7 @@ const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler, setCallData
     event.preventDefault();
     console.log(createCluster);
     dispatch(setStoragePerBroker(numValue));
-    setCallDatabase(true)
+    createClusterHandler()
     inFocusHandler('loading')
   };
 

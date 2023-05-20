@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppSelector } from '~/app/redux/hooks';
 import { useSession } from 'next-auth/react';
 import CloudProvider from '../(components)/CloudProvider';
@@ -11,6 +11,8 @@ import StoragePerBroker from '../(components)/StoragePerBroker';
 import ClusterSize from '../(components)/ClusterSize';
 import ClusterLoadingState from '../(components)/ClusterLoadingState';
 
+import { redirect } from 'next/navigation';
+
 // TRPC IMPORTS
 import { api } from '~/utils/api';
 
@@ -20,27 +22,45 @@ type ComponentState = {
 
 const CreateClusterPage = () => {
   const [inFocus, setInFocus] = useState<ComponentState['inFocus']>('provider');
-  const [callDatabase, setCallDatabase] = useState<boolean>(false);
   const { createCluster } = useAppSelector((state) => state);
-  const {data: sessionData} = useSession()
+  const { data: sessionData } = useSession();
 
   const inFocusHandler = (string: string) => {
     setInFocus(string);
   };
 
-  const createVPC = () => {
-    const {
-      awsId,
-      awsSecret,
-      region,
-    } = createCluster;
+  const {
+    awsId,
+    awsSecret,
+    brokerNumbers,
+    region,
+    clusterName,
+    provider,
+    storagePerBroker,
+    clusterSize,
+  } = createCluster;
 
-    const response = api.createVPC.createVPC.useQuery({
-      aws_access_key_id: awsId,
-      aws_secret_access_key: awsSecret,
-      id: sessionData?.user.id ? sessionData?.user.id: ""  ,
-      region: region
-    });
+  const saveCLustertoDb = api.database.createCluster.useQuery({
+    id: sessionData?.user.id ? sessionData?.user.id : '',
+    awsId,
+    awsSecret,
+    brokerNumbers,
+    region,
+    clusterName,
+    provider,
+    storagePerBroker,
+    clusterSize,
+  });
+
+  const createClusterHandler = () => {
+    // const aws = api.createVPC.createVPC.useQuery({
+    //   aws_access_key_id: awsId,
+    //   aws_secret_access_key: awsSecret,
+    //   id: sessionData?.user.id ? sessionData?.user.id : '',
+    //   region: region,
+    // });
+
+    redirect('/cluster-dashboard');
   };
 
   switch (inFocus) {
@@ -60,7 +80,7 @@ const CreateClusterPage = () => {
       return (
         <StoragePerBroker
           inFocusHandler={inFocusHandler}
-          setCallDatabase={setCallDatabase}
+          createClusterHandler={createClusterHandler}
         />
       );
     case 'loading':

@@ -1,5 +1,4 @@
-'use client';
-
+'use client';   
 import { type NextPage } from 'next';
 import Link from 'next/link';
 import { AuthShowcase } from './components/AuthShowcase';
