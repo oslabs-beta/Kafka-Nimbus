@@ -75,7 +75,7 @@ model Cluster {
     bootStrapServer    String[]
     brokers            Broker[]
     topics             Topic[]
-    consumers          Consumer[]
+    consumers          ConsumerGroups[]
 }
 
 model VerificationToken {
@@ -89,30 +89,47 @@ model VerificationToken {
 }
 
 model Broker {
-    brokerid         String   @id @default(auto()) @map("_id") @db.ObjectId
-    brokerAddress    String   @unique
-    brokerSize       String
-    brokerLeader     String
+    id               String   @id @default(auto()) @map("_id") @db.ObjectId
+    Address          String   @unique
+    Size             String
+    Leader           String
     listNodeResponse Json?
+    brokerEndpoints  String[]
     Cluster          Cluster? @relation(fields: [clusterId], references: [id])
     clusterId        String?  @db.ObjectId
 }
 
 model Topic {
-    topicid       String   @id @default(auto()) @map("_id") @db.ObjectId
-    topicEndpoint String   @unique
-    topicCount    String
-    Cluster       Cluster? @relation(fields: [clusterId], references: [id])
-    clusterId     String?  @db.ObjectId
-    topicName        String   
-    partitions       Int   
-    replication      Int
+    id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+    Endpoint            String   @unique
+    Count               String
+    Cluster             Cluster? @relation(fields: [clusterId], references: [id])
+    clusterId           String?  @db.ObjectId
+    Name                String   
+    numPartitions       Int   
+    replicationFactor   Int
+    Topics              topics[]
+}
+
+model ConsumerGroup {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    Endpoint    String   @unique
+    Count       String
+    Status      String
+    Lag         Int
+    Partitions  String
+    Topics      String
+    consumers   Consumer []
+    Cluster     Cluster? @relation(fields: [clusterId], references: [id])
+    clusterId   String?  @db.ObjectId
 }
 
 model Consumer {
-    consumerid       String   @id @default(auto()) @map("_id") @db.ObjectId
-    consumerEndpoint String   @unique
-    consumerCount    String
-    Cluster          Cluster? @relation(fields: [clusterId], references: [id])
-    clusterId        String?  @db.ObjectId
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    Status      String
+    Lag         Int
+    Partitions  String
+    Topics      String
+    Cluster     Cluster? @relation(fields: [clusterId], references: [id])
+    clusterId   String?  @db.ObjectId
 }

@@ -1,80 +1,103 @@
-import React, { useEffect, useState } from 'react';
-import { PrismaClient, Consumer } from '@prisma/client';
-import Link from 'next/link';
-import { Suspense } from 'react';
+"use client";
+import React, { Suspense, useState } from "react";
+import { useAppDispatch, useAppSelector} from "~/app/redux/hooks";
+import {
+  settopicName,
+  settopicPartitions,
+  settopicReplications,
+} from "~/app/redux/features/topicSlice";
 
-interface PageProps {
-  params: {
-    userId: string;
+const TopicInfo: React.FC = ({ }) => {
+  const dispatch = useAppDispatch();
+  const [number, setNumber] = useState(0);
+  const [topicNameValue, topicName] = useState<string>("");
+  const [partitionValue, topicPartitions] = useState<number>(0);
+  const [replicationValue, topicReplications] = useState<number>(1);
+  const TopicReplications: number[] = [1, 2, 3];
+  const TopicPartitions: number[] = [1, 2, 3];
+  const { topics } = useAppSelector((state) => state);
+
+
+  const onSubmitHandler = (event: React.FormEvent) => {
+    event.preventDefault();
+    dispatch(settopicName(topicNameValue));
+    dispatch(settopicPartitions(partitionValue));
+    dispatch(settopicReplications(replicationValue))
+    console.log(topics)
   };
-}
 
-const consumerDashboard = async ({ params }: PageProps) => {
-  // error handling
-  let consumers: Array<Consumer> = [];
-  try {
-    const prisma = new PrismaClient();
+  const nameChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
+    console.log(event.currentTarget.value);
+    topicName(event.currentTarget.value);
+  };
+  const partitionChangeHandler = (event: React.FormEvent<HTMLSelectElement>) => {
+    console.log(event.currentTarget.value);
+    topicPartitions(event.target.value);
+  };
+  const replicationChangeHandler = (event: React.FormEvent<HTMLSelectElement>) => {
+    console.log(event.currentTarget.value);
+    topicReplications(event.target.value);
+  };
 
-    consumers = await prisma.consumer.findMany({
-      where: {
-        consumerid: params.consumerid,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-  }
   return (
-    <>
-<Suspense fallback={<h2>Loading...</h2>}>
-    <div className="drawer">
-      <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content">
-        <label htmlFor="my-drawer" className="btn btn-primary drawer-button">Open drawer</label>
-      <div>
-        <Link href='/create-consumer'><button className="btn flex-col float-right ml-2 items-center">Create consumer</button></Link>
+    <Suspense fallback={<h2>Loading...</h2>}>
+      <div className="flex h-[70vh] flex-col items-center justify-center">
+        <h1 className="mb-8 text-2xl font-bold">Create Consumer Group</h1>
+        <div className="form-control w-full max-w-xs ">
+          <form id="topic-form" onSubmit={onSubmitHandler}>
+            <label htmlFor="topic-form" className="label ">
+              Topic Name
+            </label>
+            <input
+              onChange={nameChangeHandler}
+              type="text"
+              placeholder="Topic Name"
+              className="input-bordered input mt-1 w-full max-w-xs rounded-md p-2"
+            />
+            <label htmlFor="aws-form" className="label ">
+              Replication Count
+            </label>
+            <select
+              // className="select-bordered select w-full max-w-xs"
+              className="select-bordered select w-full max-w-xs "
+              onChange={replicationChangeHandler}
+            >
+              <option disabled value={"How many replications"}>
+                How Many replications
+              </option>
+              {TopicReplications.map((num) => (
+                <option value={num} key={num}>
+                  {num}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="aws-form" className="label ">
+              Number of Partitions
+            </label>
+            <select
+              className="select-bordered select w-full max-w-xs"
+              onChange={partitionChangeHandler}
+            >
+              <option disabled value={"How many replications"}>
+                How Many partitions
+              </option>
+              {TopicPartitions.map((num) => (
+                <option value={num} key={num}>
+                  {num}
+                </option>
+              ))}
+            </select>
+            <button className="btn-primary btn mt-6 w-full" type="submit">
+              Submit
+            </button>
+            <button className="btn-primary btn mt-6 w-full" type="submit">
+              Cancel
+            </button>
+          </form>
+        </div>
       </div>
-      <div className='flex h-[20vh] text-6xl flex-col items-center justify-center'>
-        Consumers
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th></th>
-              <th>ID</th>
-              <th>Endpoint</th>
-              <th>Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            {consumers.map((consumer) => (
-              <tr key={consumer.consumerid}>
-                <th>{consumer.consumerid}</th>
-                <td>{consumer.consumerEndpoint}</td>
-                <td>{consumer.consumerCount}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      </div> 
-
-      <div className="drawer-side">
-        <label htmlFor="my-drawer" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-80 bg-base-100 text-base-content">
-        <div className="divider"></div> 
-          <li><Link href="/broker-dashboard" className="btn btn-outline btn-primary">Brokers</Link></li>
-          <div className="divider"></div> 
-          <li><Link href="/topic-dashboard" className="btn btn-outline btn-primary">Topics</Link></li>
-          <div className="divider"></div> 
-          <li><Link href="/consumer-dashboard" className="btn btn-outline btn-primary">Consumers</Link></li>
-        </ul>
-      </div>
-    </div>
     </Suspense>
-    </>
   );
 };
 
-export default consumerDashboard;
+export default TopicInfo;

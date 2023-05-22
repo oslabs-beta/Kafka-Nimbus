@@ -6,8 +6,8 @@ const initialState = {
   topicEndpoint: '',
   topicCount: 0,
   topicName: "",
-  partitions: 0,
-  replication: 1,
+  numPartitions: 0,
+  replicationFactor: 1,
 }
 
 export const topic = createSlice({
@@ -21,20 +21,20 @@ export const topic = createSlice({
       state.topicEndpoint = action.payload;
     },
     settopicName: (state, action: PayloadAction<string>) => {
-      state.topicEndpoint = action.payload;
+      state.topicName = action.payload;
     },
     settopicCount: (state, action: PayloadAction<number>) => {
       state.topicCount = action.payload;
     },
-    setPartitions: (state, action: PayloadAction<number>) => {
-      state.topicCount = action.payload;
+    settopicPartitions: (state, action: PayloadAction<number>) => {
+      state.numPartitions = action.payload;
     },
-    setReplications: (state, action: PayloadAction<number>) => {
-      state.topicCount = action.payload;
+    settopicReplications: (state, action: PayloadAction<number>) => {
+      state.replicationFactor = action.payload;
     },
   },
 });
 
-export const { settopicID, settopicEndpoint, settopicName, settopicCount, setPartitions, setReplications } = topic.actions;
+export const { settopicID, settopicEndpoint, settopicName, settopicCount, settopicPartitions, settopicReplications } = topic.actions;
 
 export default topic.reducer;

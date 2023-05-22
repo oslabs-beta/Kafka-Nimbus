@@ -18,56 +18,24 @@ const brokerDashboard = async ({ params }: PageProps) => {
 
     brokers = await prisma.broker.findMany({
       where: {
-        broker: params.brokerid,
+        broker: params.id,
       },
     });
   } catch (error) {
     console.log(error);
   }
-
-  if (brokers.length === 0) {
-    return (
-<Suspense fallback={<h2>Loading...</h2>}>
-    <div className="drawer">
-      <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content">
-        <label htmlFor="my-drawer" className="btn btn-primary drawer-button">Open drawer</label>
-        <div className="flex justify-center items-center">No Brokers in this Cluster</div>
-        <div className="flex justify-center items-center">
-        <Link href='/create-broker'><button className="btn">Create Broker</button></Link>
-      </div>
-      </div> 
-
-      <div className="drawer-side">
-        <label htmlFor="my-drawer" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-80 bg-base-100 text-base-content">
-        <div className="divider"></div> 
-          <li><Link href="/broker-dashboard" className="btn btn-outline btn-primary">Brokers</Link></li>
-          <div className="divider"></div> 
-          <li><Link href="/topic-dashboard" className="btn btn-outline btn-primary">Topics</Link></li>
-          <div className="divider"></div> 
-          <li><Link href="/consumer-dashboard" className="btn btn-outline btn-primary">Consumers</Link></li>
-        </ul>
-      </div>
-    </div>
-
-
-      
-    </Suspense>
-    )
-  } else {
   return (
     <>
         <Suspense fallback={<h2>Loading...</h2>}>
     <div className="drawer">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
-        <label htmlFor="my-drawer" className="btn btn-primary drawer-button"></label>
+        <label htmlFor="my-drawer" className="btn btn-primary drawer-button">Open Drawer</label>
       <div>
         <Link href='/create-broker'><button className="btn flex-col float-right ml-2 items-center">Create Broker</button></Link>
       </div>
       <div className='flex h-[20vh] text-6xl flex-col items-center justify-center'>
-        Topics
+        Brokers
       </div>
 
       <div className="overflow-x-auto">
@@ -83,8 +51,8 @@ const brokerDashboard = async ({ params }: PageProps) => {
           </thead>
           <tbody>
             {brokers.map((broker) => (
-              <tr key={broker.brokerid}>
-                <th>{broker.brokerAddress}</th>
+              <tr key={broker.id}>
+                <th>{broker.Address}</th>
                 <td>{broker.brokerSize}</td>
                 <td>{broker.brokerLeader}</td>
               </tr>
@@ -109,7 +77,6 @@ const brokerDashboard = async ({ params }: PageProps) => {
     </Suspense>
     </>
   );
-}
 };
 
 export default brokerDashboard;

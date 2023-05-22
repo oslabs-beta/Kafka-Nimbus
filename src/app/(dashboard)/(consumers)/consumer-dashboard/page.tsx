@@ -23,14 +23,14 @@ const consumerDashboard = async ({ params }: PageProps) => {
   } catch (error) {
     console.log(error);
   }
-  if (consumers.length === 0) {
+  if (consumers.length !== 0) {
     return (
 <Suspense fallback={<h2>Loading...</h2>}>
     <div className="drawer">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <label htmlFor="my-drawer" className="btn btn-primary drawer-button">Open drawer</label>
-        <div className="flex justify-center items-center">No Consumers in this Cluster</div>
+        <div className="flex justify-center items-center">No Consumer Groups in this Cluster</div>
         <div className="flex justify-center items-center">
         <Link href='/create-consumer'><button className="btn">Create Consumer</button></Link>
       </div>
@@ -62,7 +62,7 @@ const consumerDashboard = async ({ params }: PageProps) => {
         <Link href='/create-consumer'><button className="btn flex-col float-right ml-2 items-center">Create consumer</button></Link>
       </div>
       <div className='flex h-[20vh] text-6xl flex-col items-center justify-center'>
-        Consumers
+        Consumer Groups
       </div>
 
       <div className="overflow-x-auto">
@@ -70,9 +70,10 @@ const consumerDashboard = async ({ params }: PageProps) => {
           <thead>
             <tr>
               <th></th>
-              <th>ID</th>
-              <th>Endpoint</th>
-              <th>Count</th>
+              <th>Consumer Group</th>
+              <th>Status</th>
+              <th>Total Lag</th>
+              <th>Patitions/Topics</th>
             </tr>
           </thead>
           <tbody>
