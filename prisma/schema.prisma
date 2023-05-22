@@ -50,6 +50,8 @@ model User {
     awsSecretAccessKey  String    @default("")
     region              String    @default("")
     configArn           String    @default("")
+    kmsKey              String    @default("")
+    secretArn           String    @default("")
     subnetID            String[]
     accounts            Account[]
     sessions            Session[]
@@ -77,6 +79,8 @@ model Cluster {
     topics             Topic[]
     consumers          ConsumerGroups[]
 }
+
+
 
 model VerificationToken {
     id         String   @id @default(auto()) @map("_id") @db.ObjectId
