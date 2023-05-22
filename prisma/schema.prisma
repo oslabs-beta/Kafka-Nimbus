@@ -60,6 +60,11 @@ model User {
     @@map("users")
 }
 
+// life cycle stages for cluster
+//  0 -> creating
+//  1 -> updated public access and updating
+//  2 -> finished updating, completely ready and functioning
+//
 model Cluster {
     id                 String     @id @default(auto()) @map("_id") @db.ObjectId
     name               String     @unique

@@ -134,6 +134,7 @@ export const clusterRouter = createTRPCRouter({
             zones: input.zones,
             storagePerBroker: input.storagePerBroker,
             kafkaArn: kafkaArn,
+            lifeCycleStage: 0
           }
         })
         if (!response) {
@@ -172,7 +173,7 @@ export const clusterRouter = createTRPCRouter({
             name: input.name
           },
           include: {
-            User: true
+            User: true,
           }
         })
         if (clusterResponse?.User === undefined) {
@@ -180,8 +181,12 @@ export const clusterRouter = createTRPCRouter({
         }
         const awsAccessKey = clusterResponse?.User.awsAccessKey;
         const awsSecretAccessKey = clusterResponse?.User.awsSecretAccessKey;
+        const lifeCycleStage = clusterResponse?.lifeCycleStage;
         if (awsAccessKey === undefined || awsSecretAccessKey === undefined) {
           throw new Error('One or both access keys doesn\'t exist');
+        }
+        if (lifeCycleStage === undefined) {
+          throw new Error('life cycle stage doesn\'t exist');
         }
         const region = clusterResponse?.User.region;
         const { secretArn } = clusterResponse?.User;
@@ -202,7 +207,7 @@ export const clusterRouter = createTRPCRouter({
 
             // if the state is active, we want to update public access
             // to SERVICE_PROVIDED_EIPS
-            if (curState === 'ACTIVE') {
+            if (curState === 'ACTIVE' && lifeCycleStage === 0) {
               const client = new KafkaClient({region: region, 
                 credentials: {
                   accessKeyId: awsAccessKey,
@@ -233,7 +238,8 @@ export const clusterRouter = createTRPCRouter({
                   name: input.name
                 },
                 data: {
-                  currentVersion: currentVersion
+                  currentVersion: currentVersion,
+                  lifeCycleStage: 1             // used to track where in the life cycle the cluster is
                 }
               })
 
@@ -241,7 +247,7 @@ export const clusterRouter = createTRPCRouter({
                 ClusterArn: kafkaArn,
                 ConnectivityInfo: {
                   PublicAccess: {
-                    Type: 'SERVICE_PROVIDED_EIPS'
+                    Type: 'SERVICE_PROVIDED_EIPS'   // enables public access
                   }
                 },
                 CurrentVersion: currentVersion
@@ -251,8 +257,29 @@ export const clusterRouter = createTRPCRouter({
               await client.send(commandUpdate);
               console.log(`Successfully updated the public access`)
             }
+            // when state is active again, after updating public access
+            else if (curState === 'ACTIVE' && lifeCycleStage === 1) {
+              const boostrapResponse = await kafka.getBootstrapBrokers({
+                ClusterArn: kafkaArn
+              }).promise();
+              const endpoints = boostrapResponse.BootstrapBrokerStringPublicSaslScram;
+
+              // store endpoints in the cluster db
+              const updateResponse = await prisma.cluster.update({
+                where: {
+                  name: input.name
+                },
+                data: {
+                  bootStrapServer: {
+                    push: endpoints
+                  },
+                  lifeCycleStage: 2     // last lifeCycleStage
+                }
+              });
+
+            }
   
-            console.log(curState);
+            console.log(`Current cluster state: ${curState}`);
             return curState;
         }
         return 'Error finding cluster';
@@ -261,6 +288,7 @@ export const clusterRouter = createTRPCRouter({
         console.log('error fetching data from database', err)
       }
     }),
+
 
     deleteCluster: publicProcedure
       .input(z.object({
