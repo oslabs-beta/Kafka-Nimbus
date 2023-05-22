@@ -1,7 +1,8 @@
 import React from "react";
-import { PrismaClient, Cluster } from "@prisma/client";
+import { PrismaClient, type Cluster } from "@prisma/client";
 import { redirect } from 'next/navigation';
 import { getServerAuthSession } from '~/server/auth';
+
 
 import ClusterCard from "~/app/components/ClusterCard";
 import CreateClusterCard from "~/app/components/CreateClusterCard";
@@ -38,7 +39,7 @@ const ClusterDashboard = async () => {
               return <ClusterCard key={cluster.id} cluster={cluster} />;
             })
             : null}
-          <CreateClusterCard userId={sessionData?.user?.id} />
+          <CreateClusterCard  />
         </div>
       </div>
     </>

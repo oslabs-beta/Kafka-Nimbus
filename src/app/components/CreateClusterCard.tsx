@@ -3,7 +3,7 @@ import * as React from "react";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 
-export default function CreateClusterCard({ userId }: string) {
+export default function CreateClusterCard() {
   const router = useRouter();
 
   const createClusterHandler = () => {
