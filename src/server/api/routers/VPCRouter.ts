@@ -1,13 +1,8 @@
-/**
- *  Todo on file, add more type safety, ignoring a lot of things on initial code-through
- */
 
 
 import { z } from 'zod';
 import AWS from 'aws-sdk';
-import { prisma } from '../../db'
-import 
-import type { User } from '@prisma/client';
+import { prisma } from '../../db' 
 
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
@@ -109,7 +104,10 @@ export const createVPCRouter = createTRPCRouter({
           }
 
           const configData = await client.send(new CreateConfigurationCommand(configParams));
-          const configArn: string = configData.Arn;
+          const configArn = configData.Arn;
+          if (configArn === undefined) {
+            throw new Error('ConfigARN doesn\'t exist on client')
+          }
           console.log(`Created config with Arn ${configArn}`);
 
           // Create key
@@ -123,7 +121,10 @@ export const createVPCRouter = createTRPCRouter({
 
           // call the method
           const kmsResponse = await kms.createKey(kmsParams).promise();
-          const keyId: string | undefined = kmsResponse.KeyMetadata?.KeyId;
+          const keyId = kmsResponse.KeyMetadata?.KeyId;
+          if (keyId === undefined) {
+            throw new Error('KeyId doesn\'t exist on kms response obj')
+          }
           console.log(`Created kms key with id: ${keyId}`);
           // getting the account id
           const sts = new AWS.STS();
@@ -158,7 +159,7 @@ export const createVPCRouter = createTRPCRouter({
             throw new Error('Key id does not exist');
           }
 
-          const policyResponse = await kms.putKeyPolicy( {
+          await kms.putKeyPolicy( {
             KeyId: keyId,
             PolicyName: 'default',
             Policy: JSON.stringify(policy)
@@ -178,6 +179,9 @@ export const createVPCRouter = createTRPCRouter({
           }
           const secretsResponse = await secretsmanager.createSecret(secretsParams).promise();
           const secretArn = secretsResponse.ARN;
+          if (secretArn === undefined) {
+            throw new Error('SecretArn doesn\'t exist on the secret object');
+          }
           console.log(`Created secret with ARN: ${secretArn}`);
 
 
