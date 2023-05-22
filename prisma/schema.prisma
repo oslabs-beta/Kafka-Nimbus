@@ -39,19 +39,21 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(auto()) @map("_id") @db.ObjectId
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime? @map("verifiedAt")
-    image         String?
-    createdAt     DateTime  @default(now())
-    vpcId         String?
-    subnetID      String[]
-    vpcId         String?
-    subnetID      String[]
-    accounts      Account[]
-    sessions      Session[]
-    clusters      Cluster[]
+    id                  String    @id @default(auto()) @map("_id") @db.ObjectId
+    name                String?
+    email               String?   @unique
+    emailVerified       DateTime? @map("verifiedAt")
+    image               String?
+    createdAt           DateTime  @default(now())
+    vpcId               String    @default("")
+    awsAccessKey        String    @default("")
+    awsSecretAccessKey  String    @default("")
+    region              String    @default("")
+    configArn           String    @default("")
+    subnetID            String[]
+    accounts            Account[]
+    sessions            Session[]
+    clusters            Cluster[]
 
     @@map("users")
 }
@@ -60,12 +62,10 @@ model Cluster {
     id                 String     @id @default(auto()) @map("_id") @db.ObjectId
     name               String     @unique
     createdAt          DateTime   @default(now())
-    data               Json
-    img                String
-    User               User?      @relation(fields: [userId], references: [id])
-    userId             String?    @db.ObjectId
-    awsAccessKey       String?
-    awsSecretAccessKey String?
+    data               Json?
+    img                String?
+    User               User       @relation(fields: [userId], references: [id])
+    userId             String     @db.ObjectId
     securityGroup      String[]
     brokerPerZone      Int?
     instanceSize       String?
