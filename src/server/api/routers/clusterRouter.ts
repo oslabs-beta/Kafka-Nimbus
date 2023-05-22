@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { v4 } from 'uuid';
 import { prisma } from '../../db'
-import type { User, Cluster } from '@prisma/client';
 
 import {
   createTRPCRouter,
@@ -12,6 +10,7 @@ import {
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
+import { KafkaClient, BatchAssociateScramSecretCommand } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -25,10 +24,8 @@ export const clusterRouter = createTRPCRouter({
     }))
     .query(async({ input }) => {
       // First, find the user object in the database using id
-      let vpcId = '';
-      let subnetIds: string[] = [];
       try {
-        const userResponse: User | null = await prisma.user.findUnique({
+        const userResponse = await prisma.user.findUnique({
           where: {
             id: input.id
           }
@@ -37,41 +34,34 @@ export const clusterRouter = createTRPCRouter({
           throw new Error('User doesn\'t exist in database')
         }
         // store the vpcId and subnets l
-        vpcId = userResponse.vpcId;
-        subnetIds = userResponse.subnetID;
-      }
-      catch (error) {
-        console.log('Error accessing database, ', error);
-      }
-        // Create security groups within the vpc
-      if (!vpcId) {
-        throw new Error('vpcId assignment error');
-      }
-      // create security group for msk cluster
-      const randString: string = v4(); 
-      const createSecurityGroupParams = {
-        Description: 'Security group for MSK Cluster',
-        GroupName: 'MSKSecurityGroup' + randString,
-        VpcId: vpcId
-      }
+        const vpcId = userResponse.vpcId;
+        const subnetIds = userResponse.subnetID;
+        const configArn = userResponse.configArn;
+        
+          // Create security groups within the vpc
+        if (!vpcId) {
+          throw new Error('vpcId assignment error');
+        }
+        // create security group for msk cluster
+        const randString: string = v4(); 
+        const createSecurityGroupParams = {
+          Description: 'Security group for MSK Cluster',
+          GroupName: 'MSKSecurityGroup' + randString,
+          VpcId: vpcId
+        }
 
-      try {
+        // security group for the cluster
         const createSecurityGroupData = await ec2.createSecurityGroup(createSecurityGroupParams).promise();
-        const groupId: string = createSecurityGroupData?.GroupId;
+        let groupId: string | undefined = createSecurityGroupData?.GroupId;
+        if (groupId === undefined) groupId = '';
 
         const authorizeSecurityGroupParams = {
           GroupId: groupId,
           IpPermissions: [
             {
               IpProtocol: 'tcp',
-              FromPort: 9092,
-              ToPort: 9092,
-              IpRanges: [{ CidrIp: '0.0.0.0/0'}]  // all access open
-            },
-            {
-              IpProtocol: 'tcp',
-              FromPort: 9094,
-              ToPort: 9094,
+              FromPort: -1,
+              ToPosrt: -1,
               IpRanges: [{ CidrIp: '0.0.0.0/' }] // all access
             }
           ]
@@ -97,7 +87,8 @@ export const clusterRouter = createTRPCRouter({
           NumberOfBrokerNodes: input.brokerPerZone,
           EncryptionInfo: {
             EncryptionInTransit: {
-              ClientBroker: 'PLAINTEXT',
+              ClientBroker: 'TLS', // Changing from PLAINTEXT to TLS for disabling plaintext traffic
+              InCluster: true, // Enabling encryption within the cluster
             }
           },
           OpenMonitoring: {
@@ -107,8 +98,19 @@ export const clusterRouter = createTRPCRouter({
               },
               NodeExporter: {
                 EnabledInBroker: true
+              }
+            }
+          },
+          ClientAuthentication: {
+            Sasl: {
+              Scram: {
+                Enabled: true,
               },
             },
+          },
+          ConfigurationInfo: {
+            Arn: configArn, // Providing the ARN for kafka-ACL
+            Revision: 1,
           },
         };
 
@@ -146,6 +148,19 @@ export const clusterRouter = createTRPCRouter({
       }
     }),
 
+  /**
+   * This route will return the cluster status
+   * @returns 
+   *  ACTIVE
+   * CREATING
+   * DELETING
+   * FAILED
+   * HEALING
+   * MAINTENANCE
+   * REBOOTING_BROKER
+   * UPDATING
+   */
+    
   checkClusterStatus: publicProcedure
     .input(z.object({
       name: z.string()
@@ -155,28 +170,122 @@ export const clusterRouter = createTRPCRouter({
         const clusterResponse = await prisma.cluster.findUnique({
           where: {
             name: input.name
+          },
+          include: {
+            User: true
           }
         })
+        
+        const awsAccessKey: string = clusterResponse?.User.awsAccessKey;
+        const awsSecretAccessKey: string = clusterResponse?.User.awsSecretAccessKey;
+        const region = clusterResponse?.User.region;
+        const secretArn: string | undefined = clusterResponse?.User.secretArn;
         if (!clusterResponse) {
           throw new Error('Didn\'t find cluster in db');
         }
-        const kafkaArn: string = clusterResponse?.kafkaArn;
-        
-        const sdkResponse = await kafka.describeCluster(
-          {ClusterArn: kafkaArn}
-          ).promise();
+        const kafkaArn = clusterResponse.kafkaArn;   // obtaining the arn of the cluster
+        if (kafkaArn) {
+          const sdkResponse = await kafka.describeCluster(
+            {ClusterArn: kafkaArn}
+            ).promise();
+  
+            if (!sdkResponse) {
+              throw new Error('SDK couldn\'t find the cluster');
+            }
+            const curState = sdkResponse.ClusterInfo?.State;
 
-          if (!sdkResponse) {
-            throw new Error('SDK couldn\'t find the cluster');
-          }
-          const curState: string = sdkResponse.ClusterInfo?.State;
+            // if the state is active, we want to update public access
+            // to SERVICE_PROVIDED_EIPS
+            if (curState === 'ACTIVE') {
+              const client = new KafkaClient({region: region, 
+                credentials: {
+                  accessKeyId: awsAccessKey,
+                  secretAccessKey: awsSecretAccessKey,
+              }});
+              const clientCommandParams = {
+                ClusterArn: kafkaArn,
+                SecretArnList: [secretArn]
+              }
+              const command = new BatchAssociateScramSecretCommand(clientCommandParams);
+              const commandResponse = await client.send(command);
+              console.log(`Created secret with cluster ${commandResponse.ClusterArn}`);
 
-          console.log(curState);
-          return curState;
-
+              const updateParams = {
+                ClusterArn: kafkaArn,
+                ConnectivityInfo: {
+                  PublicAccess: {
+                    Type: 'SERVICE_PROVIDED_EIPS'
+                  }
+                },
+                CurrentVersion: '2.8.1'
+              };
+              kafka.updateConnectivity(updateParams, (err, data) => {
+                if (err) {
+                  console.log('Encountered error , ', err);
+                }
+                else {
+                  console.log('Successfully updated public access');
+                }
+              });
+            }
+  
+            console.log(curState);
+            return curState;
+        }
+        return 'Error finding cluster';
       }
       catch (err) {
         console.log('error fetching data from database', err)
       }
-    })
+    }),
+
+    deleteCluster: publicProcedure
+      .input(z.object({
+        name: z.string()
+      }))
+      .query(async({ input }) => {
+        try {
+          const deletedCluster = await prisma.cluster.delete({
+            where :{
+              name: input.name,
+            }
+          });
+
+          /**
+           * Add functionality to also delete respective EC2 instance
+           */
+
+          return deletedCluster;
+        }
+        catch (err) {
+          console.log('Error deleting from aws , ', err);
+        }
+      }),
+      
+    /**
+     * ID: userId
+     * @returns true or false if vpcid exists or not
+     */
+
+    clusterExists: publicProcedure  
+      .input(z.object({
+        id: z.string()    
+      }))
+      .query(async({ input }) => {
+        try {
+          const userResponse = await prisma.user.findUnique({
+            where: {
+              id: input.id
+            }
+          });
+
+          if (userResponse && userResponse.vpcId !== '') {
+            return true;
+          }
+          return false;
+        }
+        catch (err) {
+          console.log('Error finding user in db ', err)
+        }
+      }) 
 });

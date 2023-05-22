@@ -1,11 +1,20 @@
+/**
+ *  Todo on file, add more type safety, ignoring a lot of things on initial code-through
+ */
+
 
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { prisma } from '../../db'
+import 
 import type { User } from '@prisma/client';
 
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
+import { KafkaClient, CreateConfigurationCommand } from '@aws-sdk/client-kafka';
+import fs from 'fs';
+
+
 
 import {
   createTRPCRouter,
@@ -26,10 +35,11 @@ export const createVPCRouter = createTRPCRouter({
           secretAccessKey: input.aws_secret_access_key,
           region: input.region,
         })
+        const client = new KafkaClient({region: input.region})
 
         try{
           // create the vpc
-          const vpcData: any = await ec2.createVpc({
+          const vpcData = await ec2.createVpc({
             CidrBlock: '10.0.0.0/16',
           }).promise();
           // make sure data is correct
@@ -40,43 +50,46 @@ export const createVPCRouter = createTRPCRouter({
           console.log(`Created VPC with id ${vpcId}`)
 
           // Create the IGW
-          const igwData: any = await ec2.createInternetGateway({}).promise();
+          const igwData = await ec2.createInternetGateway({}).promise();
           // checking it exists
           if (!igwData.InternetGateway) {
             throw new Error('IGW creation failed');
           }
-          const igwId: string = igwData.InternetGateway.InternetGatewayId
+
+          const igwId: string = igwData.InternetGateway.InternetGatewayId;
+          
 
           // attach IGW to VPC
           await ec2.attachInternetGateway({ InternetGatewayId: igwId, VpcId: vpcId}).promise();
           console.log(`Attached Internet Gateway ${igwId} to VPC ${vpcId}`);
 
+
           // Create subnets
-          const subnet1Data: any = await ec2.createSubnet(
+          const subnet1Data = await ec2.createSubnet(
             { 
               CidrBlock: '10.0.0.0/24', 
               VpcId: vpcId, 
-              AvailabilityZone: 'us-east-2a'
+              AvailabilityZone: 'us-east-2a'          // change this so  that they can enter their specific region
           }).promise();
-          const subnet2Data: any = await ec2.createSubnet(
+          const subnet2Data = await ec2.createSubnet(
             { 
               CidrBlock: '10.0.1.0/24', 
               VpcId: vpcId, 
               AvailabilityZone: 'us-east-2b'
           }).promise();
-          const subnet1Id: string = subnet1Data.Subnet.SubnetId;
-          const subnet2Id: string = subnet2Data.Subnet.SubnetId;
+          const subnet1Id: string = subnet1Data.Subnet?.SubnetId;
+          const subnet2Id: string = subnet2Data.Subnet?.SubnetId;
           console.log(`Created subnet with id ${subnet1Id}`);
           console.log(`Created subnet with id ${subnet2Id}`);
 
           // Create route table connections
-          const routeTables: any = await ec2.describeRouteTables({
+          const routeTables = await ec2.describeRouteTables({
             Filters: [{
               Name: 'vpc-id',
               Values: [vpcId]
             }]
           }).promise();
-          const routeTableId: string = routeTables.RouteTables[0].RouteTableId;
+          const routeTableId: string = routeTables.RouteTable[0].RouteTableId;
 
           // Create route for IGW
           await ec2.createRoute({
@@ -85,6 +98,88 @@ export const createVPCRouter = createTRPCRouter({
             RouteTableId: routeTableId,
           }).promise();
           console.log(`Added route for IGW ${igwId} to Route Table ${routeTableId}`);
+
+          // create cluster config file
+          const ServerProperties = fs.readFileSync('server.properties', 'utf8');
+          const configParams = {
+            Description: 'Configuration settings for custom cluster',
+            KafkaVersion: ['2.8.1'],
+            Name: 'Kafka-NimbusConfiguration',
+            ServerProperties: ServerProperties,
+          }
+
+          const configData = await client.send(new CreateConfigurationCommand(configParams));
+          const configArn: string = configData.Arn;
+          console.log(`Created config with Arn ${configArn}`);
+
+          // Create key
+          const kms = new AWS.KMS();
+          const kmsParams = {
+            CustomerMasterKeySpec: "SYMMETRIC_DEFAULT",
+            KeyUsage: "ENCRYPT_DECRYPT",
+            Origin: 'AWS_KMS',
+            Description: "This is a symmetric key for ec and dec"
+          };
+
+          // call the method
+          const kmsResponse = await kms.createKey(kmsParams).promise();
+          const keyId: string | undefined = kmsResponse.KeyMetadata?.KeyId;
+          console.log(`Created kms key with id: ${keyId}`);
+          // getting the account id
+          const sts = new AWS.STS();
+          const stsResponse = await sts.getCallerIdentity({}).promise();
+          const accountId: string | undefined = stsResponse.Account;
+          if (accountId === undefined) {
+            throw new Error('Account id failed');
+          }
+          console.log(`Got accountID: ${accountId}`);
+
+
+          // we have to add a policy to the key to grant permissions
+
+          const policy = {
+            "Version": "2012-10-17",
+            "Id": "key-default-1",
+            "Statement": [
+                {
+                    "Sid": "Enable IAM User Permissions",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": [
+                            `arn:aws:iam::${accountId}:root`    // get user account number
+                        ]
+                    },
+                    "Action": "kms:*",
+                    "Resource": "*"
+                }
+            ]
+         };
+          if (keyId === undefined) {
+            throw new Error('Key id does not exist');
+          }
+
+          const policyResponse = await kms.putKeyPolicy( {
+            KeyId: keyId,
+            PolicyName: 'default',
+            Policy: JSON.stringify(policy)
+
+          }).promise();
+
+          // create Secret using KMS key
+          const secretsmanager = new AWS.SecretsManager();
+
+          const secretsParams = {
+            Name: `AmazonMSK_${input.id}`,
+            SecretString: JSON.stringify({
+              "username": input.id,
+              "password": 'kafka-nimbus'
+            }),
+            KmsKeyId: keyId
+          }
+          const secretsResponse = await secretsmanager.createSecret(secretsParams).promise();
+          const secretArn = secretsResponse.ARN;
+          console.log(`Created secret with ARN: ${secretArn}`);
+
 
           /**
            * Send required info to db
@@ -104,14 +199,15 @@ export const createVPCRouter = createTRPCRouter({
                 awsAccessKey: input.aws_access_key_id,
                 awsSecretAccessKey: input.aws_secret_access_key,
                 region: input.region,
+                configArn: configArn,
+                kmsKey: keyId,
+                secretArn: secretArn
               }
             })
           }
           catch (error) {
             console.log('Ran into error updating user, lost VPC, fix in cli., ', error);
           }
-
-
         }
         catch (error) {
           console.log('Ran into error creating VPC and subnets ', error)
