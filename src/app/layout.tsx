@@ -16,17 +16,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClientProvider>
-      <html lang='en'>
-        <body>
+    <html lang='en'>
+      <body>
+        <ClientProvider>
           <AuthProvider>
             <Providers>
               <NavBar />
               {children}
             </Providers>
           </AuthProvider>
-        </body>
-      </html>
-   </ClientProvider>
+        </ClientProvider>
+      </body>
+    </html>
   );
 }

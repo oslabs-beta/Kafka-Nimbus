@@ -1,7 +1,7 @@
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc';
 import { z } from 'zod';
 
-import { User, Cluster, PrismaClient } from '@prisma/client';
+import { type User, type Cluster, PrismaClient } from '@prisma/client';
 
 export const databaseRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -18,8 +18,8 @@ export const databaseRouter = createTRPCRouter({
         storagePerBroker: z.number(),
       })
     )
-    .query(async ({ ctx, input }) => {
-      console.log('CTX CONSOLE',ctx)
+    .mutation(async ({ ctx, input }) => {
+      console.log('CTX CONSOLE', ctx);
       const prisma = new PrismaClient();
 
       try {

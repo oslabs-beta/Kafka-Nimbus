@@ -10,11 +10,12 @@ import BrokerCountInput from '../(components)/BrokerCounterInput';
 import StoragePerBroker from '../(components)/StoragePerBroker';
 import ClusterSize from '../(components)/ClusterSize';
 import ClusterLoadingState from '../(components)/ClusterLoadingState';
+import { useMutation } from 'react-query';
 
 import { redirect } from 'next/navigation';
 
 // TRPC IMPORTS
-import { api } from '~/trpc/api';
+import { trpc } from '../../../trpc/trpc-provider';
 
 type ComponentState = {
   inFocus: string;
@@ -24,43 +25,55 @@ const CreateClusterPage = () => {
   const [inFocus, setInFocus] = useState<ComponentState['inFocus']>('provider');
   const { createCluster } = useAppSelector((state) => state);
   const { data: sessionData } = useSession();
-
+  const saveCLustertoDb = trpc.database.createCluster.useMutation();
   const inFocusHandler = (string: string) => {
     setInFocus(string);
   };
 
-  const {
-    awsId,
-    awsSecret,
-    brokerNumbers,
-    region,
-    clusterName,
-    provider,
-    storagePerBroker,
-    clusterSize,
-  } = createCluster;
-
-  const saveCLustertoDb = api.database.createCluster.useQuery({
-    id: sessionData?.user.id ? sessionData?.user.id : '',
-    awsId,
-    awsSecret,
-    brokerNumbers,
-    region,
-    clusterName,
-    provider,
-    storagePerBroker,
-    clusterSize,
-  });
+  // const saveCLustertoDb = trpc.database.createCluster.useQuery({
+  //   id: sessionData?.user.id ? sessionData?.user.id : '',
+  //   awsId,
+  //   awsSecret,
+  //   brokerNumbers,
+  //   region,
+  //   clusterName,
+  //   provider,
+  //   storagePerBroker,
+  //   clusterSize,
+  // });
 
   const createClusterHandler = () => {
+    const {
+      awsId,
+      awsSecret,
+      brokerNumbers,
+      region,
+      clusterName,
+      provider,
+      storagePerBroker,
+      clusterSize,
+    } = createCluster;
+
     // const aws = api.createVPC.createVPC.useQuery({
     //   aws_access_key_id: awsId,
     //   aws_secret_access_key: awsSecret,
     //   id: sessionData?.user.id ? sessionData?.user.id : '',
     //   region: region,
     // });
-
-    redirect('/cluster-dashboard');
+    saveCLustertoDb.mutate(
+      {
+        id: sessionData?.user.id ? sessionData?.user.id : '',
+        awsId,
+        awsSecret,
+        brokerNumbers,
+        region,
+        clusterName,
+        provider,
+        storagePerBroker,
+        clusterSize,
+      }
+    );
+    redirect('/cluster-dashboard')
   };
 
   switch (inFocus) {
