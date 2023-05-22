@@ -1,5 +1,5 @@
 import { AuthProvider } from './components/AuthProvider';
-import { ClientProvider } from '../utils/trpc-provider';
+import { ClientProvider } from '../trpc/trpc-provider';
 // im just testing to see if this words
 import NavBar from './components/NavBar';
 import { Providers } from './redux/provider';

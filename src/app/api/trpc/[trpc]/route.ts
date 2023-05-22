@@ -20,10 +20,9 @@ const nextApiHandler = createNextApiHandler({
 
 });
 
-
-
-
 // export API handler
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  return nextApiHandler(req, res);
-}
+function handler(req: NextApiRequest, res: NextApiResponse) {
+    return nextApiHandler(req, res);
+  }
+
+export { handler as GET, handler as POST };

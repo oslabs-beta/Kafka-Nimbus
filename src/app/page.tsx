@@ -2,7 +2,7 @@
 import { type NextPage } from 'next';
 import Link from 'next/link';
 import { AuthShowcase } from './components/AuthShowcase';
-import { api } from '~/utils/api';
+import { api } from '~/trpc/api';
 import { withTRPC } from '@trpc/next';
 import { appRouter } from '../server/api/root';
 

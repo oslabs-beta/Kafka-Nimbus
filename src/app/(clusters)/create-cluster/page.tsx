@@ -14,7 +14,7 @@ import ClusterLoadingState from '../(components)/ClusterLoadingState';
 import { redirect } from 'next/navigation';
 
 // TRPC IMPORTS
-import { api } from '~/utils/api';
+import { api } from '~/trpc/api';
 
 type ComponentState = {
   inFocus: string;
