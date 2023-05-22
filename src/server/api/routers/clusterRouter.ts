@@ -23,7 +23,6 @@ export const clusterRouter = createTRPCRouter({
     }))
     .query(async({ input }) => {
       // First, find the user object in the database using id
-
       try {
         const userResponse = await prisma.user.findUnique({
           where: {
@@ -244,7 +243,32 @@ export const clusterRouter = createTRPCRouter({
         catch (err) {
           console.log('Error deleting from aws , ', err);
         }
-      })
+      }),
+      
+    /**
+     * ID: userId
+     * @returns true or false if vpcid exists or not
+     */
 
+    clusterExists: publicProcedure  
+      .input(z.object({
+        id: z.string()    
+      }))
+      .query(async({ input }) => {
+        try {
+          const userResponse = await prisma.user.findUnique({
+            where: {
+              id: input.id
+            }
+          });
 
+          if (userResponse && userResponse.vpcId !== '') {
+            return true;
+          }
+          return false;
+        }
+        catch (err) {
+          console.log('Error finding user in db ', err)
+        }
+      }) 
 });
