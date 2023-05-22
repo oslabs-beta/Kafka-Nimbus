@@ -10,7 +10,7 @@ import {
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
-import { KafkaClient, BatchAssociateScramSecretCommand } from '@aws-sdk/client-kafka';
+import { KafkaClient, BatchAssociateScramSecretCommand, UpdateConnectivityCommand } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -175,11 +175,17 @@ export const clusterRouter = createTRPCRouter({
             User: true
           }
         })
-        
-        const awsAccessKey: string = clusterResponse?.User.awsAccessKey;
-        const awsSecretAccessKey: string = clusterResponse?.User.awsSecretAccessKey;
+        if (clusterResponse?.User === undefined) {
+          throw new Error('User does not exist on the cluster Response')
+        }
+        const awsAccessKey = clusterResponse?.User.awsAccessKey;
+        const awsSecretAccessKey = clusterResponse?.User.awsSecretAccessKey;
+        if (awsAccessKey === undefined || awsSecretAccessKey === undefined) {
+          throw new Error('One or both access keys doesn\'t exist');
+        }
         const region = clusterResponse?.User.region;
-        const secretArn: string | undefined = clusterResponse?.User.secretArn;
+        const { secretArn } = clusterResponse?.User;
+
         if (!clusterResponse) {
           throw new Error('Didn\'t find cluster in db');
         }
@@ -208,7 +214,28 @@ export const clusterRouter = createTRPCRouter({
               }
               const command = new BatchAssociateScramSecretCommand(clientCommandParams);
               const commandResponse = await client.send(command);
-              console.log(`Created secret with cluster ${commandResponse.ClusterArn}`);
+              if (commandResponse.ClusterArn) {
+                console.log(`Created secret with cluster ${commandResponse.ClusterArn}`);
+              }
+              
+              // get the current version so that we can update the public access params
+              const kafkaParams = {
+                ClusterArn: kafkaArn
+              }
+              const describeClusterResponse = await kafka.describeCluster(kafkaParams).promise();
+              if (describeClusterResponse === undefined) {
+                throw new Error('Couldn\'t find cluster')
+              }
+              const currentVersion = describeClusterResponse.ClusterInfo?.CurrentVersion;
+              // store current version in the db
+              await prisma.cluster.update({
+                where: {
+                  name: input.name
+                },
+                data: {
+                  currentVersion: currentVersion
+                }
+              })
 
               const updateParams = {
                 ClusterArn: kafkaArn,
@@ -217,16 +244,12 @@ export const clusterRouter = createTRPCRouter({
                     Type: 'SERVICE_PROVIDED_EIPS'
                   }
                 },
-                CurrentVersion: '2.8.1'
+                CurrentVersion: currentVersion
               };
-              kafka.updateConnectivity(updateParams, (err, data) => {
-                if (err) {
-                  console.log('Encountered error , ', err);
-                }
-                else {
-                  console.log('Successfully updated public access');
-                }
-              });
+              // send the update command
+              const commandUpdate = new UpdateConnectivityCommand(updateParams);
+              await client.send(commandUpdate);
+              console.log(`Successfully updated the public access`)
             }
   
             console.log(curState);
