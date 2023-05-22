@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { prisma } from '../../db'
+import 
 import type { User } from '@prisma/client';
 
 
@@ -19,7 +20,6 @@ import {
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
-import { user } from '~/app/redux/features/userSlice';
 
 export const createVPCRouter = createTRPCRouter({
   createVPC: publicProcedure
@@ -55,18 +55,21 @@ export const createVPCRouter = createTRPCRouter({
           if (!igwData.InternetGateway) {
             throw new Error('IGW creation failed');
           }
+
           const igwId: string = igwData.InternetGateway.InternetGatewayId;
+          
 
           // attach IGW to VPC
           await ec2.attachInternetGateway({ InternetGatewayId: igwId, VpcId: vpcId}).promise();
           console.log(`Attached Internet Gateway ${igwId} to VPC ${vpcId}`);
+
 
           // Create subnets
           const subnet1Data = await ec2.createSubnet(
             { 
               CidrBlock: '10.0.0.0/24', 
               VpcId: vpcId, 
-              AvailabilityZone: 'us-east-2a'
+              AvailabilityZone: 'us-east-2a'          // change this so  that they can enter their specific region
           }).promise();
           const subnet2Data = await ec2.createSubnet(
             { 
@@ -109,6 +112,75 @@ export const createVPCRouter = createTRPCRouter({
           const configArn: string = configData.Arn;
           console.log(`Created config with Arn ${configArn}`);
 
+          // Create key
+          const kms = new AWS.KMS();
+          const kmsParams = {
+            CustomerMasterKeySpec: "SYMMETRIC_DEFAULT",
+            KeyUsage: "ENCRYPT_DECRYPT",
+            Origin: 'AWS_KMS',
+            Description: "This is a symmetric key for ec and dec"
+          };
+
+          // call the method
+          const kmsResponse = await kms.createKey(kmsParams).promise();
+          const keyId: string | undefined = kmsResponse.KeyMetadata?.KeyId;
+          console.log(`Created kms key with id: ${keyId}`);
+          // getting the account id
+          const sts = new AWS.STS();
+          const stsResponse = await sts.getCallerIdentity({}).promise();
+          const accountId: string | undefined = stsResponse.Account;
+          if (accountId === undefined) {
+            throw new Error('Account id failed');
+          }
+          console.log(`Got accountID: ${accountId}`);
+
+
+          // we have to add a policy to the key to grant permissions
+
+          const policy = {
+            "Version": "2012-10-17",
+            "Id": "key-default-1",
+            "Statement": [
+                {
+                    "Sid": "Enable IAM User Permissions",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": [
+                            `arn:aws:iam::${accountId}:root`    // get user account number
+                        ]
+                    },
+                    "Action": "kms:*",
+                    "Resource": "*"
+                }
+            ]
+         };
+          if (keyId === undefined) {
+            throw new Error('Key id does not exist');
+          }
+
+          const policyResponse = await kms.putKeyPolicy( {
+            KeyId: keyId,
+            PolicyName: 'default',
+            Policy: JSON.stringify(policy)
+
+          }).promise();
+
+          // create Secret using KMS key
+          const secretsmanager = new AWS.SecretsManager();
+
+          const secretsParams = {
+            Name: `AmazonMSK_${input.id}`,
+            SecretString: JSON.stringify({
+              "username": input.id,
+              "password": 'kafka-nimbus'
+            }),
+            KmsKeyId: keyId
+          }
+          const secretsResponse = await secretsmanager.createSecret(secretsParams).promise();
+          const secretArn = secretsResponse.ARN;
+          console.log(`Created secret with ARN: ${secretArn}`);
+
+
           /**
            * Send required info to db
            */
@@ -127,7 +199,9 @@ export const createVPCRouter = createTRPCRouter({
                 awsAccessKey: input.aws_access_key_id,
                 awsSecretAccessKey: input.aws_secret_access_key,
                 region: input.region,
-                configArn: configArn
+                configArn: configArn,
+                kmsKey: keyId,
+                secretArn: secretArn
               }
             })
           }

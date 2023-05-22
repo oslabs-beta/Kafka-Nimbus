@@ -50,6 +50,8 @@ model User {
     awsSecretAccessKey  String    @default("")
     region              String    @default("")
     configArn           String    @default("")
+    kmsKey              String    @default("")
+    secretArn           String    @default("")
     subnetID            String[]
     accounts            Account[]
     sessions            Session[]
