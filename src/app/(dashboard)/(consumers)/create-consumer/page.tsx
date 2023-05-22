@@ -1,42 +1,38 @@
 "use client";
 import React, { Suspense, useState } from "react";
-import { useAppDispatch, useAppSelector} from "~/app/redux/hooks";
+import { useAppDispatch, useAppSelector } from "~/app/redux/hooks";
 import {
-  settopicName,
-  settopicPartitions,
-  settopicReplications,
-} from "~/app/redux/features/topicSlice";
+  setid,
+  setEndpoint,
+  setStatus,
+} from "~/app/redux/features/consumerGroupSlice";
 
-const TopicInfo: React.FC = ({ }) => {
+const TopicInfo: React.FC = ({}) => {
   const dispatch = useAppDispatch();
-  const [number, setNumber] = useState(0);
-  const [topicNameValue, topicName] = useState<string>("");
-  const [partitionValue, topicPartitions] = useState<number>(0);
-  const [replicationValue, topicReplications] = useState<number>(1);
-  const TopicReplications: number[] = [1, 2, 3];
-  const TopicPartitions: number[] = [1, 2, 3];
-  const { topics } = useAppSelector((state) => state);
-
+  const [Status, changeStatus] = useState<string>("");
+  const [Endpoint, changeEndpoint] = useState<number>(0);
+  const [id, changeid] = useState<number>(1);
+  const ListOfTopics: string[] = ["topic 1", "topic 2", "topic 3"];
+  const EntryPoint: string[] = ["Start", "Middle", "End"];
+  const { consumerGroup } = useAppSelector((state) => state);
 
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    dispatch(settopicName(topicNameValue));
-    dispatch(settopicPartitions(partitionValue));
-    dispatch(settopicReplications(replicationValue))
-    console.log(topics)
+    dispatch(setStatus(Status));
+    dispatch(setEndpoint(Endpoint));
+    dispatch(setid(id));
+    console.log(consumerGroup);
   };
 
-  const nameChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
+  const statusHandler = (event: React.FormEvent<HTMLInputElement>) => {
     console.log(event.currentTarget.value);
-    topicName(event.currentTarget.value);
+    changeStatus(event.currentTarget.value);
   };
-  const partitionChangeHandler = (event: React.FormEvent<HTMLSelectElement>) => {
+  const endpointHandler = (
+    event: React.FormEvent<HTMLSelectElement>
+  ) => {
     console.log(event.currentTarget.value);
-    topicPartitions(event.target.value);
-  };
-  const replicationChangeHandler = (event: React.FormEvent<HTMLSelectElement>) => {
-    console.log(event.currentTarget.value);
-    topicReplications(event.target.value);
+    changeEndpoint(event.target.value);
   };
 
   return (
@@ -45,45 +41,31 @@ const TopicInfo: React.FC = ({ }) => {
         <h1 className="mb-8 text-2xl font-bold">Create Consumer Group</h1>
         <div className="form-control w-full max-w-xs ">
           <form id="topic-form" onSubmit={onSubmitHandler}>
-            <label htmlFor="topic-form" className="label ">
-              Topic Name
-            </label>
-            <input
-              onChange={nameChangeHandler}
-              type="text"
-              placeholder="Topic Name"
-              className="input-bordered input mt-1 w-full max-w-xs rounded-md p-2"
-            />
             <label htmlFor="aws-form" className="label ">
-              Replication Count
+              Topics
             </label>
             <select
-              // className="select-bordered select w-full max-w-xs"
               className="select-bordered select w-full max-w-xs "
-              onChange={replicationChangeHandler}
+              onChange={endpointHandler}
             >
-              <option disabled value={"How many replications"}>
-                How Many replications
-              </option>
-              {TopicReplications.map((num) => (
-                <option value={num} key={num}>
-                  {num}
+              <option disabled value={"How many replications"}></option>
+              {ListOfTopics.map((str) => (
+                <option value={str} key={str}>
+                  {str}
                 </option>
               ))}
             </select>
             <label htmlFor="aws-form" className="label ">
-              Number of Partitions
+              Data Entry point
             </label>
             <select
-              className="select-bordered select w-full max-w-xs"
-              onChange={partitionChangeHandler}
+              className="select-bordered select w-full max-w-xs "
+              onChange={statusHandler}
             >
-              <option disabled value={"How many replications"}>
-                How Many partitions
-              </option>
-              {TopicPartitions.map((num) => (
-                <option value={num} key={num}>
-                  {num}
+              <option disabled value={"How many replications"}></option>
+              {EntryPoint.map((str) => (
+                <option value={str} key={str}>
+                  {str}
                 </option>
               ))}
             </select>

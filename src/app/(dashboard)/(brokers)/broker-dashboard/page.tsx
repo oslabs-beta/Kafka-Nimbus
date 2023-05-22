@@ -18,7 +18,7 @@ const brokerDashboard = async ({ params }: PageProps) => {
 
     brokers = await prisma.broker.findMany({
       where: {
-        broker: params.id,
+        broker: params.userId,
       },
     });
   } catch (error) {
@@ -53,8 +53,8 @@ const brokerDashboard = async ({ params }: PageProps) => {
             {brokers.map((broker) => (
               <tr key={broker.id}>
                 <th>{broker.Address}</th>
-                <td>{broker.brokerSize}</td>
-                <td>{broker.brokerLeader}</td>
+                <td>{broker.Size}</td>
+                <td>{broker.Leader}</td>
               </tr>
             ))}
           </tbody>

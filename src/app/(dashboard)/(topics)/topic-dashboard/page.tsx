@@ -17,7 +17,7 @@ const topicDashboard = async ({ params }: PageProps) => {
 
     topics = await prisma.topic.findMany({
       where: {
-        clusterId: params.clusterId,
+        clusterId: params.userId,
       },
     });
   } catch (error) {
@@ -77,10 +77,10 @@ const topicDashboard = async ({ params }: PageProps) => {
           </thead>
           <tbody>
             {topics.map((topic) => (
-              <tr key={topic.topicid}>
-                <th>{topic.topicid}</th>
-                <td>{topic.topicEndpoint}</td>
-                <td>{topic.topicCount}</td>
+              <tr key={topic.id}>
+                <th>{topic.id}</th>
+                <td>{topic.Endpoint}</td>
+                <td>{topic.Count}</td>
               </tr>
             ))}
           </tbody>

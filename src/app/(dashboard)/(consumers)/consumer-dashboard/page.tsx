@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { PrismaClient, Consumer } from '@prisma/client';
+import { PrismaClient, ConsumerGroup } from '@prisma/client';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 interface PageProps {
   params: {
-    userId: string;
+    consumerid: string;
   };
 }
 
 const consumerDashboard = async ({ params }: PageProps) => {
+  
   // error handling
-  let consumers: Array<Consumer> = [];
+  let consumerGroups: Array<ConsumerGroup> = [];
   try {
     const prisma = new PrismaClient();
 
-    consumers = await prisma.consumer.findMany({
+    consumerGroups = await prisma.consumerGroup.findMany({
       where: {
         consumerid: params.consumerid,
       },
@@ -23,7 +23,7 @@ const consumerDashboard = async ({ params }: PageProps) => {
   } catch (error) {
     console.log(error);
   }
-  if (consumers.length !== 0) {
+  if (consumerGroups.length !== 0) {
     return (
 <Suspense fallback={<h2>Loading...</h2>}>
     <div className="drawer">
@@ -73,15 +73,16 @@ const consumerDashboard = async ({ params }: PageProps) => {
               <th>Consumer Group</th>
               <th>Status</th>
               <th>Total Lag</th>
-              <th>Patitions/Topics</th>
+              <th>Partitions/Topics</th>
             </tr>
           </thead>
           <tbody>
-            {consumers.map((consumer) => (
-              <tr key={consumer.consumerid}>
-                <th>{consumer.consumerid}</th>
-                <td>{consumer.consumerEndpoint}</td>
-                <td>{consumer.consumerCount}</td>
+            {consumerGroups.map((consumergroup) => (
+              <tr key={consumergroup.id}>
+                <th>{consumergroup.Name}</th>
+                <td>{consumergroup.Status}</td>
+                <td>{consumergroup.Lag}</td>
+                <td>{consumergroup.Partitions + "/" + consumergroup.Topics}</td>
               </tr>
             ))}
           </tbody>

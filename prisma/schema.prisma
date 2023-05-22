@@ -77,7 +77,7 @@ model Cluster {
     bootStrapServer    String[]
     brokers            Broker[]
     topics             Topic[]
-    consumers          ConsumerGroups[]
+    consumers          ConsumerGroup[]
 }
 
 
@@ -123,7 +123,7 @@ model ConsumerGroup {
     Lag         Int
     Partitions  String
     Topics      String
-    consumers   Consumer []
+    consumers   Consumer[]
     Cluster     Cluster? @relation(fields: [clusterId], references: [id])
     clusterId   String?  @db.ObjectId
 }
