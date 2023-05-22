@@ -10,6 +10,7 @@ import {
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
 const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
+import { KafkaClient, BatchAssociateScramSecretCommand } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -49,6 +50,7 @@ export const clusterRouter = createTRPCRouter({
           VpcId: vpcId
         }
 
+        // security group for the cluster
         const createSecurityGroupData = await ec2.createSecurityGroup(createSecurityGroupParams).promise();
         let groupId: string | undefined = createSecurityGroupData?.GroupId;
         if (groupId === undefined) groupId = '';
@@ -58,14 +60,8 @@ export const clusterRouter = createTRPCRouter({
           IpPermissions: [
             {
               IpProtocol: 'tcp',
-              FromPort: 9092,
-              ToPort: 9092,
-              IpRanges: [{ CidrIp: '0.0.0.0/0'}]  // all access open
-            },
-            {
-              IpProtocol: 'tcp',
-              FromPort: 9094,
-              ToPort: 9094,
+              FromPort: -1,
+              ToPosrt: -1,
               IpRanges: [{ CidrIp: '0.0.0.0/' }] // all access
             }
           ]
@@ -174,8 +170,16 @@ export const clusterRouter = createTRPCRouter({
         const clusterResponse = await prisma.cluster.findUnique({
           where: {
             name: input.name
+          },
+          include: {
+            User: true
           }
         })
+        
+        const awsAccessKey: string = clusterResponse?.User.awsAccessKey;
+        const awsSecretAccessKey: string = clusterResponse?.User.awsSecretAccessKey;
+        const region = clusterResponse?.User.region;
+        const secretArn: string | undefined = clusterResponse?.User.secretArn;
         if (!clusterResponse) {
           throw new Error('Didn\'t find cluster in db');
         }
@@ -193,6 +197,19 @@ export const clusterRouter = createTRPCRouter({
             // if the state is active, we want to update public access
             // to SERVICE_PROVIDED_EIPS
             if (curState === 'ACTIVE') {
+              const client = new KafkaClient({region: region, 
+                credentials: {
+                  accessKeyId: awsAccessKey,
+                  secretAccessKey: awsSecretAccessKey,
+              }});
+              const clientCommandParams = {
+                ClusterArn: kafkaArn,
+                SecretArnList: [secretArn]
+              }
+              const command = new BatchAssociateScramSecretCommand(clientCommandParams);
+              const commandResponse = await client.send(command);
+              console.log(`Created secret with cluster ${commandResponse.ClusterArn}`);
+
               const updateParams = {
                 ClusterArn: kafkaArn,
                 ConnectivityInfo: {
@@ -201,7 +218,7 @@ export const clusterRouter = createTRPCRouter({
                   }
                 },
                 CurrentVersion: '2.8.1'
-              }
+              };
               kafka.updateConnectivity(updateParams, (err, data) => {
                 if (err) {
                   console.log('Encountered error , ', err);
@@ -209,7 +226,7 @@ export const clusterRouter = createTRPCRouter({
                 else {
                   console.log('Successfully updated public access');
                 }
-              })
+              });
             }
   
             console.log(curState);
