@@ -11,7 +11,7 @@ interface PageProps {
 const consumerDashboard = async ({ params }: PageProps) => {
   
   // error handling
-  let consumerGroups: Array<ConsumerGroup> = [];
+  let consumerGroups: ConsumerGroup[] = [];
   try {
     const prisma = new PrismaClient();
 

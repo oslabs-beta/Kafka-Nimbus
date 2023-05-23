@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import { PrismaClient, Topic } from '@prisma/client';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -11,7 +10,7 @@ interface PageProps {
 
 const topicDashboard = async ({ params }: PageProps) => {
   // error handling
-  let topics: Array<Topic> = [];
+  let topics: Topic[] = [];
   try {
     const prisma = new PrismaClient();
 
