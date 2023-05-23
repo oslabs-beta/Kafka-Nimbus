@@ -1,5 +1,4 @@
 import { createTRPCRouter } from "~/server/api/trpc";
-import { exampleRouter } from "~/server/api/routers/example";
 import { createVPCRouter } from "./routers/VPCRouter";
 
 import { databaseRouter } from "./routers/databaseRouter";
@@ -12,11 +11,9 @@ import { clusterRouter } from "./routers/clusterRouter";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  example: exampleRouter,
   createVPC: createVPCRouter,
   database: databaseRouter,
   createCluster: clusterRouter,
-  broker: brokerRouter
 
 });
 

@@ -68,7 +68,7 @@ const CreateClusterPage = () => {
 
   switch (inFocus) {
     case 'provider':
-      return <CloudProvider inFocusHandler={inFocusHandler} />;
+      return <CloudProvider sessionData={sessionData} inFocusHandler={inFocusHandler} />;
     case 'aws':
       return <AwsSecrets inFocusHandler={inFocusHandler} />;
     case 'region':
