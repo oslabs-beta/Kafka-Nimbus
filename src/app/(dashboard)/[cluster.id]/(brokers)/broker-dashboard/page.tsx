@@ -2,13 +2,17 @@ import { PrismaClient, Broker } from "@prisma/client";
 import Link from "next/link";
 import { Suspense } from "react";
 
+
 interface PageProps {
   params: {
     clusterId: string;
   };
+  cluster: {
+    id: string;
+  };
 }
 
-const brokerDashboard = async ({ params }: PageProps) => {
+const brokerDashboard = async ({ params, cluster }: PageProps) => {
   let brokers: Broker[] = [];
   try {
     const prisma = new PrismaClient();
@@ -75,7 +79,7 @@ const brokerDashboard = async ({ params }: PageProps) => {
               <div className="divider"></div>
               <li>
                 <Link
-                  href="/broker-dashboard"
+                  href='/broker-dashboard'
                   className="btn-primary btn-outline btn"
                 >
                   Brokers
