@@ -7,7 +7,7 @@ export interface cardCluster {
   cluster: {
     img: string;
     name: string;
-    id: number;
+    id: string;
   };
 }
 

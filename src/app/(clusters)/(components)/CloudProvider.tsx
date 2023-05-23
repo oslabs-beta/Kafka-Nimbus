@@ -17,7 +17,7 @@ const CloudProvider: React.FC<ProviderProps> = ({ inFocusHandler, sessionData}) 
   const dispatch = useAppDispatch();
 
   const { data:vpcId } = trpc.createVPC.findVPC.useQuery({
-    id: sessionData?.user.vpcId
+    id: sessionData?.user.id
   });
   
   const onClickHandler = () => {
