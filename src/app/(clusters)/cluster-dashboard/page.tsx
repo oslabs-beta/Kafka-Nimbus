@@ -15,7 +15,7 @@ const ClusterDashboard = async () => {
   }
 
   // error handling
-  let clusters: Array<Cluster> = [];
+  let clusters: Cluster[] = [];
   try {
     const prisma = new PrismaClient();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

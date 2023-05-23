@@ -15,7 +15,8 @@ export const appRouter = createTRPCRouter({
   example: exampleRouter,
   createVPC: createVPCRouter,
   database: databaseRouter,
-  createCluster: clusterRouter
+  createCluster: clusterRouter,
+  broker: brokerRouter
 
 });
 

@@ -1,49 +1,43 @@
 "use client";
 import React, { Suspense, useState } from "react";
-import { useAppDispatch } from "~/app/redux/hooks";
+import { useAppDispatch, useAppSelector} from "~/app/redux/hooks";
 import {
   settopicName,
-  setPartitions,
-  setReplications,
+  settopicPartitions,
+  settopicReplications,
 } from "~/app/redux/features/topicSlice";
 
-interface ProviderProps {
-  inFocusHandler: (string: string) => void;
-}
 
-const TopicInfo: React.FC<ProviderProps> = ({}) => {
+const TopicInfo: React.FC= ({ }) => {
   const dispatch = useAppDispatch();
   const [number, setNumber] = useState(0);
-  const [topicNameValue, settopicName] = useState<string>("");
-  const [partitionValue, setPartitions] = useState<number>(0);
-  const [replicationValue, setReplications] = useState<number>(1);
+  const [topicNameValue, topicName] = useState<string>("");
+  const [partitionValue, topicPartitions] = useState<number>(0);
+  const [replicationValue, topicReplications] = useState<number>(1);
   const TopicReplications: number[] = [1, 2, 3];
   const TopicPartitions: number[] = [1, 2, 3];
+  const { topics } = useAppSelector((state) => state);
 
-  const onSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setNumber(e.target.value);
-  };
 
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch(settopicName(topicNameValue));
-    dispatch(setPartitions(partitionValue));
-    dispatch(setReplications(replicationValue));
+    dispatch(settopicPartitions(partitionValue));
+    dispatch(settopicReplications(replicationValue))
+    console.log(topics)
   };
 
   const nameChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     console.log(event.currentTarget.value);
-    settopicName(event.currentTarget.value);
+    topicName(event.currentTarget.value);
   };
-  const partitionChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
+  const partitionChangeHandler = (event: React.FormEvent<HTMLSelectElement>) => {
     console.log(event.currentTarget.value);
-    setPartitions(event.currentTarget.value);
+    topicPartitions(event.target.value);
   };
-  const replicationChangeHandler = (
-    event: React.FormEvent<HTMLInputElement>
-  ) => {
+  const replicationChangeHandler = (event: React.FormEvent<HTMLSelectElement>) => {
     console.log(event.currentTarget.value);
-    setReplications(event.currentTarget.value);
+    topicReplications(event.target.value);
   };
 
   return (
@@ -51,8 +45,8 @@ const TopicInfo: React.FC<ProviderProps> = ({}) => {
       <div className="flex h-[70vh] flex-col items-center justify-center">
         <h1 className="mb-8 text-2xl font-bold">Create Topic</h1>
         <div className="form-control w-full max-w-xs ">
-          <form id="aws-form" onSubmit={onSubmitHandler}>
-            <label htmlFor="aws-form" className="label ">
+          <form id="topic-form" onSubmit={onSubmitHandler}>
+            <label htmlFor="topic-form" className="label ">
               Topic Name
             </label>
             <input
@@ -67,7 +61,7 @@ const TopicInfo: React.FC<ProviderProps> = ({}) => {
             <select
               // className="select-bordered select w-full max-w-xs"
               className="select-bordered select w-full max-w-xs "
-              onChange={partitionChangeHandler}
+              onChange={replicationChangeHandler}
             >
               <option disabled value={"How many replications"}>
                 How Many replications
@@ -86,7 +80,7 @@ const TopicInfo: React.FC<ProviderProps> = ({}) => {
               onChange={partitionChangeHandler}
             >
               <option disabled value={"How many replications"}>
-                How Many replications
+                How Many partitions
               </option>
               {TopicPartitions.map((num) => (
                 <option value={num} key={num}>
