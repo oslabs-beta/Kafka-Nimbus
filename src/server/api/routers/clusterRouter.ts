@@ -37,6 +37,17 @@ export const clusterRouter = createTRPCRouter({
         const vpcId = userResponse.vpcId;
         const subnetIds = userResponse.subnetID;
         const configArn = userResponse.configArn;
+
+        // store aws key and sescret, and put into the AWS config
+        const awsAccessKey = userResponse.awsAccessKey;
+        const awsSecretAccessKey = userResponse.awsSecretAccessKey;
+        const region = userResponse.region;
+
+        AWS.config.update({
+          accessKeyId: awsAccessKey,
+          secretAccessKey: awsSecretAccessKey,
+          region: region
+        })
         
           // Create security groups within the vpc
         if (!vpcId) {
@@ -103,9 +114,9 @@ export const clusterRouter = createTRPCRouter({
           },
           ClientAuthentication: {
             Sasl: {
-              Scram: {
+              Iam: {
                 Enabled: true,
-              },
+              }
             },
           },
           ConfigurationInfo: {
