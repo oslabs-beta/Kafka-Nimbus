@@ -1,23 +1,23 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState = {
-  consumerid: '',
-  consumerEndpoint: '',
-  consumerCount: 0,
+  id: '',
+  Endpoint: '',
+  Count: 0,
 }
 
 export const consumer = createSlice({
-  name: 'consumer',
+  name: 'consumerGroup',
   initialState,
   reducers: {
     setconsumerID: (state, action: PayloadAction<string>) => {
-      state.consumerid = action.payload;
+      state.id = action.payload;
     },
     setconsumerEndpoint: (state, action: PayloadAction<string>) => {
-      state.consumerEndpoint = action.payload;
+      state.Endpoint = action.payload;
     },
     setconsumerCount: (state, action: PayloadAction<number>) => {
-      state.consumerCount = action.payload;
+      state.Count = action.payload;
     },
   },
 });
