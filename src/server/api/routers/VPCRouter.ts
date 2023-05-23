@@ -1,12 +1,8 @@
-/**
- *  Todo on file, add more type safety, ignoring a lot of things on initial code-through
- */
 
 
 import { z } from 'zod';
 import AWS from 'aws-sdk';
-import { prisma } from '../../db'
-import type { User } from '@prisma/client';
+import { prisma } from '../../db' 
 
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
@@ -19,7 +15,6 @@ import {
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
-import { user } from '~/app/redux/features/userSlice';
 
 export const createVPCRouter = createTRPCRouter({
   createVPC: publicProcedure
@@ -29,7 +24,7 @@ export const createVPCRouter = createTRPCRouter({
       aws_secret_access_key: z.string(),
       region: z.string()
     }))
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
         AWS.config.update({
           accessKeyId: input.aws_access_key_id,
           secretAccessKey: input.aws_secret_access_key,
@@ -55,18 +50,24 @@ export const createVPCRouter = createTRPCRouter({
           if (!igwData.InternetGateway) {
             throw new Error('IGW creation failed');
           }
-          const igwId: string = igwData.InternetGateway.InternetGatewayId;
+
+          const igwId = igwData.InternetGateway.InternetGatewayId;
+          if (igwId === undefined) {
+            throw new Error('IgwId is undefined');
+          }
+          
 
           // attach IGW to VPC
           await ec2.attachInternetGateway({ InternetGatewayId: igwId, VpcId: vpcId}).promise();
           console.log(`Attached Internet Gateway ${igwId} to VPC ${vpcId}`);
+
 
           // Create subnets
           const subnet1Data = await ec2.createSubnet(
             { 
               CidrBlock: '10.0.0.0/24', 
               VpcId: vpcId, 
-              AvailabilityZone: 'us-east-2a'
+              AvailabilityZone: 'us-east-2a'          // change this so  that they can enter their specific region
           }).promise();
           const subnet2Data = await ec2.createSubnet(
             { 
@@ -74,8 +75,11 @@ export const createVPCRouter = createTRPCRouter({
               VpcId: vpcId, 
               AvailabilityZone: 'us-east-2b'
           }).promise();
-          const subnet1Id: string = subnet1Data.Subnet?.SubnetId;
-          const subnet2Id: string = subnet2Data.Subnet?.SubnetId;
+          const subnet1Id = subnet1Data.Subnet?.SubnetId;
+          const subnet2Id = subnet2Data.Subnet?.SubnetId;
+          if (subnet1Id === undefined || subnet2Id === undefined) {
+            throw new Error('One or both of the subnets failed to create');
+          }
           console.log(`Created subnet with id ${subnet1Id}`);
           console.log(`Created subnet with id ${subnet2Id}`);
 
@@ -106,8 +110,86 @@ export const createVPCRouter = createTRPCRouter({
           }
 
           const configData = await client.send(new CreateConfigurationCommand(configParams));
-          const configArn: string = configData.Arn;
+          const configArn = configData.Arn;
+          if (configArn === undefined) {
+            throw new Error('ConfigARN doesn\'t exist on client')
+          }
           console.log(`Created config with Arn ${configArn}`);
+
+          // Create key
+          const kms = new AWS.KMS();
+          const kmsParams = {
+            CustomerMasterKeySpec: "SYMMETRIC_DEFAULT",
+            KeyUsage: "ENCRYPT_DECRYPT",
+            Origin: 'AWS_KMS',
+            Description: "This is a symmetric key for ec and dec"
+          };
+
+          // call the method
+          const kmsResponse = await kms.createKey(kmsParams).promise();
+          const keyId = kmsResponse.KeyMetadata?.KeyId;
+          if (keyId === undefined) {
+            throw new Error('KeyId doesn\'t exist on kms response obj')
+          }
+          console.log(`Created kms key with id: ${keyId}`);
+          // getting the account id
+          const sts = new AWS.STS();
+          const stsResponse = await sts.getCallerIdentity({}).promise();
+          const accountId: string | undefined = stsResponse.Account;
+          if (accountId === undefined) {
+            throw new Error('Account id failed');
+          }
+          console.log(`Got accountID: ${accountId}`);
+
+
+          // we have to add a policy to the key to grant permissions
+
+          const policy = {
+            "Version": "2012-10-17",
+            "Id": "key-default-1",
+            "Statement": [
+                {
+                    "Sid": "Enable IAM User Permissions",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": [
+                            `arn:aws:iam::${accountId}:root`    // get user account number
+                        ]
+                    },
+                    "Action": "kms:*",
+                    "Resource": "*"
+                }
+            ]
+         };
+          if (keyId === undefined) {
+            throw new Error('Key id does not exist');
+          }
+
+          await kms.putKeyPolicy( {
+            KeyId: keyId,
+            PolicyName: 'default',
+            Policy: JSON.stringify(policy)
+
+          }).promise();
+
+          // create Secret using KMS key
+          const secretsmanager = new AWS.SecretsManager();
+
+          const secretsParams = {
+            Name: `AmazonMSK_${input.id}`,
+            SecretString: JSON.stringify({
+              "username": input.id,
+              "password": 'kafka-nimbus'
+            }),
+            KmsKeyId: keyId
+          }
+          const secretsResponse = await secretsmanager.createSecret(secretsParams).promise();
+          const secretArn = secretsResponse.ARN;
+          if (secretArn === undefined) {
+            throw new Error('SecretArn doesn\'t exist on the secret object');
+          }
+          console.log(`Created secret with ARN: ${secretArn}`);
+
 
           /**
            * Send required info to db
@@ -127,7 +209,9 @@ export const createVPCRouter = createTRPCRouter({
                 awsAccessKey: input.aws_access_key_id,
                 awsSecretAccessKey: input.aws_secret_access_key,
                 region: input.region,
-                configArn: configArn
+                configArn: configArn,
+                kmsKey: keyId,
+                secretArn: secretArn
               }
             })
           }
