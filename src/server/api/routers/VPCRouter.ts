@@ -24,7 +24,7 @@ export const createVPCRouter = createTRPCRouter({
       aws_secret_access_key: z.string(),
       region: z.string()
     }))
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
         AWS.config.update({
           accessKeyId: input.aws_access_key_id,
           secretAccessKey: input.aws_secret_access_key,
@@ -51,7 +51,10 @@ export const createVPCRouter = createTRPCRouter({
             throw new Error('IGW creation failed');
           }
 
-          const igwId: string = igwData.InternetGateway.InternetGatewayId;
+          const igwId = igwData.InternetGateway.InternetGatewayId;
+          if (igwId === undefined) {
+            throw new Error('IgwId is undefined');
+          }
           
 
           // attach IGW to VPC
@@ -72,8 +75,11 @@ export const createVPCRouter = createTRPCRouter({
               VpcId: vpcId, 
               AvailabilityZone: 'us-east-2b'
           }).promise();
-          const subnet1Id: string = subnet1Data.Subnet?.SubnetId;
-          const subnet2Id: string = subnet2Data.Subnet?.SubnetId;
+          const subnet1Id = subnet1Data.Subnet?.SubnetId;
+          const subnet2Id = subnet2Data.Subnet?.SubnetId;
+          if (subnet1Id === undefined || subnet2Id === undefined) {
+            throw new Error('One or both of the subnets failed to create');
+          }
           console.log(`Created subnet with id ${subnet1Id}`);
           console.log(`Created subnet with id ${subnet2Id}`);
 

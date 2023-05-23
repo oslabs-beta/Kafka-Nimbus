@@ -22,7 +22,7 @@ export const clusterRouter = createTRPCRouter({
       storagePerBroker: z.number(),
       name: z.string(),
     }))
-    .query(async({ input }) => {
+    .mutation(async({ input }) => {
       // First, find the user object in the database using id
       try {
         const userResponse = await prisma.user.findUnique({
@@ -166,7 +166,7 @@ export const clusterRouter = createTRPCRouter({
     .input(z.object({
       name: z.string()
     }))
-    .query(async({ input }) => {
+    .mutation(async({ input }) => {
       try {
         const clusterResponse = await prisma.cluster.findUnique({
           where: {
@@ -276,7 +276,6 @@ export const clusterRouter = createTRPCRouter({
                   lifeCycleStage: 2     // last lifeCycleStage
                 }
               });
-
             }
   
             console.log(`Current cluster state: ${curState}`);
@@ -294,7 +293,7 @@ export const clusterRouter = createTRPCRouter({
       .input(z.object({
         name: z.string()
       }))
-      .query(async({ input }) => {
+      .mutation(async({ input }) => {
         try {
           const deletedCluster = await prisma.cluster.delete({
             where :{
