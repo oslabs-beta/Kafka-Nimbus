@@ -50,8 +50,6 @@ model User {
   awsSecretAccessKey String    @default("")
   region             String    @default("")
   configArn          String    @default("")
-  kmsKey             String    @default("")
-  secretArn          String    @default("")
   subnetID           String[]
   accounts           Account[]
   sessions           Session[]
@@ -80,8 +78,8 @@ model Cluster {
   storagePerBroker Int
   kafkaArn         String
   bootStrapServer  String[]
-    currentVersion     String? 
-    lifeCycleStage     Int         
+  currentVersion     String? 
+  lifeCycleStage     Int         
   brokers          Broker[]
   topics           Topic[]
   consumers        ConsumerGroup[]
