@@ -116,81 +116,6 @@ export const createVPCRouter = createTRPCRouter({
           }
           console.log(`Created config with Arn ${configArn}`);
 
-          // Create key
-          const kms = new AWS.KMS();
-          const kmsParams = {
-            CustomerMasterKeySpec: "SYMMETRIC_DEFAULT",
-            KeyUsage: "ENCRYPT_DECRYPT",
-            Origin: 'AWS_KMS',
-            Description: "This is a symmetric key for ec and dec"
-          };
-
-          // call the method
-          const kmsResponse = await kms.createKey(kmsParams).promise();
-          const keyId = kmsResponse.KeyMetadata?.KeyId;
-          if (keyId === undefined) {
-            throw new Error('KeyId doesn\'t exist on kms response obj')
-          }
-          console.log(`Created kms key with id: ${keyId}`);
-          // getting the account id
-          const sts = new AWS.STS();
-          const stsResponse = await sts.getCallerIdentity({}).promise();
-          const accountId: string | undefined = stsResponse.Account;
-          if (accountId === undefined) {
-            throw new Error('Account id failed');
-          }
-          console.log(`Got accountID: ${accountId}`);
-
-
-          // we have to add a policy to the key to grant permissions
-
-          const policy = {
-            "Version": "2012-10-17",
-            "Id": "key-default-1",
-            "Statement": [
-                {
-                    "Sid": "Enable IAM User Permissions",
-                    "Effect": "Allow",
-                    "Principal": {
-                        "AWS": [
-                            `arn:aws:iam::${accountId}:root`    // get user account number
-                        ]
-                    },
-                    "Action": "kms:*",
-                    "Resource": "*"
-                }
-            ]
-         };
-          if (keyId === undefined) {
-            throw new Error('Key id does not exist');
-          }
-
-          await kms.putKeyPolicy( {
-            KeyId: keyId,
-            PolicyName: 'default',
-            Policy: JSON.stringify(policy)
-
-          }).promise();
-
-          // create Secret using KMS key
-          const secretsmanager = new AWS.SecretsManager();
-
-          const secretsParams = {
-            Name: `AmazonMSK_${input.id}`,
-            SecretString: JSON.stringify({
-              "username": input.id,
-              "password": 'kafka-nimbus'
-            }),
-            KmsKeyId: keyId
-          }
-          const secretsResponse = await secretsmanager.createSecret(secretsParams).promise();
-          const secretArn = secretsResponse.ARN;
-          if (secretArn === undefined) {
-            throw new Error('SecretArn doesn\'t exist on the secret object');
-          }
-          console.log(`Created secret with ARN: ${secretArn}`);
-
-
           /**
            * Send required info to db
            */
@@ -210,8 +135,6 @@ export const createVPCRouter = createTRPCRouter({
                 awsSecretAccessKey: input.aws_secret_access_key,
                 region: input.region,
                 configArn: configArn,
-                kmsKey: keyId,
-                secretArn: secretArn
               }
             })
           }
