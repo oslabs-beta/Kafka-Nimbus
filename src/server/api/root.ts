@@ -9,9 +9,11 @@ import { topicRouter } from "./routers/topicsRouter";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+
   VPC: createVPCRouter,
   Cluster: clusterRouter,
   Topic: topicRouter,
+
 });
 
 
