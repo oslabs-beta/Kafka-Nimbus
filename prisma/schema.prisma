@@ -60,6 +60,11 @@ model User {
     @@map("users")
 }
 
+// life cycle stages for cluster
+//  0 -> creating
+//  1 -> updated public access and updating
+//  2 -> finished updating, completely ready and functioning
+//
 model Cluster {
     id                 String     @id @default(auto()) @map("_id") @db.ObjectId
     name               String     @unique
@@ -69,12 +74,14 @@ model Cluster {
     User               User       @relation(fields: [userId], references: [id])
     userId             String     @db.ObjectId
     securityGroup      String[]
-    brokerPerZone      Int?
-    instanceSize       String?
-    zones              Int?
-    storagePerBroker   Int?
-    kafkaArn           String?
+    brokerPerZone      Int
+    instanceSize       String
+    zones              Int
+    storagePerBroker   Int
+    kafkaArn           String
     bootStrapServer    String[]
+    currentVersion     String? 
+    lifeCycleStage     Int         
     brokers            Broker[]
     topics             Topic[]
     consumers          ConsumerGroups[]
