@@ -2,7 +2,12 @@
 
 import { z } from 'zod';
 import AWS from 'aws-sdk';
+<<<<<<< HEAD
+import { prisma } from '../../db'
+import type { User } from '@prisma/client';
+=======
 import { prisma } from '../../db' 
+>>>>>>> dev
 
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});

@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import { PrismaClient, Topic } from '@prisma/client';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -11,13 +10,13 @@ interface PageProps {
 
 const topicDashboard = async ({ params }: PageProps) => {
   // error handling
-  let topics: Array<Topic> = [];
+  let topics: Topic[] = [];
   try {
     const prisma = new PrismaClient();
 
     topics = await prisma.topic.findMany({
       where: {
-        topicid: params.topicid,
+        clusterId: params.userId,
       },
     });
   } catch (error) {
@@ -77,10 +76,10 @@ const topicDashboard = async ({ params }: PageProps) => {
           </thead>
           <tbody>
             {topics.map((topic) => (
-              <tr key={topic.topicid}>
-                <th>{topic.topicid}</th>
-                <td>{topic.topicEndpoint}</td>
-                <td>{topic.topicCount}</td>
+              <tr key={topic.id}>
+                <th>{topic.id}</th>
+                <td>{topic.Endpoint}</td>
+                <td>{topic.Count}</td>
               </tr>
             ))}
           </tbody>

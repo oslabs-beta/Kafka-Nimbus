@@ -1,80 +1,85 @@
-import React, { useEffect, useState } from 'react';
-import { PrismaClient, Consumer } from '@prisma/client';
-import Link from 'next/link';
-import { Suspense } from 'react';
+"use client";
+import React, { Suspense, useState } from "react";
+import { useAppDispatch, useAppSelector } from "~/app/redux/hooks";
+import {
+  setid,
+  setEndpoint,
+  setStatus,
+} from "~/app/redux/features/consumerGroupSlice";
 
-interface PageProps {
-  params: {
-    userId: string;
+const TopicInfo: React.FC = ({}) => {
+  const dispatch = useAppDispatch();
+  const [Status, changeStatus] = useState<string>("");
+  const [Endpoint, changeEndpoint] = useState<number>(0);
+  const [id, changeid] = useState<number>(1);
+  const ListOfTopics: string[] = ["topic 1", "topic 2", "topic 3"];
+  const EntryPoint: string[] = ["Start", "Middle", "End"];
+  const { consumerGroup } = useAppSelector((state) => state);
+
+  const onSubmitHandler = (event: React.FormEvent) => {
+    event.preventDefault();
+    dispatch(setStatus(Status));
+    dispatch(setEndpoint(Endpoint));
+    dispatch(setid(id));
+    console.log(consumerGroup);
   };
-}
 
-const consumerDashboard = async ({ params }: PageProps) => {
-  // error handling
-  let consumers: Array<Consumer> = [];
-  try {
-    const prisma = new PrismaClient();
+  const statusHandler = (event: React.FormEvent<HTMLInputElement>) => {
+    console.log(event.currentTarget.value);
+    changeStatus(event.currentTarget.value);
+  };
+  const endpointHandler = (
+    event: React.FormEvent<HTMLSelectElement>
+  ) => {
+    console.log(event.currentTarget.value);
+    changeEndpoint(event.target.value);
+  };
 
-    consumers = await prisma.consumer.findMany({
-      where: {
-        consumerid: params.consumerid,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-  }
   return (
-    <>
-<Suspense fallback={<h2>Loading...</h2>}>
-    <div className="drawer">
-      <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content">
-        <label htmlFor="my-drawer" className="btn btn-primary drawer-button">Open drawer</label>
-      <div>
-        <Link href='/create-consumer'><button className="btn flex-col float-right ml-2 items-center">Create consumer</button></Link>
+    <Suspense fallback={<h2>Loading...</h2>}>
+      <div className="flex h-[70vh] flex-col items-center justify-center">
+        <h1 className="mb-8 text-2xl font-bold">Create Consumer Group</h1>
+        <div className="form-control w-full max-w-xs ">
+          <form id="topic-form" onSubmit={onSubmitHandler}>
+            <label htmlFor="aws-form" className="label ">
+              Topics
+            </label>
+            <select
+              className="select-bordered select w-full max-w-xs "
+              onChange={endpointHandler}
+            >
+              <option disabled value={"How many replications"}></option>
+              {ListOfTopics.map((str) => (
+                <option value={str} key={str}>
+                  {str}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="aws-form" className="label ">
+              Data Entry point
+            </label>
+            <select
+              className="select-bordered select w-full max-w-xs "
+              onChange={statusHandler}
+            >
+              <option disabled value={"How many replications"}></option>
+              {EntryPoint.map((str) => (
+                <option value={str} key={str}>
+                  {str}
+                </option>
+              ))}
+            </select>
+            <button className="btn-primary btn mt-6 w-full" type="submit">
+              Submit
+            </button>
+            <button className="btn-primary btn mt-6 w-full" type="submit">
+              Cancel
+            </button>
+          </form>
+        </div>
       </div>
-      <div className='flex h-[20vh] text-6xl flex-col items-center justify-center'>
-        Consumers
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th></th>
-              <th>ID</th>
-              <th>Endpoint</th>
-              <th>Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            {consumers.map((consumer) => (
-              <tr key={consumer.consumerid}>
-                <th>{consumer.consumerid}</th>
-                <td>{consumer.consumerEndpoint}</td>
-                <td>{consumer.consumerCount}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      </div> 
-
-      <div className="drawer-side">
-        <label htmlFor="my-drawer" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-80 bg-base-100 text-base-content">
-        <div className="divider"></div> 
-          <li><Link href="/broker-dashboard" className="btn btn-outline btn-primary">Brokers</Link></li>
-          <div className="divider"></div> 
-          <li><Link href="/topic-dashboard" className="btn btn-outline btn-primary">Topics</Link></li>
-          <div className="divider"></div> 
-          <li><Link href="/consumer-dashboard" className="btn btn-outline btn-primary">Consumers</Link></li>
-        </ul>
-      </div>
-    </div>
     </Suspense>
-    </>
   );
 };
 
-export default consumerDashboard;
+export default TopicInfo;

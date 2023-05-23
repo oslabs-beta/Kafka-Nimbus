@@ -52,11 +52,11 @@ const brokerDashboard = async ({ params }: PageProps) => {
           </thead>
           <tbody>
             {brokers.map((broker) => (
-              <tr key={broker.brokerid}>
-                <th>{broker.brokerid}</th>
-                <td>{broker.brokerAddress}</td>
-                <td>{broker.brokerSize}</td>
-                <td>{broker.brokerLeader}</td>
+              <tr key={broker.id}>
+                <th>{broker.id}</th>
+                <td>{broker.Address}</td>
+                <td>{broker.Size}</td>
+                <td>{broker.Leader}</td>
               </tr>
             ))}
           </tbody>

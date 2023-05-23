@@ -2,62 +2,62 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {
-    provider = "mongodb"
-    url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(auto()) @map("_id") @db.ObjectId
-    userId            String  @db.ObjectId
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? // @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? // @db.Text
+  access_token      String? // @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? // @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(auto()) @map("_id") @db.ObjectId
-    sessionToken String   @unique
-    userId       String   @db.ObjectId
-    expires      DateTime @map("expiresAt")
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime @map("expiresAt")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id                  String    @id @default(auto()) @map("_id") @db.ObjectId
-    name                String?
-    email               String?   @unique
-    emailVerified       DateTime? @map("verifiedAt")
-    image               String?
-    createdAt           DateTime  @default(now())
-    vpcId               String    @default("")
-    awsAccessKey        String    @default("")
-    awsSecretAccessKey  String    @default("")
-    region              String    @default("")
-    configArn           String    @default("")
-    kmsKey              String    @default("")
-    secretArn           String    @default("")
-    subnetID            String[]
-    accounts            Account[]
-    sessions            Session[]
-    clusters            Cluster[]
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  name               String?
+  email              String?   @unique
+  emailVerified      DateTime? @map("verifiedAt")
+  image              String?
+  createdAt          DateTime  @default(now())
+  vpcId              String    @default("")
+  awsAccessKey       String    @default("")
+  awsSecretAccessKey String    @default("")
+  region             String    @default("")
+  configArn          String    @default("")
+  kmsKey             String    @default("")
+  secretArn          String    @default("")
+  subnetID           String[]
+  accounts           Account[]
+  sessions           Session[]
+  clusters           Cluster[]
 
-    @@map("users")
+  @@map("users")
 }
 
 // life cycle stages for cluster
@@ -66,64 +66,81 @@ model User {
 //  2 -> finished updating, completely ready and functioning
 //
 model Cluster {
-    id                 String     @id @default(auto()) @map("_id") @db.ObjectId
-    name               String     @unique
-    createdAt          DateTime   @default(now())
-    data               Json?
-    img                String?
-    User               User       @relation(fields: [userId], references: [id])
-    userId             String     @db.ObjectId
-    securityGroup      String[]
-    brokerPerZone      Int
-    instanceSize       String
-    zones              Int
-    storagePerBroker   Int
-    kafkaArn           String
-    bootStrapServer    String[]
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  name             String          @unique
+  createdAt        DateTime        @default(now())
+  data             Json?
+  img              String?
+  User             User            @relation(fields: [userId], references: [id])
+  userId           String          @db.ObjectId
+  securityGroup    String[]
+  brokerPerZone    Int
+  instanceSize     String
+  zones            Int
+  storagePerBroker Int
+  kafkaArn         String
+  bootStrapServer  String[]
     currentVersion     String? 
     lifeCycleStage     Int         
-    brokers            Broker[]
-    topics             Topic[]
-    consumers          Consumer[]
+  brokers          Broker[]
+  topics           Topic[]
+  consumers        ConsumerGroup[]
+  Consumer         Consumer[]
 }
 
-
-
 model VerificationToken {
-    id         String   @id @default(auto()) @map("_id") @db.ObjectId
-    identifier String
-    token      String
-    expires    DateTime @map("expiresAt")
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String
+  expires    DateTime @map("expiresAt")
 
-    @@unique([identifier, token])
-    @@map("verification_tokens")
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Broker {
-    brokerid         String   @id @default(auto()) @map("_id") @db.ObjectId
-    brokerAddress    String   @unique
-    brokerSize       String
-    brokerLeader     String
-    listNodeResponse Json?
-    Cluster          Cluster? @relation(fields: [clusterId], references: [id])
-    clusterId        String?  @db.ObjectId
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  Address          String   @unique
+  Size             String
+  Leader           String
+  listNodeResponse Json?
+  brokerEndpoints  String[]
+  Cluster          Cluster? @relation(fields: [clusterId], references: [id])
+  clusterId        String?  @db.ObjectId
 }
 
 model Topic {
-    topicid       String   @id @default(auto()) @map("_id") @db.ObjectId
-    topicEndpoint String   @unique
-    topicCount    String
-    Cluster       Cluster? @relation(fields: [clusterId], references: [id])
-    clusterId     String?  @db.ObjectId
-    topicName        String   
-    partitions       Int   
-    replication      Int
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  Endpoint          String   @unique
+  Count             String
+  Cluster           Cluster? @relation(fields: [clusterId], references: [id])
+  clusterId         String?  @db.ObjectId
+  Name              String
+  numPartitions     Int
+  replicationFactor Int
+}
+
+model ConsumerGroup {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  Endpoint   String     @unique
+  Count      String
+  Status     String
+  Lag        Int
+  Partitions String
+  Topics     String
+  consumers  Consumer[]
+  Cluster    Cluster?   @relation(fields: [clusterId], references: [id])
+  clusterId  String?    @db.ObjectId
 }
 
 model Consumer {
-    consumerid       String   @id @default(auto()) @map("_id") @db.ObjectId
-    consumerEndpoint String   @unique
-    consumerCount    String
-    Cluster          Cluster? @relation(fields: [clusterId], references: [id])
-    clusterId        String?  @db.ObjectId
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  Status          String
+  Lag             Int
+  Partitions      String
+  Topics          String
+  Cluster         Cluster?       @relation(fields: [clusterId], references: [id])
+  clusterId       String?        @db.ObjectId
+  ConsumerGroup   ConsumerGroup? @relation(fields: [consumerGroupId], references: [id])
+  consumerGroupId String?        @db.ObjectId
 }
