@@ -103,9 +103,9 @@ export const clusterRouter = createTRPCRouter({
           },
           ClientAuthentication: {
             Sasl: {
-              Scram: {
+              Iam: {
                 Enabled: true,
-              },
+              }
             },
           },
           ConfigurationInfo: {
