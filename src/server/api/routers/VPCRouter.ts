@@ -1,12 +1,13 @@
-/**
- *  Todo on file, add more type safety, ignoring a lot of things on initial code-through
- */
 
 
 import { z } from 'zod';
 import AWS from 'aws-sdk';
+<<<<<<< HEAD
 import { prisma } from '../../db'
 import type { User } from '@prisma/client';
+=======
+import { prisma } from '../../db' 
+>>>>>>> dev
 
 
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
@@ -28,7 +29,7 @@ export const createVPCRouter = createTRPCRouter({
       aws_secret_access_key: z.string(),
       region: z.string()
     }))
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
         AWS.config.update({
           accessKeyId: input.aws_access_key_id,
           secretAccessKey: input.aws_secret_access_key,
@@ -55,7 +56,10 @@ export const createVPCRouter = createTRPCRouter({
             throw new Error('IGW creation failed');
           }
 
-          const igwId: string = igwData.InternetGateway.InternetGatewayId;
+          const igwId = igwData.InternetGateway.InternetGatewayId;
+          if (igwId === undefined) {
+            throw new Error('IgwId is undefined');
+          }
           
 
           // attach IGW to VPC
@@ -76,8 +80,11 @@ export const createVPCRouter = createTRPCRouter({
               VpcId: vpcId, 
               AvailabilityZone: 'us-east-2b'
           }).promise();
-          const subnet1Id: string = subnet1Data.Subnet?.SubnetId;
-          const subnet2Id: string = subnet2Data.Subnet?.SubnetId;
+          const subnet1Id = subnet1Data.Subnet?.SubnetId;
+          const subnet2Id = subnet2Data.Subnet?.SubnetId;
+          if (subnet1Id === undefined || subnet2Id === undefined) {
+            throw new Error('One or both of the subnets failed to create');
+          }
           console.log(`Created subnet with id ${subnet1Id}`);
           console.log(`Created subnet with id ${subnet2Id}`);
 
@@ -108,7 +115,10 @@ export const createVPCRouter = createTRPCRouter({
           }
 
           const configData = await client.send(new CreateConfigurationCommand(configParams));
-          const configArn: string = configData.Arn;
+          const configArn = configData.Arn;
+          if (configArn === undefined) {
+            throw new Error('ConfigARN doesn\'t exist on client')
+          }
           console.log(`Created config with Arn ${configArn}`);
 
           // Create key
@@ -122,7 +132,10 @@ export const createVPCRouter = createTRPCRouter({
 
           // call the method
           const kmsResponse = await kms.createKey(kmsParams).promise();
-          const keyId: string | undefined = kmsResponse.KeyMetadata?.KeyId;
+          const keyId = kmsResponse.KeyMetadata?.KeyId;
+          if (keyId === undefined) {
+            throw new Error('KeyId doesn\'t exist on kms response obj')
+          }
           console.log(`Created kms key with id: ${keyId}`);
           // getting the account id
           const sts = new AWS.STS();
@@ -157,7 +170,7 @@ export const createVPCRouter = createTRPCRouter({
             throw new Error('Key id does not exist');
           }
 
-          const policyResponse = await kms.putKeyPolicy( {
+          await kms.putKeyPolicy( {
             KeyId: keyId,
             PolicyName: 'default',
             Policy: JSON.stringify(policy)
@@ -177,6 +190,9 @@ export const createVPCRouter = createTRPCRouter({
           }
           const secretsResponse = await secretsmanager.createSecret(secretsParams).promise();
           const secretArn = secretsResponse.ARN;
+          if (secretArn === undefined) {
+            throw new Error('SecretArn doesn\'t exist on the secret object');
+          }
           console.log(`Created secret with ARN: ${secretArn}`);
 
 

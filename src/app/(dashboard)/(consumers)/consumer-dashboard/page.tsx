@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 
 interface PageProps {
   params: {
-    consumerid: string;
+    clusterId: string;
   };
 }
 
@@ -17,7 +17,7 @@ const consumerDashboard = async ({ params }: PageProps) => {
 
     consumerGroups = await prisma.consumerGroup.findMany({
       where: {
-        consumerid: params.consumerid,
+        clusterId: params.clusterId,
       },
     });
   } catch (error) {
