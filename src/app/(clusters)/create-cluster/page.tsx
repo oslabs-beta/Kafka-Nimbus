@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAppSelector } from '~/app/redux/hooks';
 import { useSession } from 'next-auth/react';
 import CloudProvider from '../(components)/CloudProvider';
@@ -10,39 +10,30 @@ import BrokerCountInput from '../(components)/BrokerCounterInput';
 import StoragePerBroker from '../(components)/StoragePerBroker';
 import ClusterSize from '../(components)/ClusterSize';
 import ClusterLoadingState from '../(components)/ClusterLoadingState';
-import { useMutation } from 'react-query';
 
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 // TRPC IMPORTS
 import { trpc } from '../../../trpc/trpc-provider';
 
-type ComponentState = {
+export type ComponentState = {
   inFocus: string;
+  loadingState: string;
 };
 
 const CreateClusterPage = () => {
   const [inFocus, setInFocus] = useState<ComponentState['inFocus']>('provider');
+  const [loadingState, setLoadingState] = useState<ComponentState['loadingState']>('Creating VPC')
   const { createCluster } = useAppSelector((state) => state);
+  const router = useRouter()
   const { data: sessionData } = useSession();
-  const saveCLustertoDb = trpc.database.createCluster.useMutation();
+  const createVPC = trpc.createVPC.createVPC.useMutation();
+  const createNewCluster = trpc.createCluster.createCluster.useMutation()
   const inFocusHandler = (string: string) => {
     setInFocus(string);
   };
 
-  // const saveCLustertoDb = trpc.database.createCluster.useQuery({
-  //   id: sessionData?.user.id ? sessionData?.user.id : '',
-  //   awsId,
-  //   awsSecret,
-  //   brokerNumbers,
-  //   region,
-  //   clusterName,
-  //   provider,
-  //   storagePerBroker,
-  //   clusterSize,
-  // });
-
-  const createClusterHandler = () => {
+  const createClusterHandler = async () => {
     const {
       awsId,
       awsSecret,
@@ -54,26 +45,25 @@ const CreateClusterPage = () => {
       clusterSize,
     } = createCluster;
 
-    // const aws = api.createVPC.createVPC.useQuery({
-    //   aws_access_key_id: awsId,
-    //   aws_secret_access_key: awsSecret,
-    //   id: sessionData?.user.id ? sessionData?.user.id : '',
-    //   region: region,
-    // });
-    saveCLustertoDb.mutate(
-      {
-        id: sessionData?.user.id ? sessionData?.user.id : '',
-        awsId,
-        awsSecret,
-        brokerNumbers,
-        region,
-        clusterName,
-        provider,
-        storagePerBroker,
-        clusterSize,
-      }
-    );
-    redirect('/cluster-dashboard')
+
+    await createVPC.mutateAsync({
+      aws_access_key_id: awsId,
+      aws_secret_access_key: awsSecret,
+      id: sessionData?.user.id ? sessionData?.user.id : '',
+      region: region,
+    });
+
+    setLoadingState('Creating Cluster')
+    await createNewCluster.mutateAsync({
+      brokerPerZone: brokerNumbers,
+      id: sessionData?.user.id ? sessionData?.user.id : '',
+      instanceSize: clusterSize,
+      name: clusterName,
+      storagePerBroker: storagePerBroker,
+      zones: 2
+    })
+
+    router.push('/cluster-dashboard');
   };
 
   switch (inFocus) {
@@ -97,7 +87,7 @@ const CreateClusterPage = () => {
         />
       );
     case 'loading':
-      return <ClusterLoadingState inFocusHandler={inFocusHandler} />;
+      return <ClusterLoadingState loadingState={loadingState }/>;
   }
 };
 
