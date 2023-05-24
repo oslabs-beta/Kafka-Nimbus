@@ -71,29 +71,34 @@ export const clusterRouter = createTRPCRouter({
           IpPermissions: [
             {
               IpProtocol: 'tcp',
-              FromPort: -1,
-              ToPosrt: -1,
-              IpRanges: [{ CidrIp: '0.0.0.0/' }] // all access
+              FromPort: 0,
+              ToPort: 65535,
+              IpRanges: [{ CidrIp: '0.0.0.0/0' }] // all access
             }
           ]
         }
         await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
         console.log(`Added inbound rules to security group ${groupId}`);
-
+        console.log('Subnetids: ', subnetIds);
+        console.log('instanceSize: ', input.instanceSize)
+        console.log('groupid: ', [groupId]);
+        console.log('volume: ', input.storagePerBroker);
+        console.log('brokersperzone: ', input.brokerPerZone);
+        
         // kafka params
         const kafkaParams = {
           BrokerNodeGroupInfo: {
             BrokerAZDistribution: 'DEFAULT',  // We should always keep it like this, could change in future
             ClientSubnets: subnetIds,
             InstanceType: input.instanceSize,
-            SecurityGroups: [...groupId],
+            SecurityGroups: [groupId],
             StorageInfo: {
               EbsStorageInfo: {
                 VolumeSize: input.storagePerBroker,
               },
             },
           },
-          clusterName: input.name,
+          ClusterName: input.name,
           KafkaVersion: '2.8.1',        // allow user to choose version?
           NumberOfBrokerNodes: input.brokerPerZone,
           EncryptionInfo: {
@@ -102,6 +107,7 @@ export const clusterRouter = createTRPCRouter({
               InCluster: true, // Enabling encryption within the cluster
             }
           },
+          // not going to use open monitoring as our way of monitoring
           OpenMonitoring: {
             Prometheus: {
               JmxExporter: {

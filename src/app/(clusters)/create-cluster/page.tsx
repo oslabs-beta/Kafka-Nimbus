@@ -26,9 +26,9 @@ const CreateClusterPage = () => {
   const [loadingState, setLoadingState] = useState<ComponentState['loadingState']>('Creating VPC')
   const { createCluster } = useAppSelector((state) => state);
   const router = useRouter()
-  const { data: sessionData } = useSession();
-  const createVPC = trpc.createVPC.createVPC.useMutation();
-  const createNewCluster = trpc.createCluster.createCluster.useMutation()
+  const { data: sessionData } = useSession(); // gets current user info. .id references
+  const createVPC = trpc.createVPC.createVPC.useMutation();     // createVPC route, as hook
+  const createNewCluster = trpc.createCluster.createCluster.useMutation() // create cluster route, as hook
   const findVPC = trpc.createVPC.findVPC.useQuery({id: sessionData?.user.id});  // defining the query
   const inFocusHandler = (string: string) => {
     setInFocus(string);
