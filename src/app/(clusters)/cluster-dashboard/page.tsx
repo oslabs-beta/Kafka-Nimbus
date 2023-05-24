@@ -14,7 +14,6 @@ const ClusterDashboard = async () => {
     redirect('../../api/auth/signin?callbackUrl=/cluster-dashboard');
   }
 
-  // error handling
   let clusters: Cluster[] = [];
   try {
     const prisma = new PrismaClient();
