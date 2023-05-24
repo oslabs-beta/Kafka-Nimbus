@@ -18,10 +18,11 @@ const CloudProvider: React.FC<ProviderProps> = ({
 }) => {
   const dispatch = useAppDispatch();
 
-  const { data: vpcId } = trpc.createVPC.findVPC.useQuery({
-    id: sessionData?.user.id,
-  });
+  const { data:vpcId } = trpc.createVPC.findVPC.useQuery({
+    id: sessionData?.user.id
+  }); 
 
+  
   const onClickHandler = () => {
     
     if (!vpcId) {

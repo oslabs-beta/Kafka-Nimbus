@@ -35,23 +35,11 @@ const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
           <option disabled value={'How many brokers'}>
             How many zones
           </option>
-          <option value={1} key={1}>
-            1
-          </option>
           <option value={2} key={2}>
-            2
+            2 *recommended
           </option>
           <option value={3} key={3}>
             3
-          </option>
-          <option value={4} key={4} >
-            4 *recommended 
-          </option>
-          <option value={5} key={5}>
-            5
-          </option>
-          <option value={6} key={6}>
-            6
           </option>
         </select>
         <h1 className='mb-4 mt-12 text-2xl font-bold'>
