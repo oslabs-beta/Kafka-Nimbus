@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 export default function CreateClusterCard() {
   const router = useRouter();
 
+
   const createClusterHandler = () => {
     router.push("/create-cluster");
   };
