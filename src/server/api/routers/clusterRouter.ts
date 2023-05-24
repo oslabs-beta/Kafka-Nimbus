@@ -275,7 +275,7 @@ export const clusterRouter = createTRPCRouter({
               const boostrapResponse = await kafka.getBootstrapBrokers({
                 ClusterArn: kafkaArn
               }).promise();
-              const endpoints = boostrapResponse.BootstrapBrokerStringPublicSaslScram;
+              const endpoints = boostrapResponse.BootstrapBrokerStringPublicSaslIam;      // TODO, get right endpoints
               if (endpoints === undefined) {
                 throw new Error('Bootstrap not found/setup correctly');
               }
