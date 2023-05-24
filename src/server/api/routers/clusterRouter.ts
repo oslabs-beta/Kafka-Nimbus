@@ -79,11 +79,6 @@ export const clusterRouter = createTRPCRouter({
         }
         await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
         console.log(`Added inbound rules to security group ${groupId}`);
-        console.log('Subnetids: ', subnetIds);
-        console.log('instanceSize: ', input.instanceSize)
-        console.log('groupid: ', [groupId]);
-        console.log('volume: ', input.storagePerBroker);
-        console.log('brokersperzone: ', input.brokerPerZone);
         
         // kafka params
         const kafkaParams = {
@@ -144,14 +139,16 @@ export const clusterRouter = createTRPCRouter({
         const response = await prisma.cluster.create({
           data: {
             name: input.name,
-            userId: input.id,
-            securityGroup: groupId,
+            securityGroup: [groupId],
             brokerPerZone: input.brokerPerZone,
             instanceSize: input.instanceSize,
             zones: input.zones,
             storagePerBroker: input.storagePerBroker,
             kafkaArn: kafkaArn,
-            lifeCycleStage: 0
+            lifeCycleStage: 0,
+            User: {
+              connect: { id: input.id }
+            }
           }
         })
         if (!response) {
@@ -215,7 +212,6 @@ export const clusterRouter = createTRPCRouter({
         if (lifeCycleStage === undefined) {
           throw new Error('life cycle stage doesn\'t exist');
         }
-        const { secretArn } = clusterResponse?.User;
 
         if (!clusterResponse) {
           throw new Error('Didn\'t find cluster in db');

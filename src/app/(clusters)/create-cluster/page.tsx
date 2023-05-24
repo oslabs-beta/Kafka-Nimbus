@@ -43,9 +43,10 @@ const CreateClusterPage = () => {
       brokerNumbers,
       region,
       clusterName,
-      provider,
+      provider,   // uneeded?
       storagePerBroker,
       clusterSize,
+      zones
     } = createCluster; 
 
     // gets the vpcdata from the find vpc route
@@ -72,7 +73,7 @@ const CreateClusterPage = () => {
         instanceSize: clusterSize,
         name: clusterName,
         storagePerBroker: storagePerBroker,
-        zones: 2    // at the moment this is hard coded in as 2
+        zones: zones   // at the moment this is hard coded in as 2
       })
       }
       else {
