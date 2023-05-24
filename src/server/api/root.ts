@@ -4,6 +4,7 @@ import { createVPCRouter } from "./routers/VPCRouter";
 
 import { databaseRouter } from "./routers/databaseRouter";
 import { clusterRouter } from "./routers/clusterRouter";
+import { metricRouter } from "./routers/metricsRouter";
 
 
 /**
@@ -15,8 +16,8 @@ export const appRouter = createTRPCRouter({
   example: exampleRouter,
   createVPC: createVPCRouter,
   database: databaseRouter,
-  createCluster: clusterRouter
-
+  createCluster: clusterRouter,
+  metric: metricRouter
 });
 
 

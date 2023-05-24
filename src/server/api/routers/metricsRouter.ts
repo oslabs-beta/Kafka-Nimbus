@@ -5,7 +5,7 @@ import { prisma } from '../../db';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc';
 import { KafkaClient, DescribeClusterCommand, type DescribeClusterCommandInput, type DescribeClusterCommandOutput } from '@aws-sdk/client-kafka';
-import { Kafka, logLevel, type Admin, type Producer, type Consumer } from 'kafkajs';
+import { Kafka, logLevel, type ITopicMetadata, ConfigResourceTypes, type Admin, type Producer, type Consumer, type DescribeConfigResponse } from 'kafkajs';
 import { createMechanism } from '@jm18457/kafkajs-msk-iam-authentication-mechanism';
 
 //metricRouter contains a getClusterInformation procedure that returns all of a cluster's information given the unique cluster id of the document in mongoDB
@@ -26,11 +26,11 @@ export const metricRouter = createTRPCRouter({
           }
         });
         if (!clusterInfo) {
-          throw new Error('GCI error: Cluster does not exist in the database');
+          throw new Error('Error: Cluster does not exist in the database');
         }
 
         //get bootstrap public endpoints
-        const brokers = ['b-2-public.iamauth.s9rrkn.c2.kafka.us-east-2.amazonaws.com:9198', 'b-1-public.iamauth.s9rrkn.c2.kafka.us-east-2.amazonaws.com:9198'];
+        const brokers = ['b-1-public.24demo.ss1zbk.c2.kafka.us-east-2.amazonaws.com:9198', 'b-2-public.24demo.ss1zbk.c2.kafka.us-east-2.amazonaws.com:9198'];
         // const brokers = clusterInfo.bootStrapServer;
 
         const accessKeyId = clusterInfo.User.awsAccessKey;
@@ -57,24 +57,83 @@ export const metricRouter = createTRPCRouter({
           ssl: true,
           sasl: createMechanism(authParams)
         });
-        console.log('KJS: Successfully connected to cluster');
+        console.log('KJS Successfully connected to cluster');
 
-        //Getting DescribeCluster
+
+
+        //Getting Cluster Dashboard Information from MSK
         const input: DescribeClusterCommandInput = {
           ClusterArn: clusterInfo?.kafkaArn ? clusterInfo?.kafkaArn : "",
         };
 
         const command = new DescribeClusterCommand(input);
-        const response: DescribeClusterCommandOutput = await client.send(command);
-        const cluster = response.ClusterInfo;
+        console.log('Sending DescribeClusterCommand through MSK client');
+        const descClusterResponse: DescribeClusterCommandOutput = await client.send(command);
+        const cluster = descClusterResponse.ClusterInfo;
         //response.ClusterName, response.CreationTime, response.CurrentBrokerSoftwareInfo.KafkaVersion, response.InstanceType,
         //response.NumberOfBrokerNodes, response.State
-        if (!cluster) throw new Error('Cluster does not have info');
+        if (!cluster) throw new Error('Error: MSK Cluster does not have info');
         const { ClusterName, CreationTime, CurrentBrokerSoftwareInfo, NumberOfBrokerNodes, State } = cluster;
 
 
+
+        //Getting Topics
         const admin: Admin = kafka.admin();
         console.log('KJS: Successfully created admin');
+
+        console.log('Sending fetchTopicMetadata through KJS client');
+        const fetchTopicMetaResponse = await admin.fetchTopicMetadata();
+        if (!fetchTopicMetaResponse) throw new Error('Error: No topics data received from KJS client');
+
+        //Processing each topic's data and storing it in an array topicsData
+        const kTopicsData: ITopicMetadata[] = fetchTopicMetaResponse.topics;
+
+        const topicsData = [];
+        kTopicsData.forEach(topic => {
+          //add list of Consumer Groups subscribed to this topic
+
+          //add config description to topic
+          const configData = descTopicConfig(topic.name);
+
+          topicsData.push({
+            ...topic,
+            configData,
+          })
+        });
+
+        await admin.describeConfigs({
+          includeSynonyms: false,
+          resources: [
+            {
+              type: ConfigResourceTypes.TOPIC,
+              name: 'topic-name',
+              configNames: ['cleanup.policy', 'retention.ms', 'message.downconversion.enable', 'message.format.version', 'max.compaction.lag.ms', 'file.delete.delay.ms', 'max.message.bytes', 'index.interval.bytes'] //optional to specify else it'll return the entire config of that topic
+            }
+          ]
+        })
+
+        //Helper function to get Topic config information
+        const descTopicConfig = async function (name: string): DescribeConfigResponse {
+          const response: DescribeConfigResponse = await admin.describeConfigs({
+            includeSynonyms: false,
+            resources: [
+              {
+                type: ConfigResourceTypes.TOPIC,
+                name,
+              }
+            ]
+          });
+          return response;
+        }
+
+        //Getting Consumer Groups
+
+
+
+        //Getting Metrics
+
+
+
 
       } catch (err) {
         console.log('Error occurred in metricRouter getClusterInformation: ', err);
