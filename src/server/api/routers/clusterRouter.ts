@@ -8,8 +8,6 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
-const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
 import { KafkaClient, BatchAssociateScramSecretCommand, UpdateConnectivityCommand } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
@@ -42,12 +40,14 @@ export const clusterRouter = createTRPCRouter({
         const awsAccessKey = userResponse.awsAccessKey;
         const awsSecretAccessKey = userResponse.awsSecretAccessKey;
         const region = userResponse.region;
-
+        // config update has to be before instantializing ec2 and kafka
         AWS.config.update({
           accessKeyId: awsAccessKey,
           secretAccessKey: awsSecretAccessKey,
           region: region
         })
+        const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
+        const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
         
           // Create security groups within the vpc
         if (!vpcId) {
@@ -192,6 +192,16 @@ export const clusterRouter = createTRPCRouter({
         }
         const awsAccessKey = clusterResponse?.User.awsAccessKey;
         const awsSecretAccessKey = clusterResponse?.User.awsSecretAccessKey;
+        const region = clusterResponse?.User.region;
+        // setting sdk config
+        AWS.config.update({
+          accessKeyId: awsAccessKey,
+          secretAccessKey: awsSecretAccessKey,
+          region: region
+        })
+        const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
+
+
         const lifeCycleStage = clusterResponse?.lifeCycleStage;
         if (awsAccessKey === undefined || awsSecretAccessKey === undefined) {
           throw new Error('One or both access keys doesn\'t exist');
@@ -199,7 +209,6 @@ export const clusterRouter = createTRPCRouter({
         if (lifeCycleStage === undefined) {
           throw new Error('life cycle stage doesn\'t exist');
         }
-        const region = clusterResponse?.User.region;
         const { secretArn } = clusterResponse?.User;
 
         if (!clusterResponse) {
@@ -331,6 +340,10 @@ export const clusterRouter = createTRPCRouter({
     /**
      * ID: userId
      * @returns true or false if vpcid exists or not
+     */
+
+    /**
+     * Does not work correctly
      */
 
     clusterExists: publicProcedure  

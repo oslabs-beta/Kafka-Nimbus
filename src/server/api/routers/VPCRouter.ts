@@ -9,6 +9,7 @@ import fs from 'fs';
 
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc';
 
+
 export const createVPCRouter = createTRPCRouter({
   createVPC: publicProcedure
     .input(
@@ -123,21 +124,8 @@ export const createVPCRouter = createTRPCRouter({
         );
 
         // create cluster config file
-        // hardcoding server properties
-        const ServerProperties = 'auto.create.topics.enable=false\n' +
-        'default.replication.factor=3\n' +
-        'min.insync.replicas=2\n' +
-        'num.io.threads=8\n' +
-        'num.network.threads=5\n' +
-        'num.partitions=1\n' +
-        'num.replica.fetchers=2\n' +
-        'replica.lag.time.max.ms=30000\n' +
-        'socket.receive.buffer.bytes=102400\n' +
-        'socket.request.max.bytes=104857600\n' +
-        'socket.send.buffer.bytes=102400\n' +
-        'unclean.leader.election.enable=true\n' +
-        'zookeeper.session.timeout.ms=18000\n' +
-        'allow.everyone.if.no.acl.found=false'; 
+        // getting server.properties file
+        const ServerProperties = fs.readFileSync('src/server/api/routers/server.properties');
 
         const configParams = {
           Description: 'Configuration settings for custom cluster',
@@ -181,9 +169,11 @@ export const createVPCRouter = createTRPCRouter({
             'Ran into error updating user, lost VPC, fix in cli., ',
             error
           );
+          return false
         }
       } catch (error) {
         console.log('Ran into error creating VPC and subnets ', error);
+        return false
       }
     }),
 

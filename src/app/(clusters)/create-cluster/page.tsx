@@ -43,8 +43,7 @@ const CreateClusterPage = () => {
       provider,
       storagePerBroker,
       clusterSize,
-    } = createCluster;
-
+    } = createCluster; 
 
     await createVPC.mutateAsync({
       aws_access_key_id: awsId,
