@@ -16,7 +16,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
   const router = useRouter();
 
 const routeToCluster = () => {
-  router.push(`${cluster.id}/broker-dashboard`);
+  router.push(`${cluster.id}/dashboard`);
 };
 
 
