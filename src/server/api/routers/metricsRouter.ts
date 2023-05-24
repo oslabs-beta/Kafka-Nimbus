@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { env } from "~/env.mjs";
@@ -85,46 +86,48 @@ export const metricRouter = createTRPCRouter({
         const fetchTopicMetaResponse = await admin.fetchTopicMetadata();
         if (!fetchTopicMetaResponse) throw new Error('Error: No topics data received from KJS client');
 
+        //Helper function to get Topic config information
+        const descTopicConfig = async function (name: string): DescribeConfigResponse {
+          try {
+            const response = await admin.describeConfigs({
+              includeSynonyms: false,
+              resources: [
+                {
+                  type: ConfigResourceTypes.TOPIC,
+                  name,
+                  configNames: ['cleanup.policy', 'retention.ms', 'message.downconversion.enable', 'message.format.version', 'max.compaction.lag.ms', 'file.delete.delay.ms', 'max.message.bytes', 'index.interval.bytes'],
+                },
+              ]
+            });
+            return response;
+          } catch (err) {
+            console.log('Error occurred in descTopicConfig');
+          }
+
+        }
+
         //Processing each topic's data and storing it in an array topicsData
         const kTopicsData: ITopicMetadata[] = fetchTopicMetaResponse.topics;
 
         const topicsData = [];
-        kTopicsData.forEach(topic => {
-          //add list of Consumer Groups subscribed to this topic
+        kTopicsData.forEach(async (topic: ITopicMetadata) => {
+          try {
+            if (topic.name !== '__consumer_offsets' || topic.name !== '__amazon_msk_canary') {
+              //add list of Consumer Groups subscribed to this topic
 
-          //add config description to topic
-          const configData = descTopicConfig(topic.name);
+              //add config description to topic
+              //must put await for this function else it will cause an error: KafkaJSConnectionError: Connection error: Client network socket disconnected before secure TLS connection was established
+              const configData = await descTopicConfig(topic.name);
 
-          topicsData.push({
-            ...topic,
-            configData,
-          })
-        });
-
-        await admin.describeConfigs({
-          includeSynonyms: false,
-          resources: [
-            {
-              type: ConfigResourceTypes.TOPIC,
-              name: 'topic-name',
-              configNames: ['cleanup.policy', 'retention.ms', 'message.downconversion.enable', 'message.format.version', 'max.compaction.lag.ms', 'file.delete.delay.ms', 'max.message.bytes', 'index.interval.bytes'] //optional to specify else it'll return the entire config of that topic
+              topicsData.push({
+                ...topic,
+                configuration: configData.resources[0].configEntries,
+              });
             }
-          ]
-        })
-
-        //Helper function to get Topic config information
-        const descTopicConfig = async function (name: string): DescribeConfigResponse {
-          const response: DescribeConfigResponse = await admin.describeConfigs({
-            includeSynonyms: false,
-            resources: [
-              {
-                type: ConfigResourceTypes.TOPIC,
-                name,
-              }
-            ]
-          });
-          return response;
-        }
+          } catch (err) {
+            throw new Error('Error in getting topic metrics for each topic');
+          }
+        });
 
         //Getting Consumer Groups
 
