@@ -5,7 +5,7 @@ import {
   setid,
   setEndpoint,
   setStatus,
-} from "~/app/redux/features/consumerGroupSlice";
+} from "~/app/redux/features/clusterInfoSlice";
 
 const TopicInfo: React.FC = ({}) => {
   const dispatch = useAppDispatch();
