@@ -29,9 +29,12 @@ const CreateClusterPage = () => {
   const { data: sessionData } = useSession();
   const createVPC = trpc.createVPC.createVPC.useMutation();
   const createNewCluster = trpc.createCluster.createCluster.useMutation()
+  const findVPC = trpc.createVPC.findVPC.useQuery({id: sessionData?.user.id});  // defining the query
   const inFocusHandler = (string: string) => {
     setInFocus(string);
   };
+  
+ 
 
   const createClusterHandler = async () => {
     const {
@@ -45,25 +48,44 @@ const CreateClusterPage = () => {
       clusterSize,
     } = createCluster; 
 
-    await createVPC.mutateAsync({
-      aws_access_key_id: awsId,
-      aws_secret_access_key: awsSecret,
-      id: sessionData?.user.id ? sessionData?.user.id : '',
-      region: region,
-    });
-
-    setLoadingState('Creating Cluster')
-    await createNewCluster.mutateAsync({
-      brokerPerZone: brokerNumbers,
-      id: sessionData?.user.id ? sessionData?.user.id : '',
-      instanceSize: clusterSize,
-      name: clusterName,
-      storagePerBroker: storagePerBroker,
-      zones: 2
-    })
+    // gets the vpcdata from the find vpc route
+    // if it returns undefined, then we do error handling
+    const vpcId = findVPC.data;
+    console.log(vpcId);
+    if (vpcId !== undefined) {
+      setLoadingState('Creating Cluster') // sends us to loading page
+      if (vpcId === '') {
+        // if vpcId is an empty string, vpc hasn't been created yet. so we 
+        // create it.
+        console.log('##### hit #####')
+        await createVPC.mutateAsync({
+          aws_access_key_id: awsId,
+          aws_secret_access_key: awsSecret,
+          id: sessionData?.user.id ? sessionData?.user.id : '',
+          region: region,
+        });
+      }
+      // we will now create the cluster
+      await createNewCluster.mutateAsync({
+        brokerPerZone: brokerNumbers,
+        id: sessionData?.user.id ? sessionData?.user.id : '',
+        instanceSize: clusterSize,
+        name: clusterName,
+        storagePerBroker: storagePerBroker,
+        zones: 2    // at the moment this is hard coded in as 2
+      })
+      }
+      else {
+        /**
+         * TODO: Error Handling
+         */
+        console.log('Error, user not found')
+      }
 
     router.push('/cluster-dashboard');
   };
+
+  
 
   switch (inFocus) {
     case 'provider':

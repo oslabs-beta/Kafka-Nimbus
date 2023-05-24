@@ -199,6 +199,7 @@ export const createVPCRouter = createTRPCRouter({
           'Encountered error finding the user in the database',
           error
         );
+        return undefined;
       }
     }),
 
