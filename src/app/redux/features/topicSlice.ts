@@ -1,5 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+interface initialState {
+  id: string,
+  Endpoint: string,
+  Count: number,
+  Name: string,
+  numPartitions: number,
+  replicationFactor: number,
+}
 
 const initialState = {
   id: '',
