@@ -32,7 +32,6 @@ export const topicRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        clusterName: z.string(),
         topicName: z.string(),
         numPartitions: z.number().default(-1),
         replicationFactor: z.number().default(-1),
@@ -43,30 +42,27 @@ export const topicRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       // First, use id to get the aws access that we need to make changes
       try {
-        const userResponse = await prisma.user.findUnique({
+        const userResponse = await prisma.cluster.findUnique({
           where: {
             id: input.id,
           },
           include: {
-            clusters: {
-              where: {
-                name: input.clusterName,
-              },
-            },
+            User: true,
           },
         });
         if (
-          !userResponse ||
-          (userResponse && userResponse.clusters.length > 0)
+          !userResponse
         ) {
-          throw new Error("User response does not exist");
+          throw new Error("Cluster does not exist");
         }
-        const awsAccessKey = userResponse.awsAccessKey;
-        const awsSecretAccessKey = userResponse.awsSecretAccessKey;
-        const region = userResponse.region;
-        const cluster = userResponse.clusters[0];
-        if (!cluster) throw new Error("Cluster does not exist");
-        const BootstrapIds = cluster.bootStrapServer;
+        const awsAccessKey = userResponse.User.awsAccessKey;
+        const awsSecretAccessKey = userResponse.User.awsSecretAccessKey;
+        const region = userResponse.User.region;
+
+        /** TODO getting bootStrapServer public endpoints. For now manually adding the brokers */
+        //const BootstrapIds = userResponse.bootStrapServer;
+        const BootstrapIds = ['b-1-public.'];
+
         // update aws config
         // possibly unneccessary
         AWS.config.update({
@@ -125,7 +121,7 @@ export const topicRouter = createTRPCRouter({
             replicationFactor: input.replicationFactor,
             Cluster: {
               connect: {
-                name: input.clusterName,
+                id: userResponse.id,
               },
             },
           },

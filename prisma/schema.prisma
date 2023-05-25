@@ -109,16 +109,14 @@ model Broker {
 
 model Topic {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  Endpoint          String   @unique
-  Count             String
   Cluster           Cluster? @relation(fields: [clusterId], references: [id])
   clusterId         String?  @db.ObjectId
   Name              String
   numPartitions     Int
   replicationFactor Int
-  cleanUpPolicy     String
-  configEntries     String
-  replicaAssignment String
+  cleanUpPolicy     String?
+  configEntries     String?
+  replicaAssignment String?
   
 }
 

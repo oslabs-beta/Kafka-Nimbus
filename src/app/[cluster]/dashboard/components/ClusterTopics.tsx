@@ -47,17 +47,23 @@ const ClusterTopics = () => {
 
   const createTopicHandler = async () => {
     const { 
-      Name, 
-      numPartitions, 
-      replicationFactor, 
-      cleanUpPolicy 
-    } = createTopic;
+      Name,
+      numPartitions,
+      replicationFactor,
+      cleanUpPolicy
+    } =
+      createTopic;
     await createNewTopic.mutateAsync({
+      id: 'hello', //provide cluster id
       topicName: Name,
       numPartitions: numPartitions,
       replicationFactor: replicationFactor,
-      configEntries: [{ cleanUpPolicy: cleanUpPolicy }],
-      clusterName: "", // Provide the cluster name here
+      configEntries: [
+        {
+          name: "cleanup.policy",
+          value: cleanUpPolicy,
+        },
+      ],
     });
   };
 
