@@ -5,7 +5,7 @@ import {
   settopicPartitions,
   settopicReplications,
   setcleanUpPolicy,
-} from "~/app/redux/features/createTopicSlice";
+} from "~/app/redux/features/createSingleTopicSlice";
 import { trpc } from "../../../../trpc/trpc-provider";
 
 const ClusterTopics = () => {
@@ -13,12 +13,12 @@ const ClusterTopics = () => {
   const TopicReplications: number[] = [1, 2, 3];
   const TopicPartitions: number[] = [1, 2, 3];
   const CleanUpPolicy: string[] = ["compact", "delete"];
-  const { topics } = useAppSelector((state) => state);
+  const { createTopic } = useAppSelector((state) => state);
   const createNewTopic = trpc.topic.createTopic.useMutation();
 
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log(topics);
+    console.log(createTopic);
   };
 
   const partitionChangeHandler = (
@@ -51,10 +51,11 @@ const ClusterTopics = () => {
       numPartitions, 
       replicationFactor, 
       cleanUpPolicy 
-    } = topics;
+    } = createTopic;
     await createNewTopic.mutateAsync({
       topicName: Name,
       numPartitions: numPartitions,
+      replicationFactor: replicationFactor,
       configEntries: [{ cleanUpPolicy: cleanUpPolicy }],
       clusterName: "", // Provide the cluster name here
     });
