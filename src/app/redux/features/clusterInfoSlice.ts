@@ -11,10 +11,6 @@ export interface ClusterInfo {
   State: string
 }
 
-interface ClusterInfoState {
-  clusterInfo: ClusterInfo;
-}
-
 const initialState: ClusterInfo = {
   ActiveOperationArn: '',
   ClusterArn: '',
@@ -27,10 +23,10 @@ const initialState: ClusterInfo = {
 
 const clusterInfoSlice = createSlice({
   name: 'clusterInfo',
-  initialState,
+  initialState: initialState,
   reducers: {
     updateClusterInfo: (
-      state: ClusterInfoState,
+      state ,
       action: PayloadAction<ClusterInfo>
     ) => {
       return {

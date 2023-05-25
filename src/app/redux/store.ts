@@ -1,18 +1,14 @@
 "use client";
 
 import { configureStore } from "@reduxjs/toolkit";
-import brokerReducer from './features/brokerSlice'
 import topicReducer from './features/topicSlice'
-import consumerReducer from './features/consumerSlice'
+import clusterInfoSlice from './features/clusterInfoSlice'
 import createClusterReducer from "./features/createClusterSlice";
-import consumerGroupReducer from './features/clusterInfoSlice'
 
 export const store = configureStore({
   reducer: {
-    brokers: brokerReducer,
     topics: topicReducer,
-    consumers: consumerReducer,
-    consumerGroup: consumerGroupReducer,
+    clusterInfo: clusterInfoSlice,
     createCluster: createClusterReducer
   }
 })
