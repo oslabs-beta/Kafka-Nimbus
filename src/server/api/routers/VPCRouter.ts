@@ -1,12 +1,14 @@
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { prisma } from '../../db';
+import path from 'path';
 
-const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' });
+
 import { KafkaClient, CreateConfigurationCommand } from '@aws-sdk/client-kafka';
 import fs from 'fs';
 
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc';
+
 
 export const createVPCRouter = createTRPCRouter({
   createVPC: publicProcedure
@@ -24,6 +26,10 @@ export const createVPCRouter = createTRPCRouter({
         secretAccessKey: input.aws_secret_access_key,
         region: input.region,
       });
+      // it is important to instantaiate ec2 instance after updating the 
+      // aws config.
+      const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' });
+
       const client = new KafkaClient({
         region: input.region,
         credentials: {
@@ -88,8 +94,7 @@ export const createVPCRouter = createTRPCRouter({
         console.log(`Created subnet with id ${subnet2Id}`);
 
         // Create route table connections
-        const routeTables = await ec2
-          .describeRouteTables({
+        const routeTables = await ec2.describeRouteTables({
             Filters: [
               {
                 Name: 'vpc-id',
@@ -98,7 +103,13 @@ export const createVPCRouter = createTRPCRouter({
             ],
           })
           .promise();
-        const routeTableId: string = routeTables.RouteTable[0].RouteTableId;
+        if (!routeTables || routeTables.RouteTables === undefined || routeTables.RouteTables?.length === 0) {
+          throw new Error('Route table failed to create');
+        }
+        const routeTableId = routeTables.RouteTables[0]?.RouteTableId;
+        if (!routeTableId) {
+          throw new Error('Route table failed to create');
+        }
 
         // Create route for IGW
         await ec2
@@ -113,7 +124,9 @@ export const createVPCRouter = createTRPCRouter({
         );
 
         // create cluster config file
-        const ServerProperties = fs.readFileSync('server.properties', 'utf8');
+        // getting server.properties file
+        const ServerProperties = fs.readFileSync('src/server/api/routers/server.properties');
+
         const configParams = {
           Description: 'Configuration settings for custom cluster',
           KafkaVersion: ['2.8.1'],
@@ -129,82 +142,6 @@ export const createVPCRouter = createTRPCRouter({
           throw new Error("ConfigARN doesn't exist on client");
         }
         console.log(`Created config with Arn ${configArn}`);
-
-        // Create key
-        const kms = new AWS.KMS();
-        const kmsParams = {
-          CustomerMasterKeySpec: 'SYMMETRIC_DEFAULT',
-          KeyUsage: 'ENCRYPT_DECRYPT',
-          Origin: 'AWS_KMS',
-          Description: 'This is a symmetric key for ec and dec',
-        };
-
-        // call the method
-        const kmsResponse = await kms.createKey(kmsParams).promise();
-        const keyId = kmsResponse.KeyMetadata?.KeyId;
-        if (keyId === undefined) {
-          throw new Error("KeyId doesn't exist on kms response obj");
-        }
-        console.log(`Created kms key with id: ${keyId}`);
-        // getting the account id
-        const sts = new AWS.STS();
-        const stsResponse = await sts.getCallerIdentity({}).promise();
-        const accountId: string | undefined = stsResponse.Account;
-        if (accountId === undefined) {
-          throw new Error('Account id failed');
-        }
-        console.log(`Got accountID: ${accountId}`);
-
-        // we have to add a policy to the key to grant permissions
-
-        const policy = {
-          Version: '2012-10-17',
-          Id: 'key-default-1',
-          Statement: [
-            {
-              Sid: 'Enable IAM User Permissions',
-              Effect: 'Allow',
-              Principal: {
-                AWS: [
-                  `arn:aws:iam::${accountId}:root`, // get user account number
-                ],
-              },
-              Action: 'kms:*',
-              Resource: '*',
-            },
-          ],
-        };
-        if (keyId === undefined) {
-          throw new Error('Key id does not exist');
-        }
-
-        await kms
-          .putKeyPolicy({
-            KeyId: keyId,
-            PolicyName: 'default',
-            Policy: JSON.stringify(policy),
-          })
-          .promise();
-
-        // create Secret using KMS key
-        const secretsmanager = new AWS.SecretsManager();
-
-        const secretsParams = {
-          Name: `AmazonMSK_${input.id}`,
-          SecretString: JSON.stringify({
-            username: input.id,
-            password: 'kafka-nimbus',
-          }),
-          KmsKeyId: keyId,
-        };
-        const secretsResponse = await secretsmanager
-          .createSecret(secretsParams)
-          .promise();
-        const secretArn = secretsResponse.ARN;
-        if (secretArn === undefined) {
-          throw new Error("SecretArn doesn't exist on the secret object");
-        }
-        console.log(`Created secret with ARN: ${secretArn}`);
 
         /**
          * Send required info to db
@@ -225,8 +162,6 @@ export const createVPCRouter = createTRPCRouter({
               awsSecretAccessKey: input.aws_secret_access_key,
               region: input.region,
               configArn: configArn,
-              kmsKey: keyId,
-              secretArn: secretArn,
             },
           });
         } catch (error) {
@@ -234,9 +169,11 @@ export const createVPCRouter = createTRPCRouter({
             'Ran into error updating user, lost VPC, fix in cli., ',
             error
           );
+          return false
         }
       } catch (error) {
         console.log('Ran into error creating VPC and subnets ', error);
+        return false
       }
     }),
 
@@ -262,6 +199,7 @@ export const createVPCRouter = createTRPCRouter({
           'Encountered error finding the user in the database',
           error
         );
+        return undefined;
       }
     }),
 
