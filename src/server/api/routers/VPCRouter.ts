@@ -130,7 +130,7 @@ export const createVPCRouter = createTRPCRouter({
         const configParams = {
           Description: 'Configuration settings for custom cluster',
           KafkaVersion: ['2.8.1'],
-          Name: 'Kafka-NimbusConfiguration',
+          Name: 'Kafka-NimbusConfiguration2',
           ServerProperties: ServerProperties,
         };
 

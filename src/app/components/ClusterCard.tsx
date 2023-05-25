@@ -2,6 +2,8 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { trpc } from '../../trpc/trpc-provider';
+import cron from 'node-cron';
 
 export interface cardCluster {
   cluster: {
@@ -15,9 +17,12 @@ export interface cardCluster {
 export default function ClusterCard({ cluster }: cardCluster) {
   const router = useRouter();
 
-const routeToCluster = () => {
-  router.push(`${cluster.id}/dashboard`);
-};
+  const routeToCluster = () => {
+    router.push(`${cluster.id}/dashboard`);
+  };
+
+
+
 
 
   return (

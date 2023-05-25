@@ -58,7 +58,6 @@ const CreateClusterPage = () => {
       if (vpcId === '') {
         // if vpcId is an empty string, vpc hasn't been created yet. so we 
         // create it.
-        console.log('##### hit #####')
         await createVPC.mutateAsync({
           aws_access_key_id: awsId,
           aws_secret_access_key: awsSecret,

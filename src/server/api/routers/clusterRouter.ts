@@ -95,7 +95,7 @@ export const clusterRouter = createTRPCRouter({
           },
           ClusterName: input.name,
           KafkaVersion: '2.8.1',        // allow user to choose version?
-          NumberOfBrokerNodes: input.brokerPerZone,
+          NumberOfBrokerNodes: input.brokerPerZone * input.zones,   // quick math
           EncryptionInfo: {
             EncryptionInTransit: {
               ClientBroker: 'TLS', // Changing from PLAINTEXT to TLS for disabling plaintext traffic

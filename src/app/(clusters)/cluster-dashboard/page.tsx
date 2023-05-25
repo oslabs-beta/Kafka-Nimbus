@@ -1,8 +1,8 @@
 import React from "react";
-import { PrismaClient, type Cluster } from "@prisma/client";
+import { type Cluster } from "@prisma/client";
 import { redirect } from 'next/navigation';
 import { getServerAuthSession } from '~/server/auth';
-
+import { prisma } from '../../../server/db'
 
 import ClusterCard from "~/app/components/ClusterCard";
 import CreateClusterCard from "~/app/components/CreateClusterCard";
@@ -16,8 +16,6 @@ const ClusterDashboard = async () => {
 
   let clusters: Cluster[] = [];
   try {
-    const prisma = new PrismaClient();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     clusters = await prisma.cluster.findMany({
       where: {
         userId: sessionData?.user?.id,
