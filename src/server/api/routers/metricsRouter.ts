@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -45,7 +46,7 @@ export const metricRouter = createTRPCRouter({
         const brokersEndpoints = {
           clusterId1: [],
           clusterId2: [],
-          clusterId3: []
+          clusterId3: [],
         };
 
         //get bootstrap public endpoints
@@ -146,10 +147,10 @@ export const metricRouter = createTRPCRouter({
 
           //get offsetdata for each Topic
           const offSetData = await admin.fetchTopicOffsets(topic.name);
-
+          const config = (configData.resources.length != 0) ? configData.resources[0].configEntries : [];
           topicsData.push({
             ...topic,
-            config: configData.resources[0].configEntries,
+            config,
             offsets: offSetData,
           });
           // console.log("Pushed topic data to Topics");
