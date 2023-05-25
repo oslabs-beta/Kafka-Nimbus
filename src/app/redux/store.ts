@@ -5,7 +5,7 @@ import brokerReducer from './features/brokerSlice'
 import topicReducer from './features/topicSlice'
 import consumerReducer from './features/consumerSlice'
 import createClusterReducer from "./features/createClusterSlice";
-import consumerGroupReducer from './features/consumerGroupSlice'
+import consumerGroupReducer from './features/clusterInfoSlice'
 
 export const store = configureStore({
   reducer: {
