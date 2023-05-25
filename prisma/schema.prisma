@@ -116,6 +116,10 @@ model Topic {
   Name              String
   numPartitions     Int
   replicationFactor Int
+  cleanUpPolicy     String
+  configEntries     String
+  replicaAssignment String
+  
 }
 
 model ConsumerGroup {

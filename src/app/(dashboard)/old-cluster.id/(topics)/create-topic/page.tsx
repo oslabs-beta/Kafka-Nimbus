@@ -5,7 +5,7 @@ import {
   settopicName,
   settopicPartitions,
   settopicReplications,
-} from "~/app/redux/features/topicSlice";
+} from "~/app/redux/features/createTopicSlice";
 
 
 const TopicInfo: React.FC= ({ }) => {

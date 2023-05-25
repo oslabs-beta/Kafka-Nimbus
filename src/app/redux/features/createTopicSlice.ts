@@ -2,37 +2,31 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface initialState {
   id: string,
-  Endpoint: string,
-  Count: number,
   Name: string,
   numPartitions: number,
   replicationFactor: number,
+  cleanUpPolicy: string
 }
 
 const initialState = {
   id: '',
-  Endpoint: '',
-  Count: 0,
   Name: "",
   numPartitions: 0,
   replicationFactor: 1,
+  cleanUpPolicy: ""
 }
 
-export const topic = createSlice({
-  name: 'topic',
+
+
+export const createTopic = createSlice({
+  name: 'createTopic',
   initialState,
   reducers: {
     settopicID: (state, action: PayloadAction<string>) => {
       state.id = action.payload;
     },
-    settopicEndpoint: (state, action: PayloadAction<string>) => {
-      state.Endpoint = action.payload;
-    },
     settopicName: (state, action: PayloadAction<string>) => {
       state.Name = action.payload;
-    },
-    settopicCount: (state, action: PayloadAction<number>) => {
-      state.Count = action.payload;
     },
     settopicPartitions: (state, action: PayloadAction<number>) => {
       state.numPartitions = action.payload;
@@ -40,9 +34,12 @@ export const topic = createSlice({
     settopicReplications: (state, action: PayloadAction<number>) => {
       state.replicationFactor = action.payload;
     },
+    setcleanUpPolicy: (state, action: PayloadAction<string>) => {
+      state.cleanUpPolicy = action.payload;
+    },
   },
 });
 
-export const { settopicID, settopicEndpoint, settopicName, settopicCount, settopicPartitions, settopicReplications } = topic.actions;
+export const { settopicID, settopicName, settopicPartitions, settopicReplications, setcleanUpPolicy } = createTopic.actions;
 
-export default topic.reducer;
+export default createTopic.reducer;
