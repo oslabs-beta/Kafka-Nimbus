@@ -15,7 +15,7 @@ const ClusterMetrics = (props: Props) => {
               <CheckBadgeIcon className="text-green-400" height={40} width={40}/>
             </div>
             <div className='stat-title'>Status</div>
-            <div className='stat-value text-green-400'>ACTIVE</div>
+            <div className='stat-value text-green-400'>{props.status}</div>
             <div className='stat-desc'>Created at</div>
           </div>
 

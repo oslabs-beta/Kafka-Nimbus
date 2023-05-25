@@ -15,6 +15,7 @@ type Props = {
 };
 
 const Page = ({ params }: Props) => {
+  console.log(params)
   const [inFocus, setInFocus] = useState<string>('metrics');
   let result;
 
@@ -46,10 +47,10 @@ const Page = ({ params }: Props) => {
           <ul className='menu w-80 bg-base-100 p-4 text-base-content'>
             {/* <!-- Sidebar content here --> */}
             <li>
-              <a className="" onClick={() => setInFocus('consumers')}>Consumers</a>
+              <a onClick={() => setInFocus('metrics')}>Metrics</a>
             </li>
             <li>
-              <a onClick={() => setInFocus('metrics')}>Metrics</a>
+              <a className="" onClick={() => setInFocus('consumers')}>Consumers</a>
             </li>
             <li>
               <a onClick={() => setInFocus('topics')}>Topics</a>

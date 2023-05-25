@@ -1,10 +1,12 @@
-import React, {Suspense} from 'react';
+import React from 'react';
+import Page from './page';
 
-const layout = ({ children }: { children: React.ReactNode }) => {
+const layout = ({ children, params }: { children: React.ReactNode }) => {
+  
   return (
-    <Suspense fallback={<h1>Loading...</h1>}>
-      <div>{children}</div>
-    </Suspense>
+    <div>
+      <Page params={params} />
+    </div>
   );
 };
 

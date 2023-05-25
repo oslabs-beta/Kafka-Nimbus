@@ -1,14 +1,14 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 export interface ClusterInfo {
   ActiveOperationArn?: string;
-  BrokerNodeGroupInfo?: object;
   ClusterArn?: string;
   ClusterName?: string;
   CreationTime?: Date | null;
-  CurrentBrokerSoftwareInfo?: object;
+  KafkaVersion?: string
   CurrentVersion?: string;
   NumberOfBrokerNodes?: number;
+  State: string
 }
 
 interface ClusterInfoState {
@@ -17,13 +17,12 @@ interface ClusterInfoState {
 
 const initialState: ClusterInfo = {
   ActiveOperationArn: '',
-  BrokerNodeGroupInfo: {},
   ClusterArn: '',
   ClusterName: '',
   CreationTime: null,
-  CurrentBrokerSoftwareInfo: {},
-  CurrentVersion: '',
+  KafkaVersion: '',
   NumberOfBrokerNodes: 0,
+  State: ''
 };
 
 const clusterInfoSlice = createSlice({
