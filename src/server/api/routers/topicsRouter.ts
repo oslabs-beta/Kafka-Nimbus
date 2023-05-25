@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import  AWS  from 'aws-sdk';
+import AWS from 'aws-sdk';
 import { prisma } from '../../db'
 
 import { Kafka, logLevel } from 'kafkajs';
@@ -41,7 +41,7 @@ export const topicRouter = createTRPCRouter({
       replicaAssignment: z.array(replicaAssignmentSchema).default([]),
       configEntries: z.array(configEntriesSchema).default([])
     }))
-    .mutation(async({ input }) => {
+    .mutation(async ({ input }) => {
       // First, use id to get the aws access that we need to make changes
       try {
         const userResponse = await prisma.user.findUnique({
@@ -109,7 +109,7 @@ export const topicRouter = createTRPCRouter({
           return 'Topic already exists'
         }
 
-        
+
 
         /**
          * Store new cluster in db
@@ -128,7 +128,7 @@ export const topicRouter = createTRPCRouter({
             }
           }
         })
-        
+
         return createResult;
       }
       catch (error) {

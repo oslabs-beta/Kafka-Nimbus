@@ -42,6 +42,12 @@ export const metricRouter = createTRPCRouter({
           throw new Error('Error: Cluster does not exist in the database');
         }
 
+        const brokersEndpoints = {
+          clusterId1: [],
+          clusterId2: [],
+          clusterId3: []
+        };
+
         //get bootstrap public endpoints
         const brokers = ['b-1-public.24demo.ss1zbk.c2.kafka.us-east-2.amazonaws.com:9198', 'b-2-public.24demo.ss1zbk.c2.kafka.us-east-2.amazonaws.com:9198'];
         // const brokers = clusterInfo.bootStrapServer;
@@ -96,6 +102,7 @@ export const metricRouter = createTRPCRouter({
           NumberOfBrokerNodes,
           State
         };
+        console.log('------ADDED metrics to response');
 
 
         //GETTING TOPICS
@@ -130,30 +137,27 @@ export const metricRouter = createTRPCRouter({
         const kTopicsData: ITopicMetadata[] = fetchTopicMetaResponse.topics;
 
         const topicsData = [];
-        kTopicsData.forEach(async (topic: ITopicMetadata) => {
-          try {
-            if (topic.name !== '__consumer_offsets' || topic.name !== '__amazon_msk_canary') {
-              //add list of Consumer Groups subscribed to this topic [TODO]
+        for (const topic of kTopicsData) {
+          //add list of Consumer Groups subscribed to this topic [TODO]
 
-              //add config description to topic
-              //[WEIRD BUG] must put await for this function else it will cause an error: KafkaJSConnectionError: Connection error: Client network socket disconnected before secure TLS connection was established
-              const configData = await descTopicConfig(topic.name);
+          //add config description to topic
+          //[WEIRD BUG] must put await for this function else it will cause an error: KafkaJSConnectionError: Connection error: Client network socket disconnected before secure TLS connection was established
+          const configData = await descTopicConfig(topic.name);
 
-              //get offsetdata for each Topic
-              const offSetData = await admin.fetchTopicOffsets(topic.name);
+          //get offsetdata for each Topic
+          const offSetData = await admin.fetchTopicOffsets(topic.name);
 
-              topicsData.push({
-                ...topic,
-                config: configData.resources[0].configEntries,
-                offsets: offSetData,
-              });
-            }
-          } catch (err) {
-            throw new Error('Error in getting topic metrics for each topic');
-          }
-        });
+          topicsData.push({
+            ...topic,
+            config: configData.resources[0].configEntries,
+            offsets: offSetData,
+          });
+          // console.log("Pushed topic data to Topics");
+        }
 
         response.Topics = topicsData;
+        console.log('------ADDED topics to response');
+
 
         //GETTING CONSUMER GROUPS
         const listGroups = await admin.listGroups();
@@ -165,10 +169,11 @@ export const metricRouter = createTRPCRouter({
         const describeGroupsResponse = await admin.describeGroups(groupIds);
         console.log('Consumer Groups Descriptions: ', describeGroupsResponse);
         const descGroups = describeGroupsResponse.groups;
+
         //for each group in array add to members and subscribedTopics List
-        descGroups.forEach(group => {
+        for (const group of descGroups) {
           const { groupId, protocol, state, members } = group;
-          const membersId = [];
+          let membersId = [];
           const subscribedTopics = [];
           if (members.length > 0) {
             membersId = members.map(member => member.memberId);
@@ -184,9 +189,14 @@ export const metricRouter = createTRPCRouter({
             members: membersId,
             subscribedTopics,
           });
-        })
-        response.ConsumerGroups = groupsData;
+          // console.log(`Pushed consumer group to Consumer Groups`);
+        }
 
+        response.ConsumerGroups = groupsData;
+        console.log('------ADDED consumer groups to response');
+
+        //return response as the response body
+        return response;
       } catch (err) {
         console.log('Error occurred in metricRouter getClusterInformation: ', err);
       }
