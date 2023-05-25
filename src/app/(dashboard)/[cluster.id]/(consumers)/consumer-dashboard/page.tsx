@@ -21,7 +21,7 @@ const consumerDashboard = async ({ params }: PageProps) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    throw new Error("consumer-dashboard error");
   }
   if (consumerGroups.length !== 0) {
     return (

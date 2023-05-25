@@ -11,6 +11,7 @@ export const AuthShowcase: React.FC = () => {
   //   undefined, // no input
   //   { enabled: sessionData?.user !== undefined },
   // );
+  // if (!sessionData) throw new Error();
   return (
     <div className='flex gap-2'>
       <button

@@ -26,7 +26,7 @@ const ClusterDashboard = async () => {
     });
 
   } catch (error) {
-    console.log(error);
+    throw new Error("cluster-dashboard error");
   }
   return (
     <>

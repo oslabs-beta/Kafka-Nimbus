@@ -20,7 +20,7 @@ const topicDashboard = async ({ params }: PageProps) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    throw new Error("topicDashboard error");
   }  
   if (topics.length === 0) {
     return (

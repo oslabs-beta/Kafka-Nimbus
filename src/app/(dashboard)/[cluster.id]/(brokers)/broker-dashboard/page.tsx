@@ -23,7 +23,7 @@ const brokerDashboard = async ({ params, cluster }: PageProps) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    throw new Error("brokerDashboard error");
   }  
 
   return (

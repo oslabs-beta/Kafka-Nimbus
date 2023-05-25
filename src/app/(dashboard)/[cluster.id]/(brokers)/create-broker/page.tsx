@@ -28,7 +28,7 @@ const brokerDashboard = async ({ params }: PageProps) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    throw new Error("create broker error");
   }
   return (
     <>
