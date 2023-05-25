@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Bars3Icon } from "@heroicons/react/24/solid";
+import { ChevronRightIcon, Bars3Icon } from "@heroicons/react/24/solid";
 import ClusterConsumers from './components/ClusterConsumers';
 import ClusterMetrics from './components/ClusterMetrics';
 import ClusterTopics from './components/ClusterTopics';
