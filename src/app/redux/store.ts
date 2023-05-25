@@ -4,12 +4,18 @@ import { configureStore } from "@reduxjs/toolkit";
 import topicReducer from './features/topicSlice'
 import clusterInfoSlice from './features/clusterInfoSlice'
 import createClusterReducer from "./features/createClusterSlice";
+import consumerGroupReducer from './features/clusterInfoSlice'
+import createSingleTopicSlice from "./features/createSingleTopicSlice";
 
 export const store = configureStore({
   reducer: {
     topics: topicReducer,
     clusterInfo: clusterInfoSlice,
-    createCluster: createClusterReducer
+    createCluster: createClusterReducer,
+    
+    consumerGroup: consumerGroupReducer,
+    createCluster: createClusterReducer,
+    createTopic: createSingleTopicSlice,
   }
 })
 

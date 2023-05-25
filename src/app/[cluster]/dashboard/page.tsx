@@ -34,13 +34,13 @@ const Page = ({ params }: Props) => {
   let result;
 
   switch (inFocus) {
-    case 'consumers':
+    case "consumers":
       result = <ClusterConsumers />;
       break;
     case 'metrics':
       result = <ClusterMetrics clusterInfo={clusterInfo} />;
       break;
-    case 'topics':
+    case "topics":
       result = <ClusterTopics />;
       break;
   }

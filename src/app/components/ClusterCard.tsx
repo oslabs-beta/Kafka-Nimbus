@@ -13,6 +13,11 @@ export interface cardCluster {
 
 export default function ClusterCard({ cluster }: cardCluster) {
   const router = useRouter();
+  // Fetching the cluster status to display
+  const { data: status } = trpc.createCluster.checkClusterStatus.useQuery({
+    name: cluster.name
+  })
+
 
   const routeToCluster = () => {
     router.push(`${cluster.id}/dashboard`);
