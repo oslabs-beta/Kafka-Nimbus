@@ -1,7 +1,7 @@
 "use client";
 
 import { configureStore } from "@reduxjs/toolkit";
-import topicReducer from './features/topicSlice'
+import topicReducer from './features/createTopicSlice'
 import clusterInfoSlice from './features/clusterInfoSlice'
 import createClusterReducer from "./features/createClusterSlice";
 import consumerGroupReducer from './features/clusterInfoSlice'

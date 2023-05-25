@@ -2,6 +2,7 @@
 'use client';
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { trpc } from '~/trpc/trpc-provider';
 
 export interface cardCluster {
   cluster: {
@@ -30,7 +31,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
     "bg-gradient-to-r from-green-300 via-yellow-300 to-pink-300"
   ];
 
-  const random = Math.floor(Math.random() * 5) + 1;
+  const random = Math.floor(Math.random() * 5)
 
   return (
     <div
