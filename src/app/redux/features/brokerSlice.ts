@@ -2,10 +2,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 
 const initialState = {
-  brokerid: '',
-  brokerAddress: '',
-  brokerSize: '',
-  brokerLeader: ''
+  id: '',
+  Address: '',
+  Size: '',
+  Leader: ''
 }
 
 export const broker = createSlice({
@@ -13,16 +13,16 @@ export const broker = createSlice({
   initialState,
   reducers: {
     setbrokerID: (state, action: PayloadAction<string>) => {
-      state.brokerid = action.payload;
+      state.id = action.payload;
     },
     setbrokerAddress: (state, action: PayloadAction<string>) => {
-      state.brokerAddress = action.payload;
+      state.Address = action.payload;
     },
     setbrokerSize: (state, action: PayloadAction<string>) => {
-      state.brokerSize = action.payload;
+      state.Size = action.payload;
     },
     setbrokerLeader: (state, action: PayloadAction<string>) => {
-      state.brokerLeader = action.payload;
+      state.Leader = action.payload;
     },
   },
 });

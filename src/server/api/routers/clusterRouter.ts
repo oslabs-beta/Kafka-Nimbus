@@ -8,8 +8,6 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
-const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
 import { KafkaClient, BatchAssociateScramSecretCommand, UpdateConnectivityCommand } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
@@ -37,6 +35,19 @@ export const clusterRouter = createTRPCRouter({
         const vpcId = userResponse.vpcId;
         const subnetIds = userResponse.subnetID;
         const configArn = userResponse.configArn;
+
+        // store aws key and sescret, and put into the AWS config
+        const awsAccessKey = userResponse.awsAccessKey;
+        const awsSecretAccessKey = userResponse.awsSecretAccessKey;
+        const region = userResponse.region;
+        // config update has to be before instantializing ec2 and kafka
+        AWS.config.update({
+          accessKeyId: awsAccessKey,
+          secretAccessKey: awsSecretAccessKey,
+          region: region
+        })
+        const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
+        const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
         
           // Create security groups within the vpc
         if (!vpcId) {
@@ -60,29 +71,29 @@ export const clusterRouter = createTRPCRouter({
           IpPermissions: [
             {
               IpProtocol: 'tcp',
-              FromPort: -1,
-              ToPosrt: -1,
-              IpRanges: [{ CidrIp: '0.0.0.0/' }] // all access
+              FromPort: 0,
+              ToPort: 65535,
+              IpRanges: [{ CidrIp: '0.0.0.0/0' }] // all access
             }
           ]
         }
         await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
         console.log(`Added inbound rules to security group ${groupId}`);
-
+        
         // kafka params
         const kafkaParams = {
           BrokerNodeGroupInfo: {
             BrokerAZDistribution: 'DEFAULT',  // We should always keep it like this, could change in future
             ClientSubnets: subnetIds,
             InstanceType: input.instanceSize,
-            SecurityGroups: [...groupId],
+            SecurityGroups: [groupId],
             StorageInfo: {
               EbsStorageInfo: {
                 VolumeSize: input.storagePerBroker,
               },
             },
           },
-          clusterName: input.name,
+          ClusterName: input.name,
           KafkaVersion: '2.8.1',        // allow user to choose version?
           NumberOfBrokerNodes: input.brokerPerZone,
           EncryptionInfo: {
@@ -91,6 +102,7 @@ export const clusterRouter = createTRPCRouter({
               InCluster: true, // Enabling encryption within the cluster
             }
           },
+          // not going to use open monitoring as our way of monitoring
           OpenMonitoring: {
             Prometheus: {
               JmxExporter: {
@@ -103,9 +115,9 @@ export const clusterRouter = createTRPCRouter({
           },
           ClientAuthentication: {
             Sasl: {
-              Scram: {
+              Iam: {
                 Enabled: true,
-              },
+              }
             },
           },
           ConfigurationInfo: {
@@ -127,14 +139,16 @@ export const clusterRouter = createTRPCRouter({
         const response = await prisma.cluster.create({
           data: {
             name: input.name,
-            userId: input.id,
-            securityGroup: groupId,
+            securityGroup: [groupId],
             brokerPerZone: input.brokerPerZone,
             instanceSize: input.instanceSize,
             zones: input.zones,
             storagePerBroker: input.storagePerBroker,
             kafkaArn: kafkaArn,
-            lifeCycleStage: 0
+            lifeCycleStage: 0,
+            User: {
+              connect: { id: input.id }
+            }
           }
         })
         if (!response) {
@@ -181,6 +195,16 @@ export const clusterRouter = createTRPCRouter({
         }
         const awsAccessKey = clusterResponse?.User.awsAccessKey;
         const awsSecretAccessKey = clusterResponse?.User.awsSecretAccessKey;
+        const region = clusterResponse?.User.region;
+        // setting sdk config
+        AWS.config.update({
+          accessKeyId: awsAccessKey,
+          secretAccessKey: awsSecretAccessKey,
+          region: region
+        })
+        const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
+
+
         const lifeCycleStage = clusterResponse?.lifeCycleStage;
         if (awsAccessKey === undefined || awsSecretAccessKey === undefined) {
           throw new Error('One or both access keys doesn\'t exist');
@@ -188,8 +212,6 @@ export const clusterRouter = createTRPCRouter({
         if (lifeCycleStage === undefined) {
           throw new Error('life cycle stage doesn\'t exist');
         }
-        const region = clusterResponse?.User.region;
-        const { secretArn } = clusterResponse?.User;
 
         if (!clusterResponse) {
           throw new Error('Didn\'t find cluster in db');
@@ -264,7 +286,7 @@ export const clusterRouter = createTRPCRouter({
               const boostrapResponse = await kafka.getBootstrapBrokers({
                 ClusterArn: kafkaArn
               }).promise();
-              const endpoints = boostrapResponse.BootstrapBrokerStringPublicSaslScram;
+              const endpoints = boostrapResponse.BootstrapBrokerStringPublicSaslIam;      // TODO, get right endpoints
               if (endpoints === undefined) {
                 throw new Error('Bootstrap not found/setup correctly');
               }
@@ -320,6 +342,10 @@ export const clusterRouter = createTRPCRouter({
     /**
      * ID: userId
      * @returns true or false if vpcid exists or not
+     */
+
+    /**
+     * Does not work correctly
      */
 
     clusterExists: publicProcedure  

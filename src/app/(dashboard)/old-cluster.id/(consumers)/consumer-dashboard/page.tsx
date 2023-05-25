@@ -1,40 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { PrismaClient, Broker } from '@prisma/client';
+import { PrismaClient, ConsumerGroup } from '@prisma/client';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
-
 interface PageProps {
   params: {
-    userId: string;
+    clusterId: string;
   };
 }
 
-const brokerDashboard = async ({ params }: PageProps) => {
+const consumerDashboard = async ({ params }: PageProps) => {
+  
   // error handling
-  let brokers: Array<Broker> = [];
+  let consumerGroups: ConsumerGroup[] = [];
   try {
     const prisma = new PrismaClient();
 
-    brokers = await prisma.broker.findMany({
+    consumerGroups = await prisma.consumerGroup.findMany({
       where: {
-        broker: params.brokerid,
+        clusterId: params.clusterId,
       },
     });
   } catch (error) {
     console.log(error);
   }
-
-  if (brokers.length === 0) {
+  if (consumerGroups.length !== 0) {
     return (
 <Suspense fallback={<h2>Loading...</h2>}>
     <div className="drawer">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <label htmlFor="my-drawer" className="btn btn-primary drawer-button">Open drawer</label>
-        <div className="flex justify-center items-center">No Brokers in this Cluster</div>
+        <div className="flex justify-center items-center">No Consumer Groups in this Cluster</div>
         <div className="flex justify-center items-center">
-        <Link href='/create-broker'><button className="btn">Create Broker</button></Link>
+        <Link href='/create-consumer'><button className="btn">Create Consumer</button></Link>
       </div>
       </div> 
 
@@ -50,24 +48,21 @@ const brokerDashboard = async ({ params }: PageProps) => {
         </ul>
       </div>
     </div>
-
-
-      
     </Suspense>
     )
   } else {
   return (
     <>
-        <Suspense fallback={<h2>Loading...</h2>}>
+<Suspense fallback={<h2>Loading...</h2>}>
     <div className="drawer">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
-        <label htmlFor="my-drawer" className="btn btn-primary drawer-button"></label>
+        <label htmlFor="my-drawer" className="btn btn-primary drawer-button">Open drawer</label>
       <div>
-        <Link href='/create-broker'><button className="btn flex-col float-right ml-2 items-center">Create Broker</button></Link>
+        <Link href='/create-consumer'><button className="btn flex-col float-right ml-2 items-center">Create consumer</button></Link>
       </div>
       <div className='flex h-[20vh] text-6xl flex-col items-center justify-center'>
-        Topics
+        Consumer Groups
       </div>
 
       <div className="overflow-x-auto">
@@ -75,18 +70,19 @@ const brokerDashboard = async ({ params }: PageProps) => {
           <thead>
             <tr>
               <th></th>
-              <th>ID</th>
-              <th>Address</th>
-              <th>Size</th>
-              <th>Leader</th>
+              <th>Consumer Group</th>
+              <th>Status</th>
+              <th>Total Lag</th>
+              <th>Partitions/Topics</th>
             </tr>
           </thead>
           <tbody>
-            {brokers.map((broker) => (
-              <tr key={broker.brokerid}>
-                <th>{broker.brokerAddress}</th>
-                <td>{broker.brokerSize}</td>
-                <td>{broker.brokerLeader}</td>
+            {consumerGroups.map((consumergroup) => (
+              <tr key={consumergroup.id}>
+                <th>{consumergroup.Name}</th>
+                <td>{consumergroup.Status}</td>
+                <td>{consumergroup.Lag}</td>
+                <td>{consumergroup.Partitions + "/" + consumergroup.Topics}</td>
               </tr>
             ))}
           </tbody>
@@ -112,4 +108,4 @@ const brokerDashboard = async ({ params }: PageProps) => {
 }
 };
 
-export default brokerDashboard;
+export default consumerDashboard;

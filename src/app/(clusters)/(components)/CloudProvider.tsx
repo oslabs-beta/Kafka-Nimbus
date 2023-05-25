@@ -3,17 +3,32 @@
 import React from "react";
 import { useAppDispatch } from "~/app/redux/hooks";
 import { setProvider } from "~/app/redux/features/createClusterSlice";
+import { trpc } from '../../../trpc/trpc-provider';
+import { useQuery } from "react-query";
+import { Session } from 'next-auth';
+
 
 interface ProviderProps {
   inFocusHandler: (string: string) => void;
+  sessionData: Session | null;
 }
 
-const CloudProvider: React.FC<ProviderProps> = ({ inFocusHandler }) => {
+const CloudProvider: React.FC<ProviderProps> = ({ inFocusHandler, sessionData}) => {
   const dispatch = useAppDispatch();
 
+  const { data:vpcId } = trpc.createVPC.findVPC.useQuery({
+    id: sessionData?.user.id
+  }); 
+
+  
   const onClickHandler = () => {
-    inFocusHandler("aws");
-    dispatch(setProvider("aws"));
+    if (!vpcId) {
+      inFocusHandler("aws");
+      dispatch(setProvider("aws"));
+    } else {
+      inFocusHandler("region");
+      dispatch(setProvider('region'))
+    }
   };
 
   return (

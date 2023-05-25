@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { PrismaClient, Consumer } from '@prisma/client';
+import { PrismaClient, Topic } from '@prisma/client';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
@@ -9,30 +8,30 @@ interface PageProps {
   };
 }
 
-const consumerDashboard = async ({ params }: PageProps) => {
+const topicDashboard = async ({ params }: PageProps) => {
   // error handling
-  let consumers: Array<Consumer> = [];
+  let topics: Topic[] = [];
   try {
     const prisma = new PrismaClient();
 
-    consumers = await prisma.consumer.findMany({
+    topics = await prisma.topic.findMany({
       where: {
-        consumerid: params.consumerid,
+        clusterId: params.userId,
       },
     });
   } catch (error) {
     console.log(error);
-  }
-  if (consumers.length === 0) {
+  }  
+  if (topics.length === 0) {
     return (
 <Suspense fallback={<h2>Loading...</h2>}>
     <div className="drawer">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <label htmlFor="my-drawer" className="btn btn-primary drawer-button">Open drawer</label>
-        <div className="flex justify-center items-center">No Consumers in this Cluster</div>
+        <div className="flex justify-center items-center">No Topics in this Cluster</div>
         <div className="flex justify-center items-center">
-        <Link href='/create-consumer'><button className="btn">Create Consumer</button></Link>
+        <Link href='/create-topic'><button className="btn">Create Topic</button></Link>
       </div>
       </div> 
 
@@ -53,16 +52,16 @@ const consumerDashboard = async ({ params }: PageProps) => {
   } else {
   return (
     <>
-<Suspense fallback={<h2>Loading...</h2>}>
+    <Suspense fallback={<h2>Loading...</h2>}>
     <div className="drawer">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <label htmlFor="my-drawer" className="btn btn-primary drawer-button">Open drawer</label>
       <div>
-        <Link href='/create-consumer'><button className="btn flex-col float-right ml-2 items-center">Create consumer</button></Link>
+        <Link href='/create-topic'><button className="btn flex-col float-right ml-2 items-center">Create Topic</button></Link>
       </div>
       <div className='flex h-[20vh] text-6xl flex-col items-center justify-center'>
-        Consumers
+        Topics
       </div>
 
       <div className="overflow-x-auto">
@@ -76,11 +75,11 @@ const consumerDashboard = async ({ params }: PageProps) => {
             </tr>
           </thead>
           <tbody>
-            {consumers.map((consumer) => (
-              <tr key={consumer.consumerid}>
-                <th>{consumer.consumerid}</th>
-                <td>{consumer.consumerEndpoint}</td>
-                <td>{consumer.consumerCount}</td>
+            {topics.map((topic) => (
+              <tr key={topic.id}>
+                <th>{topic.id}</th>
+                <td>{topic.Endpoint}</td>
+                <td>{topic.Count}</td>
               </tr>
             ))}
           </tbody>
@@ -101,9 +100,10 @@ const consumerDashboard = async ({ params }: PageProps) => {
       </div>
     </div>
     </Suspense>
+
     </>
   );
 }
 };
 
-export default consumerDashboard;
+export default topicDashboard;

@@ -1,8 +1,6 @@
 import { createTRPCRouter } from "~/server/api/trpc";
-import { exampleRouter } from "~/server/api/routers/example";
 import { createVPCRouter } from "./routers/VPCRouter";
-
-import { databaseRouter } from "./routers/databaseRouter";
+import { topicRouter } from './routers/topicsRouter'
 import { clusterRouter } from "./routers/clusterRouter";
 import { metricRouter } from "./routers/metricsRouter";
 
@@ -13,11 +11,10 @@ import { metricRouter } from "./routers/metricsRouter";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  example: exampleRouter,
   createVPC: createVPCRouter,
-  database: databaseRouter,
   createCluster: clusterRouter,
-  metric: metricRouter
+  metric: metricRouter,
+  topic: topicRouter,
 });
 
 

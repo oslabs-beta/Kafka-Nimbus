@@ -10,20 +10,19 @@ interface ProviderProps {
 
 const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler, createClusterHandler }) => {
   const dispatch = useAppDispatch();
-  const [numValue, setNumValue] = useState<number>(0);
   const { createCluster } = useAppSelector((state) => state);
 
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
     console.log(createCluster);
-    dispatch(setStoragePerBroker(numValue));
     createClusterHandler()
     inFocusHandler('loading')
   };
 
+  // this is one step behind for some reason
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
-    setNumValue(value);
+    dispatch(setStoragePerBroker(value));   // should be dispatching on every change
   };
   
 
