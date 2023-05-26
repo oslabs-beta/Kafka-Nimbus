@@ -32,6 +32,9 @@ export default function ClusterCard({ cluster }: cardCluster) {
   ];
 
   const random = Math.floor(Math.random() * 5)
+  const statusColor = status === 'ACTIVE' ? 'text-green-400' : 'text-red-600'
+
+  
 
   return (
     <div
@@ -41,8 +44,9 @@ export default function ClusterCard({ cluster }: cardCluster) {
       <figure className='w-full  '>
         <div className={`h-24 w-full object-cover ${graidients[random]}`} />
       </figure>
-      <div className='m-4 flex  w-full'>
+      <div className='m-4 flex  w-full justify-between'>
         <h2 className='card-title '>{cluster.name}</h2>
+        <p className={`${statusColor} `}>{status}</p>
       </div>
     </div>
   );
