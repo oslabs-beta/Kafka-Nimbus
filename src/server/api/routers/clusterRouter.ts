@@ -20,7 +20,7 @@ export const clusterRouter = createTRPCRouter({
       storagePerBroker: z.number(),
       name: z.string(),
     }))
-    .mutation(async({ input }) => {
+    .mutation(async ({ input }) => {
       // First, find the user object in the database using id
       try {
         const userResponse = await prisma.user.findUnique({
@@ -46,15 +46,15 @@ export const clusterRouter = createTRPCRouter({
           secretAccessKey: awsSecretAccessKey,
           region: region
         })
-        const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
-        const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
-        
-          // Create security groups within the vpc
+        const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+        const kafka = new AWS.Kafka({ apiVersion: '2018-11-14' });
+
+        // Create security groups within the vpc
         if (!vpcId) {
           throw new Error('vpcId assignment error');
         }
         // create security group for msk cluster
-        const randString: string = v4(); 
+        const randString: string = v4();
         const createSecurityGroupParams = {
           Description: 'Security group for MSK Cluster',
           GroupName: 'MSKSecurityGroup' + randString,
@@ -79,7 +79,7 @@ export const clusterRouter = createTRPCRouter({
         }
         await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
         console.log(`Added inbound rules to security group ${groupId}`);
-        
+
         // kafka params
         const kafkaParams = {
           BrokerNodeGroupInfo: {
@@ -143,7 +143,7 @@ export const clusterRouter = createTRPCRouter({
             brokerPerZone: input.brokerPerZone,
             instanceSize: input.instanceSize,
             zones: input.zones,
-            storagePerBroker: input.storagePerBroker ,
+            storagePerBroker: input.storagePerBroker,
             kafkaArn: kafkaArn,
             lifeCycleStage: 0,
             User: {
@@ -175,12 +175,12 @@ export const clusterRouter = createTRPCRouter({
    * REBOOTING_BROKER
    * UPDATING
    */
-    
+
   checkClusterStatus: publicProcedure
     .input(z.object({
       name: z.string()
     }))
-    .query(async({ input }) => {
+    .query(async ({ input }) => {
       try {
         const clusterResponse = await prisma.cluster.findUnique({
           where: {
@@ -202,7 +202,7 @@ export const clusterRouter = createTRPCRouter({
           secretAccessKey: awsSecretAccessKey,
           region: region
         })
-        const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
+        const kafka = new AWS.Kafka({ apiVersion: '2018-11-14' });
 
         if (awsAccessKey === undefined || awsSecretAccessKey === undefined) {
           throw new Error('One or both access keys doesn\'t exist');
@@ -214,19 +214,19 @@ export const clusterRouter = createTRPCRouter({
         const kafkaArn = clusterResponse.kafkaArn;   // obtaining the arn of the cluster
         if (kafkaArn) {
           const sdkResponse = await kafka.describeCluster(
-            {ClusterArn: kafkaArn}
-            ).promise();
-  
-            if (!sdkResponse) {
-              throw new Error('SDK couldn\'t find the cluster');
-            }
-            const curState = sdkResponse.ClusterInfo?.State;
-            if (curState === undefined) {
-              throw new Error('Cur state undefined')
-            }
-  
-            console.log(`Current cluster state: ${curState}`);
-            return curState;
+            { ClusterArn: kafkaArn }
+          ).promise();
+
+          if (!sdkResponse) {
+            throw new Error('SDK couldn\'t find the cluster');
+          }
+          const curState = sdkResponse.ClusterInfo?.State;
+          if (curState === undefined) {
+            throw new Error('Cur state undefined')
+          }
+
+          console.log(`Current cluster state: ${curState}`);
+          return curState;
         }
         return undefined;
       }
@@ -236,57 +236,82 @@ export const clusterRouter = createTRPCRouter({
     }),
 
 
-    deleteCluster: publicProcedure
-      .input(z.object({
-        name: z.string()
-      }))
-      .mutation(async({ input }) => {
-        try {
-          const deletedCluster = await prisma.cluster.delete({
-            where :{
-              name: input.name,
-            }
-          });
-
-          /**
-           * Add functionality to also delete respective EC2 instance
-           */
-
-          return deletedCluster;
-        }
-        catch (err) {
-          console.log('Error deleting from aws , ', err);
-        }
-      }),
-      
-    /**
-     * ID: userId
-     * @returns true or false if vpcid exists or not
-     */
-
-    /**
-     * Does not work correctly
-     */
-
-    clusterExists: publicProcedure  
-      .input(z.object({
-        id: z.string()    
-      }))
-      .query(async({ input }) => {
-        try {
-          const userResponse = await prisma.user.findUnique({
-            where: {
-              id: input.id
-            }
-          });
-
-          if (userResponse && userResponse.vpcId !== '') {
-            return true;
+  deleteCluster: publicProcedure
+    .input(z.object({
+      id: z.string()
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        //deleting cluster in database
+        const deletedCluster = await prisma.cluster.delete({
+          where: {
+            id: input.id,
+          },
+          include: {
+            User: true
           }
-          return false;
+        });
+
+        if (!deletedCluster) throw new Error('Cluster to delete was not found in the database');
+
+        const accessKeyId = deletedCluster.User.awsAccessKey;
+        const secretAccessKey = deletedCluster.User.awsSecretAccessKey;
+        const region = deletedCluster.User.region;
+        const ClusterArn = deletedCluster.kafkaArn ? deletedCluster.kafkaArn : '';
+
+        const client = new Kafka({
+          region,
+          credentials: {
+            accessKeyId,
+            secretAccessKey
+          }
+        });
+
+        //deleting cluster in AWS
+        const params: DeleteClusterCommandInput = {
+          ClusterArn
+        };
+        const command = new DeleteClusterCommand(params);
+
+        const response: DeleteClusterCommandOutput = await client.send(command);
+        if (response.State !== 'DELETING') throw new Error('Failed to delete cluster from AWS');
+
+        return deletedCluster;
+      }
+      catch (err) {
+        console.log('Error deleting from aws , ', err);
+      }
+    }),
+
+
+  /**
+   * ID: userId
+   * @returns true or false if vpcid exists or not
+   */
+
+  /**
+   * Does not work correctly
+   */
+
+  clusterExists: publicProcedure
+    .input(z.object({
+      id: z.string()
+    }))
+    .query(async ({ input }) => {
+      try {
+        const userResponse = await prisma.user.findUnique({
+          where: {
+            id: input.id
+          }
+        });
+
+        if (userResponse && userResponse.vpcId !== '') {
+          return true;
         }
-        catch (err) {
-          console.log('Error finding user in db ', err)
-        }
-      }) 
+        return false;
+      }
+      catch (err) {
+        console.log('Error finding user in db ', err)
+      }
+    })
 });
