@@ -1,12 +1,28 @@
+import React, {Children, cloneElement} from 'react';
 
-import React from 'react';
-import Page from './page';
+export type metrics = {
+  ClusterName: string;
+  CreationTime: string;
+  KafkaVersion: string;
+  NumberOfBrokerNodes: number;
+  State: string;
+};
 
-const layout = ({ children, params }: { children: React.ReactNode }) => {
-  
+const layout = (props) => {
+  const metrics: metrics = {
+    ClusterName: 'ExampleCN',
+    CreationTime: 'TypeDate',
+    KafkaVersion: '3.8.1',
+    NumberOfBrokerNodes: 4,
+    State: 'ACTIVE',
+  };
+
+  props.params.metrics = metrics
+
   return (
     <div>
-      <Page params={params} />
+      {/* <Page params={params} metrics={metrics} /> */}
+      {props.children}
     </div>
   );
 };

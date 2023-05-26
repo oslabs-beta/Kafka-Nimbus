@@ -180,7 +180,7 @@ export const clusterRouter = createTRPCRouter({
     .input(z.object({
       name: z.string()
     }))
-    .mutation(async ({ input }) => {
+    .query(async ({ input }) => {
       try {
         const clusterResponse = await prisma.cluster.findUnique({
           where: {
@@ -204,13 +204,8 @@ export const clusterRouter = createTRPCRouter({
         })
         const kafka = new AWS.Kafka({ apiVersion: '2018-11-14' });
 
-
-        const lifeCycleStage = clusterResponse?.lifeCycleStage;
         if (awsAccessKey === undefined || awsSecretAccessKey === undefined) {
           throw new Error('One or both access keys doesn\'t exist');
-        }
-        if (lifeCycleStage === undefined) {
-          throw new Error('life cycle stage doesn\'t exist');
         }
 
         if (!clusterResponse) {
@@ -246,51 +241,9 @@ export const clusterRouter = createTRPCRouter({
             if (commandResponse.ClusterArn) {
               console.log(`Created secret with cluster ${commandResponse.ClusterArn}`);
             }
-
-            // get the current version so that we can update the public access params
-            const kafkaParams = {
-              ClusterArn: kafkaArn
-            }
-            const describeClusterResponse = await kafka.describeCluster(kafkaParams).promise();
-            if (describeClusterResponse === undefined) {
-              throw new Error('Couldn\'t find cluster')
-            }
-            const currentVersion = describeClusterResponse.ClusterInfo?.CurrentVersion;
-
-            const updateParams = {
-              ClusterArn: kafkaArn,
-              ConnectivityInfo: {
-                PublicAccess: {
-                  Type: 'SERVICE_PROVIDED_EIPS'   // enables public access
-                }
-              },
-              CurrentVersion: currentVersion
-            };
-            // send the update command
-            const commandUpdate = new UpdateConnectivityCommand(updateParams);
-            await client.send(commandUpdate);
-            console.log(`Successfully updated the public access`)
-
-            // store current version in the db
-            await prisma.cluster.update({
-              where: {
-                name: input.name
-              },
-              data: {
-                currentVersion: currentVersion,
-                lifeCycleStage: 1             // used to track where in the life cycle the cluster is
-              }
-            })
-
-          }
-          // when state is active again, after updating public access
-          else if (curState === 'ACTIVE' && lifeCycleStage === 1) {
-            const boostrapResponse = await kafka.getBootstrapBrokers({
-              ClusterArn: kafkaArn
-            }).promise();
-            const endpoints = boostrapResponse.BootstrapBrokerStringPublicSaslIam;      // TODO, get right endpoints
-            if (endpoints === undefined) {
-              throw new Error('Bootstrap not found/setup correctly');
+            const curState = sdkResponse.ClusterInfo?.State;
+            if (curState === undefined) {
+              throw new Error('Cur state undefined')
             }
 
             // store endpoints in the cluster db
@@ -310,7 +263,7 @@ export const clusterRouter = createTRPCRouter({
           console.log(`Current cluster state: ${curState}`);
           return curState;
         }
-        return 'Error finding cluster';
+        return undefined;
       }
       catch (err) {
         console.log('error fetching data from database', err)

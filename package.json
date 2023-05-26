@@ -24,6 +24,7 @@
     "@trpc/next": "^10.26.0",
     "@trpc/react-query": "^10.26.0",
     "@trpc/server": "^10.26.0",
+    "aws-crt": "^1.15.16",
     "aws-sdk": "^2.1379.0",
     "daisyui": "^2.51.6",
     "kafkajs": "^2.2.4",
