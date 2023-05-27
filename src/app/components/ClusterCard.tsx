@@ -22,6 +22,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
   const routeToCluster = () => {
     router.push(`${cluster.id}/dashboard`);
   };
+  
   const graidients = [
     'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500',
     'bg-gradient-to-r from-green-300 via-blue-500 to-purple-600',
