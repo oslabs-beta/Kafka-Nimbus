@@ -259,7 +259,7 @@ export const clusterRouter = createTRPCRouter({
         const region = deletedCluster.User.region;
         const ClusterArn = deletedCluster.kafkaArn ? deletedCluster.kafkaArn : '';
 
-        const client = new Kafka({
+        const client = new KafkaClient({
           region,
           credentials: {
             accessKeyId,
