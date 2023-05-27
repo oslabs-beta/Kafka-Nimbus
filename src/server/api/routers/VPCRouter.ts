@@ -2,6 +2,7 @@ import { z } from 'zod';
 import AWS from 'aws-sdk';
 import { prisma } from '../../db';
 import path from 'path';
+import { v4 } from 'uuid'
 
 
 import { KafkaClient, CreateConfigurationCommand } from '@aws-sdk/client-kafka';
@@ -95,13 +96,13 @@ export const createVPCRouter = createTRPCRouter({
 
         // Create route table connections
         const routeTables = await ec2.describeRouteTables({
-            Filters: [
-              {
-                Name: 'vpc-id',
-                Values: [vpcId],
-              },
-            ],
-          })
+          Filters: [
+            {
+              Name: 'vpc-id',
+              Values: [vpcId],
+            },
+          ],
+        })
           .promise();
         if (!routeTables || routeTables.RouteTables === undefined || routeTables.RouteTables?.length === 0) {
           throw new Error('Route table failed to create');
@@ -130,7 +131,7 @@ export const createVPCRouter = createTRPCRouter({
         const configParams = {
           Description: 'Configuration settings for custom cluster',
           KafkaVersion: ['2.8.1'],
-          Name: 'Kafka-NimbusConfiguration',
+          Name: 'Kafka-NimbusConfiguration' + v4(),
           ServerProperties: ServerProperties,
         };
 

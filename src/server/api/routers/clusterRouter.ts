@@ -20,7 +20,7 @@ export const clusterRouter = createTRPCRouter({
       storagePerBroker: z.number(),
       name: z.string(),
     }))
-    .mutation(async({ input }) => {
+    .mutation(async ({ input }) => {
       // First, find the user object in the database using id
       try {
         const userResponse = await prisma.user.findUnique({
@@ -46,15 +46,15 @@ export const clusterRouter = createTRPCRouter({
           secretAccessKey: awsSecretAccessKey,
           region: region
         })
-        const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
-        const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
-        
-          // Create security groups within the vpc
+        const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' })
+        const kafka = new AWS.Kafka({ apiVersion: '2018-11-14' });
+
+        // Create security groups within the vpc
         if (!vpcId) {
           throw new Error('vpcId assignment error');
         }
         // create security group for msk cluster
-        const randString: string = v4(); 
+        const randString: string = v4();
         const createSecurityGroupParams = {
           Description: 'Security group for MSK Cluster',
           GroupName: 'MSKSecurityGroup' + randString,
@@ -79,7 +79,7 @@ export const clusterRouter = createTRPCRouter({
         }
         await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
         console.log(`Added inbound rules to security group ${groupId}`);
-        
+
         // kafka params
         const kafkaParams = {
           BrokerNodeGroupInfo: {
@@ -95,7 +95,7 @@ export const clusterRouter = createTRPCRouter({
           },
           ClusterName: input.name,
           KafkaVersion: '2.8.1',        // allow user to choose version?
-          NumberOfBrokerNodes: input.brokerPerZone,
+          NumberOfBrokerNodes: input.brokerPerZone * input.zones,
           EncryptionInfo: {
             EncryptionInTransit: {
               ClientBroker: 'TLS', // Changing from PLAINTEXT to TLS for disabling plaintext traffic
@@ -175,12 +175,12 @@ export const clusterRouter = createTRPCRouter({
    * REBOOTING_BROKER
    * UPDATING
    */
-    
+
   checkClusterStatus: publicProcedure
     .input(z.object({
       name: z.string()
     }))
-    .mutation(async({ input }) => {
+    .query(async ({ input }) => {
       try {
         const clusterResponse = await prisma.cluster.findUnique({
           where: {
@@ -202,15 +202,10 @@ export const clusterRouter = createTRPCRouter({
           secretAccessKey: awsSecretAccessKey,
           region: region
         })
-        const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
+        const kafka = new AWS.Kafka({ apiVersion: '2018-11-14' });
 
-
-        const lifeCycleStage = clusterResponse?.lifeCycleStage;
         if (awsAccessKey === undefined || awsSecretAccessKey === undefined) {
           throw new Error('One or both access keys doesn\'t exist');
-        }
-        if (lifeCycleStage === undefined) {
-          throw new Error('life cycle stage doesn\'t exist');
         }
 
         if (!clusterResponse) {
@@ -219,96 +214,21 @@ export const clusterRouter = createTRPCRouter({
         const kafkaArn = clusterResponse.kafkaArn;   // obtaining the arn of the cluster
         if (kafkaArn) {
           const sdkResponse = await kafka.describeCluster(
-            {ClusterArn: kafkaArn}
-            ).promise();
-  
-            if (!sdkResponse) {
-              throw new Error('SDK couldn\'t find the cluster');
-            }
-            const curState = sdkResponse.ClusterInfo?.State;
+            { ClusterArn: kafkaArn }
+          ).promise();
 
-            // if the state is active, we want to update public access
-            // to SERVICE_PROVIDED_EIPS
-            if (curState === 'ACTIVE' && lifeCycleStage === 0) {
-              const client = new KafkaClient({region: region, 
-                credentials: {
-                  accessKeyId: awsAccessKey,
-                  secretAccessKey: awsSecretAccessKey,
-              }});
-              const clientCommandParams = {
-                ClusterArn: kafkaArn,
-                SecretArnList: [secretArn]
-              }
-              const command = new BatchAssociateScramSecretCommand(clientCommandParams);
-              const commandResponse = await client.send(command);
-              if (commandResponse.ClusterArn) {
-                console.log(`Created secret with cluster ${commandResponse.ClusterArn}`);
-              }
-              
-              // get the current version so that we can update the public access params
-              const kafkaParams = {
-                ClusterArn: kafkaArn
-              }
-              const describeClusterResponse = await kafka.describeCluster(kafkaParams).promise();
-              if (describeClusterResponse === undefined) {
-                throw new Error('Couldn\'t find cluster')
-              }
-              const currentVersion = describeClusterResponse.ClusterInfo?.CurrentVersion;
+          if (!sdkResponse) {
+            throw new Error('SDK couldn\'t find the cluster');
+          }
+          const curState = sdkResponse.ClusterInfo?.State;
+          if (curState === undefined) {
+            throw new Error('Cur state undefined')
+          }
 
-              const updateParams = {
-                ClusterArn: kafkaArn,
-                ConnectivityInfo: {
-                  PublicAccess: {
-                    Type: 'SERVICE_PROVIDED_EIPS'   // enables public access
-                  }
-                },
-                CurrentVersion: currentVersion
-              };
-              // send the update command
-              const commandUpdate = new UpdateConnectivityCommand(updateParams);
-              await client.send(commandUpdate);
-              console.log(`Successfully updated the public access`)
-              
-              // store current version in the db
-              await prisma.cluster.update({
-                where: {
-                  name: input.name
-                },
-                data: {
-                  currentVersion: currentVersion,
-                  lifeCycleStage: 1             // used to track where in the life cycle the cluster is
-                }
-              })
-
-            }
-            // when state is active again, after updating public access
-            else if (curState === 'ACTIVE' && lifeCycleStage === 1) {
-              const boostrapResponse = await kafka.getBootstrapBrokers({
-                ClusterArn: kafkaArn
-              }).promise();
-              const endpoints = boostrapResponse.BootstrapBrokerStringPublicSaslIam;      // TODO, get right endpoints
-              if (endpoints === undefined) {
-                throw new Error('Bootstrap not found/setup correctly');
-              }
-
-              // store endpoints in the cluster db
-              const updateResponse = await prisma.cluster.update({
-                where: {
-                  name: input.name
-                },
-                data: {
-                  bootStrapServer: {
-                    push: endpoints
-                  },
-                  lifeCycleStage: 2     // last lifeCycleStage
-                }
-              });
-            }
-  
-            console.log(`Current cluster state: ${curState}`);
-            return curState;
+          console.log(`Current cluster state: ${curState}`);
+          return curState;
         }
-        return 'Error finding cluster';
+        return undefined;
       }
       catch (err) {
         console.log('error fetching data from database', err)
@@ -316,57 +236,82 @@ export const clusterRouter = createTRPCRouter({
     }),
 
 
-    deleteCluster: publicProcedure
-      .input(z.object({
-        name: z.string()
-      }))
-      .mutation(async({ input }) => {
-        try {
-          const deletedCluster = await prisma.cluster.delete({
-            where :{
-              name: input.name,
-            }
-          });
-
-          /**
-           * Add functionality to also delete respective EC2 instance
-           */
-
-          return deletedCluster;
-        }
-        catch (err) {
-          console.log('Error deleting from aws , ', err);
-        }
-      }),
-      
-    /**
-     * ID: userId
-     * @returns true or false if vpcid exists or not
-     */
-
-    /**
-     * Does not work correctly
-     */
-
-    clusterExists: publicProcedure  
-      .input(z.object({
-        id: z.string()    
-      }))
-      .query(async({ input }) => {
-        try {
-          const userResponse = await prisma.user.findUnique({
-            where: {
-              id: input.id
-            }
-          });
-
-          if (userResponse && userResponse.vpcId !== '') {
-            return true;
+  deleteCluster: publicProcedure
+    .input(z.object({
+      id: z.string()
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        //deleting cluster in database
+        const deletedCluster = await prisma.cluster.delete({
+          where: {
+            id: input.id,
+          },
+          include: {
+            User: true
           }
-          return false;
+        });
+
+        if (!deletedCluster) throw new Error('Cluster to delete was not found in the database');
+
+        const accessKeyId = deletedCluster.User.awsAccessKey;
+        const secretAccessKey = deletedCluster.User.awsSecretAccessKey;
+        const region = deletedCluster.User.region;
+        const ClusterArn = deletedCluster.kafkaArn ? deletedCluster.kafkaArn : '';
+
+        const client = new Kafka({
+          region,
+          credentials: {
+            accessKeyId,
+            secretAccessKey
+          }
+        });
+
+        //deleting cluster in AWS
+        const params: DeleteClusterCommandInput = {
+          ClusterArn
+        };
+        const command = new DeleteClusterCommand(params);
+
+        const response: DeleteClusterCommandOutput = await client.send(command);
+        if (response.State !== 'DELETING') throw new Error('Failed to delete cluster from AWS');
+
+        return deletedCluster;
+      }
+      catch (err) {
+        console.log('Error deleting from aws , ', err);
+      }
+    }),
+
+
+  /**
+   * ID: userId
+   * @returns true or false if vpcid exists or not
+   */
+
+  /**
+   * Does not work correctly
+   */
+
+  clusterExists: publicProcedure
+    .input(z.object({
+      id: z.string()
+    }))
+    .query(async ({ input }) => {
+      try {
+        const userResponse = await prisma.user.findUnique({
+          where: {
+            id: input.id
+          }
+        });
+
+        if (userResponse && userResponse.vpcId !== '') {
+          return true;
         }
-        catch (err) {
-          console.log('Error finding user in db ', err)
-        }
-      }) 
+        return false;
+      }
+      catch (err) {
+        console.log('Error finding user in db ', err)
+      }
+    })
 });

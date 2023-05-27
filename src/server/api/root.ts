@@ -2,6 +2,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
 import { createVPCRouter } from "./routers/VPCRouter";
 import { topicRouter } from './routers/topicsRouter'
 import { clusterRouter } from "./routers/clusterRouter";
+import { metricRouter } from "./routers/metricsRouter";
 
 
 /**
@@ -12,6 +13,7 @@ import { clusterRouter } from "./routers/clusterRouter";
 export const appRouter = createTRPCRouter({
   createVPC: createVPCRouter,
   createCluster: clusterRouter,
+  metric: metricRouter,
   topic: topicRouter,
 });
 
