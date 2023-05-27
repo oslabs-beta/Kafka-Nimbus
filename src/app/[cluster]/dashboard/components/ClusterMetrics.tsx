@@ -9,7 +9,7 @@ import type { ClusterInfo } from '~/app/redux/features/clusterInfoSlice';
 
 
 const ClusterMetrics: React.FC<ClusterInfo> = ({ clusterInfo }) => {
-  console.log(clusterInfo)
+  // console.log(clusterInfo)
   return (
     <div className=' h-full w-screen'>
       <div className='mt-8 w-full p-8'>
