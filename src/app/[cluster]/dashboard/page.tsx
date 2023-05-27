@@ -15,7 +15,7 @@ import {
 
 type Props = {
   inFocus: string;
-  params: { metrics: metrics};
+  params: { metrics: metrics };
   // cluster: {
   //   clusterId:'string',
   // }
@@ -26,21 +26,23 @@ const Page = ({ params }: Props) => {
   // pulling in redux dispatch
   const dispatch = useAppDispatch();
   // saving the metircs to the clusterMetrics store
-  useEffect(() => {dispatch(updateClusterInfo(params.metrics))}, []);
+  useEffect(() => {
+    dispatch(updateClusterInfo(params.metrics));
+  }, []);
   // retrieving those metrics to pass to ClusterMetrics components
   const { clusterInfo } = useAppSelector((state) => state);
   const [inFocus, setInFocus] = useState<string>('metrics');
   let result;
 
   switch (inFocus) {
-    case "consumers":
+    case 'consumers':
       result = <ClusterConsumers />;
       break;
     case 'metrics':
       result = <ClusterMetrics clusterInfo={clusterInfo} />;
       break;
-    case "topics":
-      result = <ClusterTopics clusterInfo={clusterInfo}/>;
+    case 'topics':
+      result = <ClusterTopics clusterInfo={clusterInfo} />;
       break;
   }
 

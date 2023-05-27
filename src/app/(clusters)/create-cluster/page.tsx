@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppSelector } from '~/app/redux/hooks';
 import { useSession } from 'next-auth/react';
 import CloudProvider from '../(components)/CloudProvider';
@@ -23,18 +23,17 @@ export type ComponentState = {
 
 const CreateClusterPage = () => {
   const [inFocus, setInFocus] = useState<ComponentState['inFocus']>('provider');
-  const [loadingState, setLoadingState] = useState<ComponentState['loadingState']>('Creating VPC')
+  const [loadingState, setLoadingState] =
+    useState<ComponentState['loadingState']>('Creating VPC');
   const { createCluster } = useAppSelector((state) => state);
-  const router = useRouter()
+  const router = useRouter();
   const { data: sessionData } = useSession(); // gets current user info. .id references
-  const createVPC = trpc.createVPC.createVPC.useMutation();     // createVPC route, as hook
-  const createNewCluster = trpc.createCluster.createCluster.useMutation() // create cluster route, as hook
-  const findVPC = trpc.createVPC.findVPC.useQuery({id: sessionData?.user.id});  // defining the query
+  const createVPC = trpc.createVPC.createVPC.useMutation(); // createVPC route, as hook
+  const createNewCluster = trpc.createCluster.createCluster.useMutation(); // create cluster route, as hook
+  const findVPC = trpc.createVPC.findVPC.useQuery({ id: sessionData?.user.id }); // defining the query
   const inFocusHandler = (string: string) => {
     setInFocus(string);
   };
-  
- 
 
   const createClusterHandler = async () => {
     const {
@@ -43,22 +42,22 @@ const CreateClusterPage = () => {
       brokerNumbers,
       region,
       clusterName,
-      provider,   // uneeded?
+      provider, // uneeded?
       storagePerBroker,
       clusterSize,
-      zones
-    } = createCluster; 
+      zones,
+    } = createCluster;
 
     // gets the vpcdata from the find vpc route
     // if it returns undefined, then we do error handling
     const vpcId = findVPC.data;
     console.log(vpcId);
     if (vpcId !== undefined) {
-      setLoadingState('Creating Cluster') // sends us to loading page
+      setLoadingState('Creating Cluster'); // sends us to loading page
       if (vpcId === '') {
-        // if vpcId is an empty string, vpc hasn't been created yet. so we 
+        // if vpcId is an empty string, vpc hasn't been created yet. so we
         // create it.
-        console.log('##### hit #####')
+        console.log('##### hit #####');
         await createVPC.mutateAsync({
           aws_access_key_id: awsId,
           aws_secret_access_key: awsSecret,
@@ -73,15 +72,14 @@ const CreateClusterPage = () => {
         instanceSize: clusterSize,
         name: clusterName,
         storagePerBroker: storagePerBroker,
-        zones: zones   // at the moment this is hard coded in as 2
-      })
-      }
-      else {
-        /**
-         * TODO: Error Handling
-         */
-        console.log('Error, user not found')
-      }
+        zones: zones, // at the moment this is hard coded in as 2
+      });
+    } else {
+      /**
+       * TODO: Error Handling
+       */
+      console.log('Error, user not found');
+    }
 
     router.push('/cluster-dashboard');
   };
@@ -90,7 +88,13 @@ const CreateClusterPage = () => {
 
   switch (inFocus) {
     case 'provider':
-      return <CloudProvider sessionData={sessionData} inFocusHandler={inFocusHandler} />;
+      return (
+        <CloudProvider
+          vpcId={findVPC.data}
+          sessionData={sessionData}
+          inFocusHandler={inFocusHandler}
+        />
+      );
     case 'aws':
       return <AwsSecrets inFocusHandler={inFocusHandler} />;
     case 'region':
@@ -109,7 +113,7 @@ const CreateClusterPage = () => {
         />
       );
     case 'loading':
-      return <ClusterLoadingState loadingState={loadingState }/>;
+      return <ClusterLoadingState loadingState={loadingState} />;
   }
 };
 
