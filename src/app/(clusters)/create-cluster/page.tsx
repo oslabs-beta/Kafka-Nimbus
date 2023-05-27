@@ -90,7 +90,7 @@ const CreateClusterPage = () => {
     case 'provider':
       return (
         <CloudProvider
-          vpcId={vpcId}
+          vpcId={findVPC.data}
           sessionData={sessionData}
           inFocusHandler={inFocusHandler}
         />

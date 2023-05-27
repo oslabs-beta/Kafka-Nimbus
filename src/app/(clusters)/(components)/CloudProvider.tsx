@@ -3,21 +3,19 @@
 import React from 'react';
 import { useAppDispatch } from '~/app/redux/hooks';
 import { setProvider } from '~/app/redux/features/createClusterSlice';
-import { trpc } from '../../../trpc/trpc-provider';
-import { useQuery } from 'react-query';
-import { Session } from 'next-auth';
+import type { Session } from 'next-auth';
 
 interface ProviderProps {
   inFocusHandler: (string: string) => void;
   sessionData: Session | null;
+  vpcId: string
 }
 
 const CloudProvider: React.FC<ProviderProps> = ({
   inFocusHandler,
-  sessionData,
+  vpcId
 }) => {
   const dispatch = useAppDispatch();
-  
   const onClickHandler = () => {
     
     if (!vpcId) {
