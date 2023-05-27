@@ -1,3 +1,4 @@
+'use client'
 import React from "react";
 import { useAppDispatch, useAppSelector } from "~/app/redux/hooks";
 import {
@@ -7,12 +8,16 @@ import {
   setcleanUpPolicy,
 } from "~/app/redux/features/createSingleTopicSlice";
 import { trpc } from "../../../../trpc/trpc-provider";
+import type { ClusterInfo } from '~/app/redux/features/clusterInfoSlice';
 
-const ClusterTopics = () => {
+
+const ClusterTopics:React.FC<ClusterInfo>= ({ clusterInfo }) => {
+  // console.log("clusterInfo.clusterName", clusterInfo.ClusterName)
+
   const dispatch = useAppDispatch();
   const TopicReplications: number[] = [1, 2, 3];
   const TopicPartitions: number[] = [1, 2, 3];
-  const CleanUpPolicy: string[] = ["compact", "delete"];
+  const CleanUpPolicy: string[] = ["Compact", "Delete"];
   const { createTopic } = useAppSelector((state) => state);
   const createNewTopic = trpc.topic.createTopic.useMutation();
 
@@ -48,8 +53,11 @@ const ClusterTopics = () => {
   const createTopicHandler = async () => {
     const { Name, numPartitions, replicationFactor, cleanUpPolicy } =
       createTopic;
+    // const { clusterName } = clusterInfo;
+      // console.log("clusterName:", clusterInfo.clusterName)
+      console.log("clusterInfo.ClusterName", clusterInfo)
     await createNewTopic.mutateAsync({
-      id: "hello", //provide cluster id
+      id: clusterInfo.id, //provide cluster id
       topicName: Name,
       numPartitions: numPartitions,
       replicationFactor: replicationFactor,

@@ -22,7 +22,7 @@ type Props = {
 };
 
 const Page = ({ params }: Props) => {
-  console.log(params.metrics);
+  // console.log(params.metrics);
   // pulling in redux dispatch
   const dispatch = useAppDispatch();
   // saving the metircs to the clusterMetrics store
@@ -40,7 +40,7 @@ const Page = ({ params }: Props) => {
       result = <ClusterMetrics clusterInfo={clusterInfo} />;
       break;
     case "topics":
-      result = <ClusterTopics />;
+      result = <ClusterTopics clusterInfo={clusterInfo}/>;
       break;
   }
 

@@ -14,7 +14,8 @@ const layout = (props) => {
     CreationTime: 'TypeDate',
     KafkaVersion: '3.8.1',
     NumberOfBrokerNodes: 4,
-    State: 'ACTIVE',
+    State:
+      'ACTIVE',
   };
 
   props.params.metrics = metrics
