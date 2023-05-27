@@ -12,9 +12,9 @@ interface initialState {
 const initialState = {
   id: "",
   Name: "",
-  numPartitions: 0,
+  numPartitions: 1,
   replicationFactor: 1,
-  cleanUpPolicy: "",
+  cleanUpPolicy: "Compact",
 };
 
 export const createTopic = createSlice({
