@@ -32,7 +32,7 @@ const ClusterDashboard = async () => {
       <div className="mx-20 my-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="my-8 text-lg">Your Clusters</p>
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-row gap-4 flex-wrap">
           {clusters
             ? clusters.map((cluster: Cluster) => {
               return <ClusterCard key={cluster.id} cluster={cluster} />;
