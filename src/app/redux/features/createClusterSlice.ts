@@ -10,7 +10,7 @@ const initialState = {
   awsSecret: "",
   region: "",
   clusterName: "",
-  brokerNumbers: 2,
+  brokerNumbers: 1,
   storagePerBroker: 1,
   clusterSize: '',
   zones: 2,
