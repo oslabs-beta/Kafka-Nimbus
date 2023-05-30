@@ -38,17 +38,22 @@ export default function ClusterCard({ cluster }: cardCluster) {
   const statusColor = status === 'ACTIVE' ? 'green' : 'red';
   console.log(`text-${statusColor}-600`);
 
-  const deleteClusterHandler = async () => {
-    console.log('Deleting cluster');
-    await deleteCluster.mutateAsync({
-      id: cluster.id
-    })
-  };
+  const deleteClusterHandler = () => {
+    try {
+      console.log('Deleting cluster');
+      deleteCluster.mutate({
+        id: cluster.id
+      });
+    } catch (err) {
+      console.log('Error occurred when deleting cluster on frontend: ', err);
+    }
+  }
 
   return (
+
     <div
       onClick={routeToCluster}
-      className='card h-48 max-w-98 w-72 overflow-hidden rounded-xl bg-base-100 shadow-xl hover:ring-4 '
+      className='relative card h-48 max-w-98 w-72 overflow-hidden rounded-xl bg-base-100 shadow-xl hover:ring-4 '
     >
       <figure className='w-full'>
         <div className={`h-24 w-full object-cover ${graidients[random]}`} />
@@ -61,9 +66,21 @@ export default function ClusterCard({ cluster }: cardCluster) {
           >
             {status}
           </p>
-          <button className="text-red-800" onClick={deleteClusterHandler}>DELETE</button>
         </div>
       </div>
+
+      <input type="checkbox" id={`modal${cluster.name}${cluster.id}`} className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">DELETE {cluster.name}?</h3>
+          <p className="py-4">Once a cluster is undergoing deletion it cannot be reversed</p>
+          <div className="modal-action">
+            <label htmlFor={`modal${cluster.name}${cluster.id}`} className="btn">DELETE CLUSTER</label>
+          </div>
+        </div>
+      </div>
+      <label htmlFor={`modal${cluster.name}${cluster.id}`} className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-3 m-0.5 rounded-full">X</label>
+      {/* <button className={`text-white-600  mr-6 w-min rounded-xl bg-red-600 px-4 align-bottom mx-1 items-end shadow-md`} onClick={deleteClusterHandler}>DELETE</button> */}
     </div>
   );
 }
