@@ -17,10 +17,10 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 /**
  * Custom zod schema
  */
-const replicaAssignmentSchema = z.object({
-  partition: z.number(),
-  replicas: z.array(z.number()),
-});
+// const replicaAssignmentSchema = z.object({
+//   partition: z.number(),
+//   replicas: z.array(z.number()),
+// });
 
 const configEntriesSchema = z.object({
   name: z.string(),
@@ -35,7 +35,7 @@ export const topicRouter = createTRPCRouter({
         topicName: z.string(),
         numPartitions: z.number().default(-1),
         replicationFactor: z.number().default(-1),
-        replicaAssignment: z.array(replicaAssignmentSchema).default([]),
+        // replicaAssignment: z.array(replicaAssignmentSchema).default([]),
         configEntries: z.array(configEntriesSchema).default([]),
       })
     )
@@ -98,7 +98,7 @@ export const topicRouter = createTRPCRouter({
               topic: input.topicName,
               numPartitions: input.numPartitions,
               replicationFactor: input.replicationFactor,
-              replicaAssignment: input.replicaAssignment,
+              // replicaAssignment: input.replicaAssignment,
               configEntries: input.configEntries,
             },
           ],
@@ -126,7 +126,6 @@ export const topicRouter = createTRPCRouter({
             },
           },
         });
-
         return createResult;
       } catch (error) {
         console.log("Error creating topic ,", error);

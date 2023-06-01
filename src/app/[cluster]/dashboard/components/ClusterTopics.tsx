@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "~/app/redux/hooks";
 import {
@@ -8,15 +8,15 @@ import {
   setcleanUpPolicy,
 } from "~/app/redux/features/createSingleTopicSlice";
 import { trpc } from "../../../../trpc/trpc-provider";
-import type { ClusterInfo } from '~/app/redux/features/clusterInfoSlice';
 
-
-const ClusterTopics:React.FC<ClusterInfo>= ({ clusterInfo }) => {
+const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
   // console.log("clusterInfo.clusterName", clusterInfo.ClusterName)
+  console.log("clusterid:", clusterid);
+  // console.log("topics:", topicSlice.topicList);
 
   const dispatch = useAppDispatch();
-  const TopicReplications: number[] = [1, 2, 3];
-  const TopicPartitions: number[] = [1, 2, 3];
+  const TopicReplications: number[] = [1, 2, 3]; // Must be less than or equal to the number of the number of brokers (Recommded to have 3)
+  const TopicPartitions: number[] = [1, 2, 3]; // Determine how many partitions we want to allow
   const CleanUpPolicy: string[] = ["Compact", "Delete"];
   const { createTopic } = useAppSelector((state) => state);
   const createNewTopic = trpc.topic.createTopic.useMutation();
@@ -50,14 +50,27 @@ const ClusterTopics:React.FC<ClusterInfo>= ({ clusterInfo }) => {
     dispatch(settopicName(event.currentTarget.value));
   };
 
+  // ADD NEW FUNCTION TO DISPLAY PARTITION INFO
+  // const viewPartitionsHandler = (event: React.FormEvent<HTMLSelectElement>) => {
+    // console.log(event.currentTarget.value);
+    // dispatch(settopicName(event.currentTarget.value));
+  // };
+
   const createTopicHandler = async () => {
     const { Name, numPartitions, replicationFactor, cleanUpPolicy } =
       createTopic;
+
     // const { clusterName } = clusterInfo;
-      // console.log("clusterName:", clusterInfo.clusterName)
-      console.log("clusterInfo.ClusterName", clusterInfo)
+    // console.log("clusterName:", clusterInfo.clusterName)
+    // console.log("props:", props)
+    // console.log("props.ClusterArn:", props.clusterInfo.ClusterArn)
+    // console.log("params.Topics", topics);
+
+
+
+    // api call
     await createNewTopic.mutateAsync({
-      id: clusterInfo.id, //provide cluster id
+      id: clusterid, //provide cluster id
       topicName: Name,
       numPartitions: numPartitions,
       replicationFactor: replicationFactor,
@@ -86,12 +99,23 @@ const ClusterTopics:React.FC<ClusterInfo>= ({ clusterInfo }) => {
               <tr>
                 <th></th>
                 <th>Topic Name</th>
-                <th>Cleanup Policy</th>
-                <th>Retention.ms</th>
-                <th>Offset</th>
-                <th>Button to view partitions</th>
+                <th>Partitions</th>
               </tr>
             </thead>
+            {/* <tbody>
+              {topics.map((topic, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{topic.name}</td>
+                  <td>
+                    <button onClick={() => viewPartitionsHandler(topic.name)}>
+                      View Partitions
+                    </button>
+                  </td>
+                  <td></td>
+                </tr>
+              ))}
+            </tbody> */}
           </table>
         </div>
 

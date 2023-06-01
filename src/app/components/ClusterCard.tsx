@@ -23,7 +23,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
     router.push(`${cluster.id}/dashboard`);
   };
   
-  const graidients = [
+  const gradients = [
     'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500',
     'bg-gradient-to-r from-green-300 via-blue-500 to-purple-600',
     'bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100',
@@ -33,14 +33,14 @@ export default function ClusterCard({ cluster }: cardCluster) {
 
   const random = Math.floor(Math.random() * 5);
   const statusColor = status === 'ACTIVE' ? 'green' : 'red';
-  console.log(`text-${statusColor}-600`)
+  // console.log(`text-${statusColor}-600`)
   return (
     <div
       onClick={routeToCluster}
       className='card h-48 max-w-98 w-72 overflow-hidden rounded-xl bg-base-100 shadow-xl hover:ring-4 '
     >
       <figure className='w-full'>
-        <div className={`h-24 w-full object-cover ${graidients[random]}`} />
+        <div suppressHydrationWarning={true} className={`h-24 w-full object-cover ${gradients[random]}`} />
       </figure>
       <div className='m-4 flex w-full flex-col justify-between'>
         <h2 className='card-title '>{cluster.name}</h2>

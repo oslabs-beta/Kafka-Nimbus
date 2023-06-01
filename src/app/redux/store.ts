@@ -12,7 +12,6 @@ export const store = configureStore({
     topics: topicReducer,
     clusterInfo: clusterInfoSlice,
     createCluster: createClusterReducer,
-    
     consumerGroup: consumerGroupReducer,
     createCluster: createClusterReducer,
     createTopic: createSingleTopicSlice,

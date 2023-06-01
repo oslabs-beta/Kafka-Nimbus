@@ -16,7 +16,23 @@ export type metrics = {
   State: string;
 };
 
+export type partitions = {
+  partitionErrorCode: number,
+  partitionId: number,
+  leader: number,
+  // replicas: any[],
+  isr: any[],
+  offlineReplicas: any[]
+}
+
+export type topics = {
+  name: string,
+  partitions: partitions[]
+};
+
 const layout = async (props) => {
+  // console.log('test')
+  // console.log(props);
   
   try {
     interface ResponseBody {
@@ -98,6 +114,7 @@ const layout = async (props) => {
       State
     };
     console.log('------ADDED metrics to response');
+    console.log("response.metrics:", response.Metrics)
 
 
     //GETTING TOPICS
@@ -147,10 +164,11 @@ const layout = async (props) => {
         config,
         offsets: offSetData,
       });
-      // console.log("Pushed topic data to Topics");
+      console.log("Pushed topic data to Topics");
     }
 
     response.Topics = topicsData;
+    console.log("response.Topics:", response.Topics)
     console.log('------ADDED topics to response');
 
 
@@ -191,15 +209,17 @@ const layout = async (props) => {
     console.log('------ADDED consumer groups to response');
 
     //return response as the response body
+    // console.log('response.Metrics:', response.Metrics)
     props.params.metrics = response.Metrics;
     props.params.topics = response.Topics;
     props.params.consumerGroups = response.ConsumerGroups;
+    console.log("PARAMS: ",props.params)
   } catch (err) {
     console.log('Error occurred in metricRouter getClusterInformation: ', err);
   }
 
- 
-  console.log(props.params);
+
+  
   return (
     <div>
       {/* <Page params={params} metrics={metrics} /> */}
