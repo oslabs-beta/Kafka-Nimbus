@@ -8,7 +8,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-import { KafkaClient, BatchAssociateScramSecretCommand, UpdateConnectivityCommand } from '@aws-sdk/client-kafka';
+import { KafkaClient, BatchAssociateScramSecretCommand, UpdateConnectivityCommand, DeleteClusterCommand, type DeleteClusterCommandInput, type DeleteClusterCommandOutput } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -242,8 +242,8 @@ export const clusterRouter = createTRPCRouter({
     }))
     .mutation(async ({ input }) => {
       try {
-        //deleting cluster in database
-        const deletedCluster = await prisma.cluster.delete({
+        //Getting cluster from db
+        const toDelete = await prisma.cluster.findUnique({
           where: {
             id: input.id,
           },
@@ -252,12 +252,12 @@ export const clusterRouter = createTRPCRouter({
           }
         });
 
-        if (!deletedCluster) throw new Error('Cluster to delete was not found in the database');
+        if (!toDelete) throw new Error('Cluster to delete was not found in the database');
 
-        const accessKeyId = deletedCluster.User.awsAccessKey;
-        const secretAccessKey = deletedCluster.User.awsSecretAccessKey;
-        const region = deletedCluster.User.region;
-        const ClusterArn = deletedCluster.kafkaArn ? deletedCluster.kafkaArn : '';
+        const accessKeyId = toDelete.User.awsAccessKey;
+        const secretAccessKey = toDelete.User.awsSecretAccessKey;
+        const region = toDelete.User.region;
+        const ClusterArn = toDelete.kafkaArn ? toDelete.kafkaArn : '';
 
         const client = new KafkaClient({
           region,
@@ -274,12 +274,22 @@ export const clusterRouter = createTRPCRouter({
         const command = new DeleteClusterCommand(params);
 
         const response: DeleteClusterCommandOutput = await client.send(command);
-        if (response.State !== 'DELETING') throw new Error('Failed to delete cluster from AWS');
-
-        return deletedCluster;
+        if (response.State !== 'DELETING') throw new Error('Failed to delete cluster from AWS')
+        else {
+          //if the cluster was successfully deleted from AWS, then delete cluster from db
+          const deletedCluster = await prisma.cluster.delete({
+            where: {
+              id: input.id,
+            },
+            include: {
+              User: true
+            }
+          });
+          if (!deletedCluster) throw new Error('Unable to delete cluster from the database');
+        }
       }
       catch (err) {
-        console.log('Error deleting from aws , ', err);
+        console.log('Error deleting from aws: ', err);
       }
     }),
 
