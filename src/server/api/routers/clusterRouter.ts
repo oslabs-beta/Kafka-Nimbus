@@ -8,7 +8,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-import { KafkaClient, BatchAssociateScramSecretCommand, UpdateConnectivityCommand } from '@aws-sdk/client-kafka';
+import { KafkaClient, GetBootstrapBrokersCommand, UpdateConnectivityCommand, DescribeClusterCommand } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -196,6 +196,7 @@ export const clusterRouter = createTRPCRouter({
         const awsAccessKey = clusterResponse?.User.awsAccessKey;
         const awsSecretAccessKey = clusterResponse?.User.awsSecretAccessKey;
         const region = clusterResponse?.User.region;
+        const lifeCycleStage = clusterResponse?.lifeCycleStage;
         // setting sdk config
         AWS.config.update({
           accessKeyId: awsAccessKey,
@@ -226,6 +227,81 @@ export const clusterRouter = createTRPCRouter({
           }
 
           console.log(`Current cluster state: ${curState}`);
+          
+          /**
+           * Cluster going from Creating to active
+           */
+          if (curState === 'ACTIVE' && lifeCycleStage === 0) {
+            const client = new KafkaClient({region: region});
+
+            try {
+              // get the current version so that we can update the public access params
+              const cluster = new DescribeClusterCommand({ClusterArn: kafkaArn});
+              const describeClusterResponse = await client.send(cluster);
+  
+              const currentVersion = describeClusterResponse.ClusterInfo?.CurrentVersion;
+  
+              // now we want to turn on public access
+              const updateParams = {
+                ClusterArn: kafkaArn,
+                ConnectivityInfo: {
+                  PublicAccess: {
+                    Type: 'SERVICE_PROVIDED_EIPS'   // enables public access
+                  }
+                },
+                CurrentVersion: currentVersion
+              };
+              
+              const commandUpdate = new UpdateConnectivityCommand(updateParams);
+              await client.send(commandUpdate);
+              console.log(`Successfully updated the public access`)
+
+              // now update it in the database
+              const updateResponse = prisma.cluster.update({
+                where: {
+                  name: input.name
+                },
+                data: {
+                  lifeCycleStage: 1
+                }
+              })
+            }
+            catch (err) {
+              console.error('Error updating cluster, ', err);
+            }
+          }
+          /**
+           * Cluster going from updating to active - get boostrap servers
+           */
+          else if (curState === 'ACTIVE' && lifeCycleStage === 1) {
+            const client = new KafkaClient({region: region});
+
+            try {
+              const getBootstrapBrokersCommand = new GetBootstrapBrokersCommand({
+                ClusterArn: kafkaArn
+              })
+              const bootstrapResponse = await client.send(getBootstrapBrokersCommand);
+              const brokers = bootstrapResponse.BootstrapBrokerStringSaslIam;
+              if (brokers === undefined) {
+                throw new Error('Error getting brokers');
+              }
+              console.log("successfully got boostrap brokers: ", brokers);
+
+              // store in the database
+              const updateResponse = prisma.cluster.update({
+                where: {
+                  name: input.name,
+                },
+                data: {
+                  bootStrapServer: [brokers]
+                }
+              })
+            }
+            catch(err) {
+              console.error('Error going from updating to active, ', err);
+            }
+          }
+
           return curState;
         }
         return undefined;
