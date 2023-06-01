@@ -22,11 +22,12 @@ export default function ClusterCard({ cluster }: cardCluster) {
   const [delCluster, setdelCluster] = React.useState<string>('');
   const [isHoverDelete, setIsHoverDelete] = React.useState<boolean>(false);
 
+
   const deleteCluster = trpc.createCluster.deleteCluster.useMutation();
 
 
   const routeToCluster = () => {
-    if (!isHoverDelete) router.push(`${cluster.id}/dashboard`)
+    if (!isHoverDelete && status === 'ACTIVE') router.push(`${cluster.id}/dashboard`)
     else return;
   };
 
@@ -41,13 +42,14 @@ export default function ClusterCard({ cluster }: cardCluster) {
   const random = Math.floor(Math.random() * 5);
   const statusColor = status === 'ACTIVE' ? 'green' : 'red';
 
-  const deleteClusterHandler = () => {
+  const deleteClusterHandler = async () => {
     try {
-      console.log('Deleting cluster');
-      deleteCluster.mutate({
+      console.log('----------------Deleting cluster');
+      await deleteCluster.mutateAsync({
         id: cluster.id
       });
-      setdelCluster('');
+      console.log('----------------Rerouting cluster');
+      router.push('/cluster-dashboard');
     } catch (err) {
       console.log('Error occurred when deleting cluster on frontend: ', err);
     }
@@ -74,7 +76,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
       <div
         onClick={routeToCluster}
         style={{ position: 'relative', zIndex: 5 }}
-        className='card h-48 max-w-98 w-72 overflow-hidden rounded-xl bg-base-100 shadow-xl hover:ring-4'
+        className={`card h-48 max-w-98 w-72 overflow-hidden rounded-xl bg-base-100 shadow-xl ${(status === 'ACTIVE') ? 'hover:ring-4 cursor-pointer' : ''}`}
       >
         <figure className='w-full'>
           <div className={`h-24 w-full object-cover ${graidients[random]}`} />
@@ -89,7 +91,8 @@ export default function ClusterCard({ cluster }: cardCluster) {
             </p>
           </div>
         </div>
-        <label onMouseEnter={() => setIsHoverDelete(true)} onMouseLeave={() => setIsHoverDelete(false)} htmlFor={`modal${cluster.name}${cluster.id}`} style={{ position: 'absolute', zIndex: 8 }} className="top-0 right-0 bg-red-600 hover:bg-red-800 text-white text-sm px-3.5 py-2.5 m-0.5 rounded-full hover:border-slate-400 hover:border-solid">X</label>
+        {(status === 'ACTIVE') ? <label onMouseEnter={() => setIsHoverDelete(true)} onMouseLeave={() => setIsHoverDelete(false)} htmlFor={`modal${cluster.name}${cluster.id}`} style={{ position: 'absolute', zIndex: 8 }} className="top-0 right-0 bg-red-600 hover:bg-red-800 text-white text-sm px-3.5 py-2.5 m-0.5 rounded-full hover:border-slate-400 hover:border-solid">X</label> : null}
+
       </div >
     </>
 

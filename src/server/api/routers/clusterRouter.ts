@@ -8,7 +8,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-import { KafkaClient, BatchAssociateScramSecretCommand, UpdateConnectivityCommand, DeleteClusterCommand, type DeleteClusterCommandInput, type DeleteClusterCommandOutput } from '@aws-sdk/client-kafka';
+import { KafkaClient, UpdateConnectivityCommand, DeleteClusterCommand, type DeleteClusterCommandInput, type DeleteClusterCommandOutput } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
