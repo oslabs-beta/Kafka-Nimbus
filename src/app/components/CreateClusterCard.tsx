@@ -14,7 +14,7 @@ export default function CreateClusterCard() {
   return (
     <div
       onClick={createClusterHandler}
-      className="card bg-base-100 h-48 w-72 overflow-hidden rounded-xl shadow-xl hover:ring-4 "
+      className="card bg-base-100 h-48 w-72 overflow-hidden rounded-xl shadow-xl hover:ring-4 cursor-pointer"
     >
       <div className="flex h-48 w-full items-center justify-center ">
         <div className="flex flex-col items-center justify-center gap-2">

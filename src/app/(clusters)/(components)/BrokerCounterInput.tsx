@@ -12,7 +12,7 @@ const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
 
   const brokerNumArray: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-  
+
   // when the select changes, changes the number of brokers stored in state
   const onSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setBrokerNumbers(Number(e.target.value)));
@@ -53,6 +53,7 @@ const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
         <select
           className='select-bordered select w-full max-w-xs'
           onChange={onSelectHandler}
+          defaultValue={1}
         >
           <option disabled value={'How many brokers'}>
             How many brokers

@@ -6,15 +6,14 @@ interface initialState {
   Name: string;
   numPartitions: number;
   replicationFactor: number;
-  cleanUpPolicy: string;
 }
 
 const initialState = {
   id: "",
   Name: "",
-  numPartitions: 0,
+  numPartitions: 1,
   replicationFactor: 1,
-  cleanUpPolicy: "",
+  cleanUpPolicy: "Compact",
 };
 
 export const createTopic = createSlice({
@@ -33,12 +32,9 @@ export const createTopic = createSlice({
     settopicReplications: (state, action: PayloadAction<number>) => {
       state.replicationFactor = action.payload;
     },
-    setcleanUpPolicy: (state, action: PayloadAction<string>) => {
-      state.cleanUpPolicy = action.payload;
-    },
   },
 });
 
 
-export const { settopicID, settopicName, settopicPartitions, settopicReplications, setcleanUpPolicy } = createTopic.actions;
+export const { settopicID, settopicName, settopicPartitions, settopicReplications } = createTopic.actions;
 export default createTopic.reducer;

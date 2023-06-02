@@ -3,15 +3,14 @@ import { type NextPage } from 'next';
 import Link from 'next/link';
 import { AuthShowcase } from './components/AuthShowcase';
 import { api } from '~/trpc/api';
-import { withTRPC } from '@trpc/next';
-import { appRouter } from '../server/api/root';
 
+import HeroPage from 'public/heroPage.png'
 
 const Home: NextPage = () => {
   // const test = appRouter.example.hello()
   return (
     <>
-      <main className=''>
+      <main className='flex flex-row'>
         <div className=' hero flex flex-col items-center justify-center py-16'>
           <div className='hero-content flex w-full max-w-md flex-col items-center align-middle'>
             <h1 className='text-center text-6xl font-bold'>
@@ -28,6 +27,7 @@ const Home: NextPage = () => {
               <AuthShowcase />
             </div>
           </div>
+
         </div>
       </main>
     </>
