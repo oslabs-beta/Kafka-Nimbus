@@ -9,15 +9,17 @@ export interface cardCluster {
     img: string;
     name: string;
     id: string;
+    lifeCycleStage: number;
   };
 }
 
 export default function ClusterCard({ cluster }: cardCluster) {
   const router = useRouter();
   // Fetching the cluster status to display
-  const { data: status } = trpc.createCluster.checkClusterStatus.useQuery({
-    id: cluster.id
-  })
+    const { data: status } = trpc.createCluster.checkClusterStatus.useQuery({
+      id: cluster.id
+    })
+
 
   const [delCluster, setdelCluster] = React.useState<string>('');
   const [isHoverDelete, setIsHoverDelete] = React.useState<boolean>(false);
@@ -30,8 +32,8 @@ export default function ClusterCard({ cluster }: cardCluster) {
     if (!isHoverDelete && status === 'ACTIVE') router.push(`${cluster.id}/dashboard`)
     else return;
   };
-
-  const graidients = [
+  
+  const gradients = [
     'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500',
     'bg-gradient-to-r from-green-300 via-blue-500 to-purple-600',
     'bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100',
@@ -79,7 +81,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
         className={`card h-48 max-w-98 w-72 overflow-hidden rounded-xl bg-base-100 shadow-xl ${(status === 'ACTIVE') ? 'hover:ring-4 cursor-pointer' : ''}`}
       >
         <figure className='w-full'>
-          <div className={`h-24 w-full object-cover ${graidients[random]}`} />
+          <div className={`h-24 w-full object-cover ${gradients[random]}`} />
         </figure>
         <div className='m-4 flex w-full flex-col justify-between'>
           <h2 className='card-title '>{cluster.name}</h2>
