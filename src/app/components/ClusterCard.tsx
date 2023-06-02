@@ -38,31 +38,13 @@ export default function ClusterCard({ cluster }: cardCluster) {
   
   const statusColor = status === 'ACTIVE' ? 'green' : 'red';
 
-  console.log(`text-${statusColor}-600`);
-  return (
-    <div
-      onClick={routeToCluster}
-      className='max-w-98 card h-48 w-72 overflow-hidden rounded-xl bg-base-100 shadow-xl hover:ring-4 '
-    >
-      <figure className='w-full'>
-        <div className={`h-24 w-full object-cover ${cluster.img}`} />
-      </figure>
-      <div className='m-4 flex w-full flex-col justify-between'>
-        <h2 className='card-title '>{cluster.name}</h2>
-        <div className='flex items-end justify-end'>
-          {statusColor ? (
-            <p
-              className={`text-${statusColor}-600  mr-6 w-min rounded-xl bg-${statusColor}-100  mx-1 items-end px-4 align-bottom shadow-md`}
-            >
-              {status}
-            </p>
-          ) : null}
+  
 
 
   const deleteClusterHandler = async () => {
     try {
       console.log('----------------Deleting cluster');
-      await deleteCluster.mutateAsync({
+      deleteCluster.mutate({
         id: cluster.id
       });
       console.log('----------------Rerouting cluster');
@@ -97,7 +79,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
         className={`card h-48 max-w-98 w-72 overflow-hidden rounded-xl bg-base-100 shadow-xl ${(status === 'ACTIVE') ? 'hover:ring-4 cursor-pointer' : ''}`}
       >
         <figure className='w-full'>
-          <div className={`h-24 w-full object-cover ${gradients[random]}`} />
+          <div className={`h-24 w-full object-cover ${cluster.img}`} />
         </figure>
         <div className='m-4 flex w-full flex-col justify-between'>
           <h2 className='card-title '>{cluster.name}</h2>
