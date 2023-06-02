@@ -50,8 +50,7 @@ export const topicRouter = createTRPCRouter({
         const region = userResponse.User.region;
 
         /** TODO getting bootStrapServer public endpoints. For now manually adding the brokers */
-        // const BootstrapIds = userResponse.bootStrapServer;
-        const BootstrapIds = ['b-1-public.andrewtesting.nn8jqe.c2.kafka.us-east-2.amazonaws.com:9198', 'b-2-public.andrewtesting.nn8jqe.c2.kafka.us-east-2.amazonaws.com:9198'];
+        const BootstrapIds = userResponse.bootStrapServer;
 
         // update aws config
         // possibly unneccessary
