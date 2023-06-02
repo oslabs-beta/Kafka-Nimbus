@@ -39,7 +39,13 @@ export const authorizeSecurityGroupIngress = async (ec2: AWS.EC2, groupId: strin
       }
     ]
   }
-  await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
+  if (groupId === '') throw new Error('Error, groupId does not exist');
+  try {
+    await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
+  }
+  catch (e) {
+    throw new Error('Failed to authorize ingress');
+  }
 }
 
 // spins up kafka cluster

@@ -11,7 +11,7 @@ import {
 import { KafkaClient, GetBootstrapBrokersCommand, UpdateConnectivityCommand, DescribeClusterCommand } from '@aws-sdk/client-kafka';
 
 // importing functionality
-import * as awsService from '../../service/awsService';
+import * as awsService from '../../service/createClusterService';
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -56,34 +56,8 @@ export const clusterRouter = createTRPCRouter({
         if (!vpcId) {
           throw new Error('vpcId assignment error');
         }
-        // // create security group for msk cluster
-        // const randString: string = v4();
-        // const createSecurityGroupParams = {
-        //   Description: 'Security group for MSK Cluster',
-        //   GroupName: 'MSKSecurityGroup' + randString,
-        //   VpcId: vpcId
-        // }
-
-        // // security group for the cluster
-        // const createSecurityGroupData = await ec2.createSecurityGroup(createSecurityGroupParams).promise();
-        // let groupId: string | undefined = createSecurityGroupData?.GroupId;
-        // if (groupId === undefined) groupId = '';
 
         const createSecurityGroupData = await awsService.createSecurityGroup(ec2, vpcId);
-
-        // const authorizeSecurityGroupParams = {
-        //   GroupId: groupId,
-        //   IpPermissions: [
-        //     {
-        //       IpProtocol: 'tcp',
-        //       FromPort: 0,
-        //       ToPort: 65535,
-        //       IpRanges: [{ CidrIp: '0.0.0.0/0' }] // all access
-        //     }
-        //   ]
-        // }
-        // await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
-        // console.log(`Added inbound rules to security group ${groupId}`);
 
         await awsService.authorizeSecurityGroupIngress(ec2, createSecurityGroupData);
 
@@ -132,13 +106,6 @@ export const clusterRouter = createTRPCRouter({
             Revision: 1,
           },
         };
-
-        // const kafkaData = await kafka.createCluster(kafkaParams).promise();
-        // if (!kafkaData?.ClusterArn) {
-        //   throw new Error("Error creating the msk cluster");
-        // }
-        // const kafkaArn: string = kafkaData.ClusterArn;
-        // console.log(`Created Kafka Cluster with ARN ${kafkaArn}`)
 
         const kafkaData = await awsService.createKafkaCluster(kafka, kafkaParams);
 
