@@ -16,7 +16,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
   const router = useRouter();
   // Fetching the cluster status to display
   const { data: status } = trpc.createCluster.checkClusterStatus.useQuery({
-    name: cluster.name
+    id: cluster.id
   })
 
   const [delCluster, setdelCluster] = React.useState<string>('');

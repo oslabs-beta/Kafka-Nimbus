@@ -8,7 +8,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-import { KafkaClient, UpdateConnectivityCommand, DeleteClusterCommand, type DeleteClusterCommandInput, type DeleteClusterCommandOutput } from '@aws-sdk/client-kafka';
+import { KafkaClient, GetBootstrapBrokersCommand, UpdateConnectivityCommand, DescribeClusterCommand, DeleteClusterCommand, type DeleteClusterCommandInput, type DeleteClusterCommandOutput } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -178,13 +178,13 @@ export const clusterRouter = createTRPCRouter({
 
   checkClusterStatus: publicProcedure
     .input(z.object({
-      name: z.string()
+      id: z.string()
     }))
     .query(async ({ input }) => {
       try {
         const clusterResponse = await prisma.cluster.findUnique({
           where: {
-            name: input.name
+            id: input.id
           },
           include: {
             User: true,
@@ -196,6 +196,7 @@ export const clusterRouter = createTRPCRouter({
         const awsAccessKey = clusterResponse?.User.awsAccessKey;
         const awsSecretAccessKey = clusterResponse?.User.awsSecretAccessKey;
         const region = clusterResponse?.User.region;
+        const lifeCycleStage = clusterResponse?.lifeCycleStage;
         // setting sdk config
         AWS.config.update({
           accessKeyId: awsAccessKey,
@@ -226,6 +227,82 @@ export const clusterRouter = createTRPCRouter({
           }
 
           console.log(`Current cluster state: ${curState}`);
+
+          /**
+           * Cluster going from Creating to active
+           */
+          if (curState === 'ACTIVE' && lifeCycleStage === 0) {
+            const client = new KafkaClient({ region: region });
+            try {
+              // get the current version so that we can update the public access params
+              const cluster = new DescribeClusterCommand({ ClusterArn: kafkaArn });
+              const describeClusterResponse = await client.send(cluster);
+              console.log(describeClusterResponse);
+              const connectivityInfo = describeClusterResponse.ClusterInfo?.BrokerNodeGroupInfo?.ConnectivityInfo?.PublicAccess?.Type;
+              const currentVersion = describeClusterResponse.ClusterInfo?.CurrentVersion;
+
+              // now we want to turn on public access
+              const updateParams = {
+                ClusterArn: kafkaArn,
+                ConnectivityInfo: {
+                  PublicAccess: {
+                    Type: 'SERVICE_PROVIDED_EIPS'   // enables public access
+                  }
+                },
+                CurrentVersion: currentVersion
+              };
+
+              const commandUpdate = new UpdateConnectivityCommand(updateParams);
+              await client.send(commandUpdate);
+              console.log(`Successfully updated the public access`)
+
+              // now update it in the database
+              const updateResponse = await prisma.cluster.update({
+                where: {
+                  id: input.id
+                },
+                data: {
+                  lifeCycleStage: 1
+                }
+              });
+            }
+            catch (err) {
+              console.error('Error updating cluster, ', err);
+            }
+          }
+          /**
+           * Cluster going from updating to active - get boostrap servers
+           */
+          else if (curState === 'ACTIVE' && lifeCycleStage === 1) {
+            const client = new KafkaClient({ region: region });
+
+            try {
+              const getBootstrapBrokersCommand = new GetBootstrapBrokersCommand({
+                ClusterArn: kafkaArn
+              })
+              const bootstrapResponse = await client.send(getBootstrapBrokersCommand);
+              const brokers = bootstrapResponse.BootstrapBrokerStringPublicSaslIam ? bootstrapResponse.BootstrapBrokerStringPublicSaslIam : '';
+              const splitBrokers = brokers.split(',');
+              if (brokers === undefined) {
+                throw new Error('Error getting brokers');
+              }
+              console.log("successfully got boostrap brokers: ", splitBrokers);
+
+              // store in the database
+              const updateResponse = await prisma.cluster.update({
+                where: {
+                  id: input.id
+                },
+                data: {
+                  bootStrapServer: splitBrokers
+                }
+              })
+            }
+            catch (err) {
+              console.error('Error going from updating to active, ', err);
+            }
+          }
+
           return curState;
         }
         return undefined;

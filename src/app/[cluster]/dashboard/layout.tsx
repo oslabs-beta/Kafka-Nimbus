@@ -17,7 +17,7 @@ export type metrics = {
 };
 
 const layout = async (props) => {
-  
+
   try {
     interface ResponseBody {
       Metrics: any;
@@ -198,7 +198,7 @@ const layout = async (props) => {
     console.log('Error occurred in metricRouter getClusterInformation: ', err);
   }
 
- 
+
   console.log(props.params);
   return (
     <div>
