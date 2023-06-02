@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useAppDispatch } from '~/app/redux/hooks';
-import { setBrokerNumbers } from '~/app/redux/features/createClusterSlice';
+import { setBrokerNumbers, setZones } from '~/app/redux/features/createClusterSlice';
 
 interface ProviderProps {
   inFocusHandler: (string: string) => void;
@@ -9,17 +9,22 @@ interface ProviderProps {
 
 const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const dispatch = useAppDispatch();
-  const [number, setNumber] = useState(0);
-  const brokerNumArray: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-  
 
+  const brokerNumArray: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+
+  // when the select changes, changes the number of brokers stored in state
   const onSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setNumber(Number(e.target.value));
+    dispatch(setBrokerNumbers(Number(e.target.value)));
+  };
+  // chagnes the # zones stored in state
+  const onSelectHandlerZones = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setZones(Number(e.target.value)))
   };
 
+  // dispatches both the number of zones, and the number of brokers to redux
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    dispatch(setBrokerNumbers(number));
     inFocusHandler('storage');
   };
 
@@ -29,29 +34,17 @@ const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
       <form onSubmit={onSubmitHandler}>
         <select
           className='select-bordered select w-full max-w-xs'
-          onChange={onSelectHandler}
-          defaultValue={4}
+          onChange={onSelectHandlerZones}
+          defaultValue={2}
         >
           <option disabled value={'How many brokers'}>
             How many zones
-          </option>
-          <option value={1} key={1}>
-            1
           </option>
           <option value={2} key={2}>
             2
           </option>
           <option value={3} key={3}>
             3
-          </option>
-          <option value={4} key={4} >
-            4 *recommended 
-          </option>
-          <option value={5} key={5}>
-            5
-          </option>
-          <option value={6} key={6}>
-            6
           </option>
         </select>
         <h1 className='mb-4 mt-12 text-2xl font-bold'>
@@ -60,6 +53,7 @@ const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
         <select
           className='select-bordered select w-full max-w-xs'
           onChange={onSelectHandler}
+          defaultValue={1}
         >
           <option disabled value={'How many brokers'}>
             How many brokers

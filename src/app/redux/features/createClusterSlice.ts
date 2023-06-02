@@ -10,9 +10,10 @@ const initialState = {
   awsSecret: "",
   region: "",
   clusterName: "",
-  brokerNumbers: 0,
-  storagePerBroker: 0,
+  brokerNumbers: 1,
+  storagePerBroker: 1,
   clusterSize: '',
+  zones: 2,
 };
 
 // Create a slice using Redux Toolkit
@@ -44,6 +45,9 @@ const configSlice = createSlice({
     setClusterSize: (state, action: PayloadAction<string>) => {
       state.clusterSize = action.payload;
     },
+    setZones: (state, action: PayloadAction<number>) => {
+      state.zones = action.payload;
+    }
   },
 });
 
@@ -57,6 +61,7 @@ export const {
   setBrokerNumbers,
   setStoragePerBroker,
   setClusterSize,
+  setZones,
 } = configSlice.actions;
 
 export default configSlice.reducer;

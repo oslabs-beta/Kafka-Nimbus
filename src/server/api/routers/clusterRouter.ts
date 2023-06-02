@@ -1,182 +1,454 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { z } from 'zod';
-import AWS from 'aws-sdk';
-import { v4 } from 'uuid';
-import { prisma } from '../../db'
-import type { User, Cluster } from '@prisma/client';
+import { z } from "zod";
+import AWS from "aws-sdk";
+import { v4 } from "uuid";
+import { prisma } from "../../db";
+
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 import {
-  createTRPCRouter,
-  publicProcedure,
-} from "~/server/api/trpc";
-
-const ec2 = new AWS.EC2({apiVersion: '2016-11-15'})
-const kafka = new AWS.Kafka({apiVersion: '2018-11-14'});
+  KafkaClient,
+  GetBootstrapBrokersCommand,
+  UpdateConnectivityCommand,
+  DescribeClusterCommand,
+  DeleteClusterCommand,
+  type DeleteClusterCommandInput,
+  type DeleteClusterCommandOutput,
+} from "@aws-sdk/client-kafka";
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
-    .input(z.object({
-      id: z.string(),
-      brokerPerZone: z.number(),
-      instanceSize: z.string(),
-      zones: z.number(),
-      storagePerBroker: z.number(),
-      name: z.string(),
-    }))
-    .query(async({ input }) => {
+    .input(
+      z.object({
+        id: z.string(),
+        brokerPerZone: z.number(),
+        instanceSize: z.string(),
+        zones: z.number(),
+        storagePerBroker: z.number(),
+        name: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
       // First, find the user object in the database using id
-      let vpcId = '';
-      let subnetIds: string[] = [];
       try {
-        const userResponse: User | null = await prisma.user.findUnique({
+        const userResponse = await prisma.user.findUnique({
           where: {
-            id: input.id
-          }
+            id: input.id,
+          },
         });
         if (!userResponse || !userResponse.vpcId) {
-          throw new Error('User doesn\'t exist in database')
+          throw new Error("User doesn't exist in database");
         }
         // store the vpcId and subnets l
-        vpcId = userResponse.vpcId;
-        subnetIds = userResponse.subnetID;
-      }
-      catch (error) {
-        console.log('Error accessing database, ', error);
-      }
-        // Create security groups within the vpc
-      if (!vpcId) {
-        throw new Error('vpcId assignment error');
-      }
-      // create security group for msk cluster
-      const randString: string = v4(); 
-      const createSecurityGroupParams = {
-        Description: 'Security group for MSK Cluster',
-        GroupName: 'MSKSecurityGroup' + randString,
-        VpcId: vpcId
-      }
+        const vpcId = userResponse.vpcId;
+        const subnetIds = userResponse.subnetID;
+        const configArn = userResponse.configArn;
 
-      try {
-        const createSecurityGroupData = await ec2.createSecurityGroup(createSecurityGroupParams).promise();
-        const groupId: string = createSecurityGroupData?.GroupId;
+        // store aws key and sescret, and put into the AWS config
+        const awsAccessKey = userResponse.awsAccessKey;
+        const awsSecretAccessKey = userResponse.awsSecretAccessKey;
+        const region = userResponse.region;
+        // config update has to be before instantializing ec2 and kafka
+        AWS.config.update({
+          accessKeyId: awsAccessKey,
+          secretAccessKey: awsSecretAccessKey,
+          region: region,
+        });
+        const ec2 = new AWS.EC2({ apiVersion: "2016-11-15" });
+        const kafka = new AWS.Kafka({ apiVersion: "2018-11-14" });
+
+        // Create security groups within the vpc
+        if (!vpcId) {
+          throw new Error("vpcId assignment error");
+        }
+        // create security group for msk cluster
+        const randString: string = v4();
+        const createSecurityGroupParams = {
+          Description: "Security group for MSK Cluster",
+          GroupName: "MSKSecurityGroup" + randString,
+          VpcId: vpcId,
+        };
+
+        // security group for the cluster
+        const createSecurityGroupData = await ec2
+          .createSecurityGroup(createSecurityGroupParams)
+          .promise();
+        let groupId: string | undefined = createSecurityGroupData?.GroupId;
+        if (groupId === undefined) groupId = "";
 
         const authorizeSecurityGroupParams = {
           GroupId: groupId,
           IpPermissions: [
             {
-              IpProtocol: 'tcp',
-              FromPort: 9092,
-              ToPort: 9092,
-              IpRanges: [{ CidrIp: '0.0.0.0/0'}]  // all access open
+              IpProtocol: "tcp",
+              FromPort: 0,
+              ToPort: 65535,
+              IpRanges: [{ CidrIp: "0.0.0.0/0" }], // all access
             },
-            {
-              IpProtocol: 'tcp',
-              FromPort: 9094,
-              ToPort: 9094,
-              IpRanges: [{ CidrIp: '0.0.0.0/' }] // all access
-            }
-          ]
-        }
-        await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
+          ],
+        };
+        await ec2
+          .authorizeSecurityGroupIngress(authorizeSecurityGroupParams)
+          .promise();
         console.log(`Added inbound rules to security group ${groupId}`);
 
         // kafka params
         const kafkaParams = {
           BrokerNodeGroupInfo: {
-            BrokerAZDistribution: 'DEFAULT',  // We should always keep it like this, could change in future
+            BrokerAZDistribution: "DEFAULT", // We should always keep it like this, could change in future
             ClientSubnets: subnetIds,
             InstanceType: input.instanceSize,
-            SecurityGroups: [...groupId],
+            SecurityGroups: [groupId],
             StorageInfo: {
               EbsStorageInfo: {
                 VolumeSize: input.storagePerBroker,
               },
             },
           },
-          clusterName: input.name,
-          KafkaVersion: '2.8.1',        // allow user to choose version?
-          NumberOfBrokerNodes: input.brokerPerZone,
+          ClusterName: input.name,
+
+          KafkaVersion: "2.8.1", // allow user to choose version?
+          NumberOfBrokerNodes: input.brokerPerZone * input.zones,
           EncryptionInfo: {
             EncryptionInTransit: {
-              ClientBroker: 'PLAINTEXT',
-            }
+              ClientBroker: "TLS", // Changing from PLAINTEXT to TLS for disabling plaintext traffic
+              InCluster: true, // Enabling encryption within the cluster
+            },
           },
+          // not going to use open monitoring as our way of monitoring
           OpenMonitoring: {
             Prometheus: {
               JmxExporter: {
-                EnabledInBroker: true
+                EnabledInBroker: true,
               },
               NodeExporter: {
-                EnabledInBroker: true
+                EnabledInBroker: true,
               },
             },
+          },
+          ClientAuthentication: {
+            Sasl: {
+              Iam: {
+                Enabled: true,
+              },
+            },
+          },
+          ConfigurationInfo: {
+            Arn: configArn, // Providing the ARN for kafka-ACL
+            Revision: 1,
           },
         };
 
         const kafkaData = await kafka.createCluster(kafkaParams).promise();
         if (!kafkaData?.ClusterArn) {
-          throw new Error("Error creating the msk cluster");
+          throw new Error('Error creating the msk cluster');
         }
         const kafkaArn: string = kafkaData.ClusterArn;
-        console.log(`Created Kafka Cluster with ARN ${kafkaArn}`)
+        console.log(`Created Kafka Cluster with ARN ${kafkaArn}`);
 
         /**
          * Now we want to store stuff in the database
          */
+        const graidients = [
+          'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500',
+          'bg-gradient-to-r from-green-300 via-blue-500 to-purple-600',
+          'bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100',
+          'bg-gradient-to-r from-green-200 via-green-300 to-blue-500',
+          'bg-gradient-to-r from-green-300 via-yellow-300 to-pink-300',
+        ];
+
+        const random = Math.floor(Math.random() * 5);
         const response = await prisma.cluster.create({
           data: {
             name: input.name,
-            userId: input.id,
-            securityGroup: groupId,
+            securityGroup: [groupId],
             brokerPerZone: input.brokerPerZone,
+            img: graidients[random],
             instanceSize: input.instanceSize,
             zones: input.zones,
             storagePerBroker: input.storagePerBroker,
             kafkaArn: kafkaArn,
-          }
-        })
+            lifeCycleStage: 0,
+            User: {
+              connect: { id: input.id },
+            },
+          },
+        });
         if (!response) {
-          throw new Error('Could not create cluster in dateabase');
+          throw new Error("Could not create cluster in dateabase");
         }
 
         return response;
-
-      }
-      catch (err) {
-        console.log('Error creating kafka cluster using SDK | ', err)
+      } catch (err) {
+        console.log("Error creating kafka cluster using SDK | ", err);
       }
     }),
 
+  /**
+   * This route will return the cluster status
+   * @returns
+   *  ACTIVE
+   * CREATING
+   * DELETING
+   * FAILED
+   * HEALING
+   * MAINTENANCE
+   * REBOOTING_BROKER
+   * UPDATING
+   */
+
   checkClusterStatus: publicProcedure
-    .input(z.object({
-      name: z.string()
-    }))
-    .query(async({ input }) => {
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
       try {
         const clusterResponse = await prisma.cluster.findUnique({
           where: {
-            name: input.name
-          }
-        })
-        if (!clusterResponse) {
-          throw new Error('Didn\'t find cluster in db');
+            id: input.id,
+          },
+          include: {
+            User: true,
+          },
+        });
+        if (clusterResponse?.User === undefined) {
+          throw new Error("User does not exist on the cluster Response");
         }
-        const kafkaArn: string = clusterResponse?.kafkaArn;
-        
-        const sdkResponse = await kafka.describeCluster(
-          {ClusterArn: kafkaArn}
-          ).promise();
+        const awsAccessKey = clusterResponse?.User.awsAccessKey;
+        const awsSecretAccessKey = clusterResponse?.User.awsSecretAccessKey;
+        const region = clusterResponse?.User.region;
+        const lifeCycleStage = clusterResponse?.lifeCycleStage;
+        // setting sdk config
+        AWS.config.update({
+          accessKeyId: awsAccessKey,
+          secretAccessKey: awsSecretAccessKey,
+          region: region,
+        });
+        const kafka = new AWS.Kafka({ apiVersion: "2018-11-14" });
+
+        if (awsAccessKey === undefined || awsSecretAccessKey === undefined) {
+          throw new Error("One or both access keys doesn't exist");
+        }
+
+        if (!clusterResponse) {
+          throw new Error("Didn't find cluster in db");
+        }
+        const kafkaArn = clusterResponse.kafkaArn; // obtaining the arn of the cluster
+        if (kafkaArn) {
+          const sdkResponse = await kafka
+            .describeCluster({ ClusterArn: kafkaArn })
+            .promise();
 
           if (!sdkResponse) {
-            throw new Error('SDK couldn\'t find the cluster');
+            throw new Error("SDK couldn't find the cluster");
           }
-          const curState: string = sdkResponse.ClusterInfo?.State;
+          const curState = sdkResponse.ClusterInfo?.State;
+          if (curState === undefined) {
+            throw new Error("Cur state undefined");
+          }
 
-          console.log(curState);
+          console.log(`Current cluster state: ${curState}`);
+
+          /**
+           * Cluster going from Creating to active
+           */
+          if (curState === "ACTIVE" && lifeCycleStage === 0) {
+            const client = new KafkaClient({
+              region: region,
+              credentials: {
+                accessKeyId: awsAccessKey,
+                secretAccessKey: awsSecretAccessKey,
+              },
+            });
+            try {
+              // get the current version so that we can update the public access params
+              const cluster = new DescribeClusterCommand({
+                ClusterArn: kafkaArn,
+              });
+              const describeClusterResponse = await client.send(cluster);
+              const connectivityInfo =
+                describeClusterResponse.ClusterInfo?.BrokerNodeGroupInfo
+                  ?.ConnectivityInfo?.PublicAccess?.Type;
+              const currentVersion =
+                describeClusterResponse.ClusterInfo?.CurrentVersion;
+              if (connectivityInfo !== "SERVICE_PROVIDED_EIPS") {
+                // now we want to turn on public access
+                const updateParams = {
+                  ClusterArn: kafkaArn,
+                  ConnectivityInfo: {
+                    PublicAccess: {
+                      Type: "SERVICE_PROVIDED_EIPS", // enables public access
+                    },
+                  },
+                  CurrentVersion: currentVersion,
+                };
+
+                const commandUpdate = new UpdateConnectivityCommand(
+                  updateParams
+                );
+                await client.send(commandUpdate);
+                console.log(`Successfully updated the public access`);
+              }
+
+              // now update it in the database
+              const updateResponse = await prisma.cluster.update({
+                where: {
+                  id: input.id,
+                },
+                data: {
+                  lifeCycleStage: 1,
+                },
+              });
+            } catch (err) {
+              console.error("Error updating cluster, ", err);
+            }
+          } else if (curState === "ACTIVE" && lifeCycleStage === 1) {
+          /**
+           * Cluster going from updating to active - get boostrap servers
+           */
+            const client = new KafkaClient({
+              region: region,
+              credentials: {
+                accessKeyId: awsAccessKey,
+                secretAccessKey: awsSecretAccessKey,
+              },
+            });
+
+            try {
+              const getBootstrapBrokersCommand = new GetBootstrapBrokersCommand(
+                {
+                  ClusterArn: kafkaArn,
+                }
+              );
+              const bootstrapResponse = await client.send(
+                getBootstrapBrokersCommand
+              );
+              const brokers =
+                bootstrapResponse.BootstrapBrokerStringPublicSaslIam
+                  ? bootstrapResponse.BootstrapBrokerStringPublicSaslIam
+                  : "";
+              const splitBrokers = brokers.split(",");
+              if (brokers === undefined) {
+                throw new Error("Error getting brokers");
+              }
+              console.log("successfully got boostrap brokers: ", splitBrokers);
+
+              // store in the database
+              const updateResponse = await prisma.cluster.update({
+                where: {
+                  id: input.id,
+                },
+                data: {
+                  bootStrapServer: splitBrokers,
+                  lifeCycleStage: 2
+                },
+              });
+              console.log("Successfully updated boostrap broker and set lifeCycleStage to 2");
+            } catch (err) {
+              console.error("Error going from updating to active, ", err);
+            }
+          }
+
           return curState;
+        }
+        return undefined;
+      } catch (err) {
+        console.log("error fetching data from database", err);
+      }
+    }),
+
+  deleteCluster: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        //Getting cluster from db
+        const toDelete = await prisma.cluster.findUnique({
+          where: {
+            id: input.id,
+          },
+          include: {
+            User: true,
+          },
+        });
+
+        if (!toDelete)
+          throw new Error("Cluster to delete was not found in the database");
+
+        const accessKeyId = toDelete.User.awsAccessKey;
+        const secretAccessKey = toDelete.User.awsSecretAccessKey;
+        const region = toDelete.User.region;
+        const ClusterArn = toDelete.kafkaArn ? toDelete.kafkaArn : "";
+
+        const client = new KafkaClient({
+          region,
+          credentials: {
+            accessKeyId,
+            secretAccessKey,
+          },
+        });
+
+        //deleting cluster in AWS
+        const params: DeleteClusterCommandInput = {
+          ClusterArn,
+        };
+        const command = new DeleteClusterCommand(params);
+
+        const response: DeleteClusterCommandOutput = await client.send(command);
+        if (response.State !== "DELETING")
+          throw new Error("Failed to delete cluster from AWS");
+        else {
+          //if the cluster was successfully deleted from AWS, then delete cluster from db
+          const deletedCluster = await prisma.cluster.delete({
+            where: {
+              id: input.id,
+            },
+            include: {
+              User: true,
+            },
+          });
+          if (!deletedCluster)
+            throw new Error("Unable to delete cluster from the database");
+        }
+      } catch (err) {
+        console.log("Error deleting from aws: ", err);
 
       }
-      catch (err) {
-        console.log('error fetching data from database', err)
+    }),
+
+  /**
+   * ID: userId
+   * @returns true or false if vpcid exists or not
+   */
+
+  /**
+   * Does not work correctly
+   */
+
+  clusterExists: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const userResponse = await prisma.user.findUnique({
+          where: {
+            id: input.id,
+          },
+        });
+
+        if (userResponse && userResponse.vpcId !== "") {
+          return true;
+        }
+        return false;
+      } catch (err) {
+        console.log("Error finding user in db ", err);
       }
-    })
+    }),
 });
