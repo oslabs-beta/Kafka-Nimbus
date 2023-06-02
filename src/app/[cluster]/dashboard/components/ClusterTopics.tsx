@@ -1,23 +1,36 @@
-'use client'
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "~/app/redux/hooks";
 import {
   settopicName,
   settopicPartitions,
   settopicReplications,
-  setcleanUpPolicy,
 } from "~/app/redux/features/createSingleTopicSlice";
 import { trpc } from "../../../../trpc/trpc-provider";
-import type { ClusterInfo } from '~/app/redux/features/clusterInfoSlice';
 
+const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
+  const replicationArray = [];
 
-const ClusterTopics:React.FC<ClusterInfo>= ({ clusterInfo }) => {
-  // console.log("clusterInfo.clusterName", clusterInfo.ClusterName)
+  for (let i = 1; i <= clusterInfo.NumberOfBrokerNodes; i++) {
+    replicationArray.push(i);
+  }
+
+  // Caclulates total offset for each topic
+  const calculateOffset = (offsets: any[]): number => {
+    let totalOffset = 0;
+    for (let i = 0; i < offsets.length; i++) {
+      const offset = Number(offsets[i].offset);
+      totalOffset += offset;
+    }
+    return totalOffset;
+  };
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPartitionsModalOpen, setIsPartitionsModalOpen] = useState(-1);
 
   const dispatch = useAppDispatch();
-  const TopicReplications: number[] = [1, 2, 3];
-  const TopicPartitions: number[] = [1, 2, 3];
-  const CleanUpPolicy: string[] = ["Compact", "Delete"];
+  const TopicReplications: number[] = replicationArray; // Must be less than or equal to the number of the number of brokers (Recommded to have 3)
+  const TopicPartitions: number[] = [1, 2, 3, 4, 5, 7, 8, 9, 10]; // Determine how many partitions we want to allow
   const { createTopic } = useAppSelector((state) => state);
   const createNewTopic = trpc.topic.createTopic.useMutation();
 
@@ -26,72 +39,128 @@ const ClusterTopics:React.FC<ClusterInfo>= ({ clusterInfo }) => {
     console.log(createTopic);
   };
 
+  // keeps track of partition change
   const partitionChangeHandler = (
     event: React.FormEvent<HTMLSelectElement>
   ) => {
     console.log(event.currentTarget.value);
-    dispatch(settopicPartitions(parseInt(event.currentTarget.value, 10)));
+    dispatch(settopicPartitions(parseInt(event.currentTarget.value)));
   };
 
+  // keeps track of replication change
   const replicationChangeHandler = (
     event: React.FormEvent<HTMLSelectElement>
   ) => {
     console.log(event.currentTarget.value);
-    dispatch(settopicReplications(parseInt(event.currentTarget.value, 10)));
+    dispatch(settopicReplications(parseInt(event.currentTarget.value)));
   };
 
-  const policyHandler = (event: React.FormEvent<HTMLSelectElement>) => {
-    console.log(event.currentTarget.value);
-    dispatch(setcleanUpPolicy(event.currentTarget.value));
-  };
-
+  // keeps track of name change
   const nameChangeHandler = (event: React.FormEvent<HTMLSelectElement>) => {
     console.log(event.currentTarget.value);
     dispatch(settopicName(event.currentTarget.value));
   };
 
+  // creates a new topic
   const createTopicHandler = async () => {
     const { Name, numPartitions, replicationFactor, cleanUpPolicy } =
       createTopic;
-    // const { clusterName } = clusterInfo;
-      // console.log("clusterName:", clusterInfo.clusterName)
-      console.log("clusterInfo.ClusterName", clusterInfo)
+    // api call
     await createNewTopic.mutateAsync({
-      id: clusterInfo.id, //provide cluster id
+      id: clusterid,
       topicName: Name,
       numPartitions: numPartitions,
       replicationFactor: replicationFactor,
-      configEntries: [
-        {
-          name: "cleanup.policy",
-          value: cleanUpPolicy,
-        },
-      ],
     });
+    setIsModalOpen(false);
   };
 
   return (
     <>
+      {isPartitionsModalOpen >= 0 && (
+        <form
+          method="dialog"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto"
+        >
+          <div className="max-w-md rounded-lg bg-white p-6 justify-center">
+            <h3 className="text-lg font-bold text-center">Partitions</h3>
+            <p className="py-4"></p>
+            <div className="modal-action">
+              <div className="overflow-x-auto max-h-60">
+                <table className="table w-full ">
+                  <thead>
+                    <tr>
+                      <th>Partition ID</th>
+                      <th>Leader</th>
+                      <td>Replicas</td>
+                      <th>ISR</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topics[isPartitionsModalOpen].partitions.map(
+                      (partition, index) => (
+                        <tr key={index}>
+                          <td>{partition.partitionId}</td>
+                          <td>{partition.leader}</td>
+                          <td>{partition.replicas}</td>
+                          <td>{partition.isr}</td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setIsPartitionsModalOpen(-1);
+              }}
+              className="btn mx-2 mt-6 text-center justify-center"
+            >
+              Close
+            </button>
+          </div>
+        </form>
+      )}
       <div className="mt-8 w-full p-8">
-        <h1 className="mb-8 text-3xl">Topics</h1>
-        <div className="btn float-right ml-2 flex-col items-center">
-          <label htmlFor="my-modal-4" className="btn">
-            Create Topic
-          </label>
-        </div>
+        <h1 className="mb-8 text-3xl">
+          Topics
+          <div className="btn float-right ml-2 flex-col items-center">
+            <label htmlFor="my-modal-4" className="btn">
+              Create Topic
+            </label>
+          </div>
+        </h1>
 
         <div className="overflow-x-auto">
           <table className="table w-full">
             <thead>
               <tr>
-                <th></th>
+                <th>Topic ID</th>
                 <th>Topic Name</th>
-                <th>Cleanup Policy</th>
-                <th>Retention.ms</th>
-                <th>Offset</th>
-                <th>Button to view partitions</th>
+                <td>Clean up Policy</td>
+                <th>Total Offset</th>
+                <th>Partitions</th>
               </tr>
             </thead>
+            <tbody>
+              {topics.map((topic, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{topic.name}</td>
+                  <td>{topic.config[0].configValue}</td>
+                  <th>{calculateOffset(topic.offsets)}</th>
+                  <td>
+                    <button
+                      className="btn-ghost btn-sm border-black"
+                      onClick={() => setIsPartitionsModalOpen(index)}
+                    >
+                      View Partitions
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
 
@@ -108,7 +177,7 @@ const ClusterTopics:React.FC<ClusterInfo>= ({ clusterInfo }) => {
                 placeholder="Name"
                 className="w-xs input-bordered input mt-1 w-full rounded-md p-2"
               />
-              <label htmlFor="aws-form" className="label">
+              <label htmlFor="awsf-form" className="label">
                 Replication Factor
               </label>
               <select
@@ -132,18 +201,6 @@ const ClusterTopics:React.FC<ClusterInfo>= ({ clusterInfo }) => {
                   <option key={num}>{num}</option>
                 ))}
               </select>
-              <label htmlFor="aws-form" className="label">
-                Clean up Policy
-              </label>
-              <select
-                className="w-xs select-bordered select w-full"
-                onChange={policyHandler}
-              >
-                <option disabled>Which Policy</option>
-                {CleanUpPolicy.map((str) => (
-                  <option key={str}>{str}</option>
-                ))}
-              </select>
               <div className="flex justify-center">
                 <button
                   className="btn-primary btn mx-2 mt-6"
@@ -152,9 +209,13 @@ const ClusterTopics:React.FC<ClusterInfo>= ({ clusterInfo }) => {
                 >
                   Submit
                 </button>
-                <button className="btn-primary btn mx-2 mt-6" type="button">
+                <label
+                  className="btn-primary btn mx-2 mt-6"
+                  onClick={() => setIsModalOpen(false)}
+                  htmlFor="my-modal-4"
+                >
                   Cancel
-                </button>
+                </label>
               </div>
             </form>
           </div>
