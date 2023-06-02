@@ -1,20 +1,34 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-type topicType = {
-  payload: { name: string; partitions: object[] };
+
+// individual topics
+interface TopicType {
+  name: string,
+  numPartitions: number,
+  replicationFactor: number,
+  partitions: object[],
+}
+
+// array of topics
+interface TopicState {
+  topicList: TopicType[];
+}
+
+// initial state initialized to an empty array
+const initialState: TopicState = {
+  topicList: [],
 };
 
-// when we fetch topic data that returns as an array we have to iterate through the array and push each object into state
-export const topic = createSlice({
+export const topicSlice = createSlice({
   name: 'topic',
-  initialState: [],
+  initialState,
   reducers: {
-    addTopic: (state, action: topicType) => {
-      state.push(action.payload);
+    addTopic: (state, action: PayloadAction<TopicType>) => {
+      state.topicList.push(action.payload);
     },
   },
 });
 
-export const { addTopic } = topic.actions;
+export const { addTopic } = topicSlice.actions;
 
-export default topic.reducer;
+export default topicSlice.reducer;

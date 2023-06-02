@@ -14,14 +14,6 @@ import { createMechanism } from "@jm18457/kafkajs-msk-iam-authentication-mechani
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
-/**
- * Custom zod schema
- */
-const replicaAssignmentSchema = z.object({
-  partition: z.number(),
-  replicas: z.array(z.number()),
-});
-
 const configEntriesSchema = z.object({
   name: z.string(),
   value: z.string(),
@@ -35,8 +27,6 @@ export const topicRouter = createTRPCRouter({
         topicName: z.string(),
         numPartitions: z.number().default(-1),
         replicationFactor: z.number().default(-1),
-        replicaAssignment: z.array(replicaAssignmentSchema).default([]),
-        configEntries: z.array(configEntriesSchema).default([]),
       })
     )
     .mutation(async ({ input }) => {
@@ -60,8 +50,7 @@ export const topicRouter = createTRPCRouter({
         const region = userResponse.User.region;
 
         /** TODO getting bootStrapServer public endpoints. For now manually adding the brokers */
-        //const BootstrapIds = userResponse.bootStrapServer;
-        const BootstrapIds = ['b-1-public.'];
+        const BootstrapIds = userResponse.bootStrapServer;
 
         // update aws config
         // possibly unneccessary
@@ -98,8 +87,8 @@ export const topicRouter = createTRPCRouter({
               topic: input.topicName,
               numPartitions: input.numPartitions,
               replicationFactor: input.replicationFactor,
-              replicaAssignment: input.replicaAssignment,
-              configEntries: input.configEntries,
+              // replicaAssignment: input.replicaAssignment,
+              // configEntries: input.configEntries,
             },
           ],
         });
@@ -126,7 +115,6 @@ export const topicRouter = createTRPCRouter({
             },
           },
         });
-
         return createResult;
       } catch (error) {
         console.log("Error creating topic ,", error);

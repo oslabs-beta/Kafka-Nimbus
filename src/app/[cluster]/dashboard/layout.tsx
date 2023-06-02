@@ -16,6 +16,20 @@ export type metrics = {
   State: string;
 };
 
+export type partitions = {
+  partitionErrorCode: number,
+  partitionId: number,
+  leader: number,
+  // replicas: any[],
+  isr: any[],
+  offlineReplicas: any[]
+}
+
+export type topics = {
+  name: string,
+  partitions: partitions[]
+};
+
 const layout = async (props) => {
   
   try {
@@ -44,8 +58,7 @@ const layout = async (props) => {
     }
 
     //get bootstrap public endpoints
-    const brokers = ['b-1-public.24demo.ss1zbk.c2.kafka.us-east-2.amazonaws.com:9198', 'b-2-public.24demo.ss1zbk.c2.kafka.us-east-2.amazonaws.com:9198'];
-    // const brokers = clusterInfo.bootStrapServer;
+    const brokers = clusterInfo.bootStrapServer;
 
     const accessKeyId = clusterInfo.User.awsAccessKey;
     const secretAccessKey = clusterInfo.User.awsSecretAccessKey;
@@ -71,7 +84,6 @@ const layout = async (props) => {
       ssl: true,
       sasl: createMechanism(authParams)
     });
-    console.log('KJS Successfully connected to cluster');
 
 
     //GETTING METRICS
@@ -82,7 +94,6 @@ const layout = async (props) => {
     };
 
     const command = new DescribeClusterCommand(commInput);
-    console.log('Sending DescribeClusterCommand through MSK client');
     const descClusterResponse: DescribeClusterCommandOutput = await client.send(command);
     const cluster = descClusterResponse.ClusterInfo;
     //cluster.ClusterName, cluster.CreationTime, cluster.CurrentBrokerSoftwareInfo.KafkaVersion, cluster.InstanceType,
@@ -92,7 +103,7 @@ const layout = async (props) => {
 
     response.Metrics = {
       ClusterName,
-      CreationTime,
+      CreationTime: CreationTime?.toLocaleDateString(),
       KafkaVersion: CurrentBrokerSoftwareInfo?.KafkaVersion,
       NumberOfBrokerNodes,
       State
@@ -102,9 +113,7 @@ const layout = async (props) => {
 
     //GETTING TOPICS
     const admin: Admin = kafka.admin();
-    console.log('KJS: Successfully created admin');
 
-    console.log('Sending fetchTopicMetadata through KJS client');
     const fetchTopicMetaResponse = await admin.fetchTopicMetadata();
     if (!fetchTopicMetaResponse) throw new Error('Error: No topics data received from KJS client');
 
@@ -147,7 +156,6 @@ const layout = async (props) => {
         config,
         offsets: offSetData,
       });
-      // console.log("Pushed topic data to Topics");
     }
 
     response.Topics = topicsData;
@@ -158,11 +166,9 @@ const layout = async (props) => {
     const listGroups = await admin.listGroups();
     //getting list of consumer group Ids
     const groupIds = listGroups.groups.map(group => group.groupId);
-    console.log('Consumer Groups: ', groupIds);
 
     const groupsData = [];
     const describeGroupsResponse = await admin.describeGroups(groupIds);
-    console.log('Consumer Groups Descriptions: ', describeGroupsResponse);
     const descGroups = describeGroupsResponse.groups;
 
     //for each group in array add to members and subscribedTopics List
@@ -184,13 +190,13 @@ const layout = async (props) => {
         members: membersId,
         subscribedTopics,
       });
-      // console.log(`Pushed consumer group to Consumer Groups`);
     }
 
     response.ConsumerGroups = groupsData;
     console.log('------ADDED consumer groups to response');
 
     //return response as the response body
+    // console.log('response.Metrics:', response.Metrics)
     props.params.metrics = response.Metrics;
     props.params.topics = response.Topics;
     props.params.consumerGroups = response.ConsumerGroups;
@@ -198,8 +204,8 @@ const layout = async (props) => {
     console.log('Error occurred in metricRouter getClusterInformation: ', err);
   }
 
- 
-  console.log(props.params);
+
+  
   return (
     <div>
       {/* <Page params={params} metrics={metrics} /> */}

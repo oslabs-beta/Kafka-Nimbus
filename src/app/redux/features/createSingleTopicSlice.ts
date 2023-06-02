@@ -6,7 +6,6 @@ interface initialState {
   Name: string;
   numPartitions: number;
   replicationFactor: number;
-  cleanUpPolicy: string;
 }
 
 const initialState = {
@@ -33,12 +32,9 @@ export const createTopic = createSlice({
     settopicReplications: (state, action: PayloadAction<number>) => {
       state.replicationFactor = action.payload;
     },
-    setcleanUpPolicy: (state, action: PayloadAction<string>) => {
-      state.cleanUpPolicy = action.payload;
-    },
   },
 });
 
 
-export const { settopicID, settopicName, settopicPartitions, settopicReplications, setcleanUpPolicy } = createTopic.actions;
+export const { settopicID, settopicName, settopicPartitions, settopicReplications } = createTopic.actions;
 export default createTopic.reducer;
