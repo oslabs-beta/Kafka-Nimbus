@@ -41,7 +41,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
   
 
 
-  const deleteClusterHandler = async () => {
+  const deleteClusterHandler = () => {
     try {
       console.log('----------------Deleting cluster');
       deleteCluster.mutate({
