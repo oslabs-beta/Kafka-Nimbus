@@ -44,8 +44,7 @@ const layout = async (props) => {
     }
 
     //get bootstrap public endpoints
-    const brokers = ['b-1-public.24demo.ss1zbk.c2.kafka.us-east-2.amazonaws.com:9198', 'b-2-public.24demo.ss1zbk.c2.kafka.us-east-2.amazonaws.com:9198'];
-    // const brokers = clusterInfo.bootStrapServer;
+    const brokers = clusterInfo.bootStrapServer;
 
     const accessKeyId = clusterInfo.User.awsAccessKey;
     const secretAccessKey = clusterInfo.User.awsSecretAccessKey;

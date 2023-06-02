@@ -43,12 +43,6 @@ export const metricRouter = createTRPCRouter({
           throw new Error('Error: Cluster does not exist in the database');
         }
 
-        const brokersEndpoints = {
-          clusterId1: [],
-          clusterId2: [],
-          clusterId3: [],
-        };
-
         //get bootstrap public endpoints
         const brokers = clusterInfo.bootStrapServer;
 
@@ -76,7 +70,6 @@ export const metricRouter = createTRPCRouter({
           ssl: true,
           sasl: createMechanism(authParams)
         });
-        console.log('KJS Successfully connected to cluster');
 
 
         //GETTING METRICS
@@ -87,7 +80,6 @@ export const metricRouter = createTRPCRouter({
         };
 
         const command = new DescribeClusterCommand(commInput);
-        console.log('Sending DescribeClusterCommand through MSK client');
         const descClusterResponse: DescribeClusterCommandOutput = await client.send(command);
         const cluster = descClusterResponse.ClusterInfo;
         //cluster.ClusterName, cluster.CreationTime, cluster.CurrentBrokerSoftwareInfo.KafkaVersion, cluster.InstanceType,
@@ -107,9 +99,7 @@ export const metricRouter = createTRPCRouter({
 
         //GETTING TOPICS
         const admin: Admin = kafka.admin();
-        console.log('KJS: Successfully created admin');
 
-        console.log('Sending fetchTopicMetadata through KJS client');
         const fetchTopicMetaResponse = await admin.fetchTopicMetadata();
         if (!fetchTopicMetaResponse) throw new Error('Error: No topics data received from KJS client');
 
@@ -128,7 +118,6 @@ export const metricRouter = createTRPCRouter({
             });
             return responseConfig;
           } catch (err) {
-            console.log('Error occurred in descTopicConfig');
           }
         }
 
@@ -152,7 +141,6 @@ export const metricRouter = createTRPCRouter({
             config,
             offsets: offSetData,
           });
-          // console.log("Pushed topic data to Topics");
         }
 
         response.Topics = topicsData;
@@ -163,11 +151,9 @@ export const metricRouter = createTRPCRouter({
         const listGroups = await admin.listGroups();
         //getting list of consumer group Ids
         const groupIds = listGroups.groups.map(group => group.groupId);
-        console.log('Consumer Groups: ', groupIds);
 
         const groupsData = [];
         const describeGroupsResponse = await admin.describeGroups(groupIds);
-        console.log('Consumer Groups Descriptions: ', describeGroupsResponse);
         const descGroups = describeGroupsResponse.groups;
 
         //for each group in array add to members and subscribedTopics List
@@ -189,7 +175,6 @@ export const metricRouter = createTRPCRouter({
             members: membersId,
             subscribedTopics,
           });
-          // console.log(`Pushed consumer group to Consumer Groups`);
         }
 
         response.ConsumerGroups = groupsData;
