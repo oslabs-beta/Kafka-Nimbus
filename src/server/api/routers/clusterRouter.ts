@@ -10,6 +10,9 @@ import {
 
 import { KafkaClient, GetBootstrapBrokersCommand, UpdateConnectivityCommand, DescribeClusterCommand } from '@aws-sdk/client-kafka';
 
+// importing functionality
+import * as awsService from '../../service/awsService';
+
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
     .input(z.object({
@@ -53,32 +56,36 @@ export const clusterRouter = createTRPCRouter({
         if (!vpcId) {
           throw new Error('vpcId assignment error');
         }
-        // create security group for msk cluster
-        const randString: string = v4();
-        const createSecurityGroupParams = {
-          Description: 'Security group for MSK Cluster',
-          GroupName: 'MSKSecurityGroup' + randString,
-          VpcId: vpcId
-        }
+        // // create security group for msk cluster
+        // const randString: string = v4();
+        // const createSecurityGroupParams = {
+        //   Description: 'Security group for MSK Cluster',
+        //   GroupName: 'MSKSecurityGroup' + randString,
+        //   VpcId: vpcId
+        // }
 
-        // security group for the cluster
-        const createSecurityGroupData = await ec2.createSecurityGroup(createSecurityGroupParams).promise();
-        let groupId: string | undefined = createSecurityGroupData?.GroupId;
-        if (groupId === undefined) groupId = '';
+        // // security group for the cluster
+        // const createSecurityGroupData = await ec2.createSecurityGroup(createSecurityGroupParams).promise();
+        // let groupId: string | undefined = createSecurityGroupData?.GroupId;
+        // if (groupId === undefined) groupId = '';
 
-        const authorizeSecurityGroupParams = {
-          GroupId: groupId,
-          IpPermissions: [
-            {
-              IpProtocol: 'tcp',
-              FromPort: 0,
-              ToPort: 65535,
-              IpRanges: [{ CidrIp: '0.0.0.0/0' }] // all access
-            }
-          ]
-        }
-        await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
-        console.log(`Added inbound rules to security group ${groupId}`);
+        const createSecurityGroupData = await awsService.createSecurityGroup(ec2, vpcId);
+
+        // const authorizeSecurityGroupParams = {
+        //   GroupId: groupId,
+        //   IpPermissions: [
+        //     {
+        //       IpProtocol: 'tcp',
+        //       FromPort: 0,
+        //       ToPort: 65535,
+        //       IpRanges: [{ CidrIp: '0.0.0.0/0' }] // all access
+        //     }
+        //   ]
+        // }
+        // await ec2.authorizeSecurityGroupIngress(authorizeSecurityGroupParams).promise();
+        // console.log(`Added inbound rules to security group ${groupId}`);
+
+        await awsService.authorizeSecurityGroupIngress(ec2, createSecurityGroupData);
 
         // kafka params
         const kafkaParams = {
@@ -86,7 +93,7 @@ export const clusterRouter = createTRPCRouter({
             BrokerAZDistribution: 'DEFAULT',  // We should always keep it like this, could change in future
             ClientSubnets: subnetIds,
             InstanceType: input.instanceSize,
-            SecurityGroups: [groupId],
+            SecurityGroups: [createSecurityGroupData],
             StorageInfo: {
               EbsStorageInfo: {
                 VolumeSize: input.storagePerBroker,
@@ -126,12 +133,14 @@ export const clusterRouter = createTRPCRouter({
           },
         };
 
-        const kafkaData = await kafka.createCluster(kafkaParams).promise();
-        if (!kafkaData?.ClusterArn) {
-          throw new Error("Error creating the msk cluster");
-        }
-        const kafkaArn: string = kafkaData.ClusterArn;
-        console.log(`Created Kafka Cluster with ARN ${kafkaArn}`)
+        // const kafkaData = await kafka.createCluster(kafkaParams).promise();
+        // if (!kafkaData?.ClusterArn) {
+        //   throw new Error("Error creating the msk cluster");
+        // }
+        // const kafkaArn: string = kafkaData.ClusterArn;
+        // console.log(`Created Kafka Cluster with ARN ${kafkaArn}`)
+
+        const kafkaData = await awsService.createKafkaCluster(kafka, kafkaParams);
 
         /**
          * Now we want to store stuff in the database
@@ -139,12 +148,12 @@ export const clusterRouter = createTRPCRouter({
         const response = await prisma.cluster.create({
           data: {
             name: input.name,
-            securityGroup: [groupId],
+            securityGroup: [createSecurityGroupData],
             brokerPerZone: input.brokerPerZone,
             instanceSize: input.instanceSize,
             zones: input.zones,
             storagePerBroker: input.storagePerBroker,
-            kafkaArn: kafkaArn,
+            kafkaArn: kafkaData,
             lifeCycleStage: 0,
             User: {
               connect: { id: input.id }
