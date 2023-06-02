@@ -105,6 +105,7 @@ export const clusterRouter = createTRPCRouter({
             },
           },
           ClusterName: input.name,
+
           KafkaVersion: "2.8.1", // allow user to choose version?
           NumberOfBrokerNodes: input.brokerPerZone * input.zones,
           EncryptionInfo: {
@@ -139,7 +140,7 @@ export const clusterRouter = createTRPCRouter({
 
         const kafkaData = await kafka.createCluster(kafkaParams).promise();
         if (!kafkaData?.ClusterArn) {
-          throw new Error("Error creating the msk cluster");
+          throw new Error('Error creating the msk cluster');
         }
         const kafkaArn: string = kafkaData.ClusterArn;
         console.log(`Created Kafka Cluster with ARN ${kafkaArn}`);
@@ -147,11 +148,21 @@ export const clusterRouter = createTRPCRouter({
         /**
          * Now we want to store stuff in the database
          */
+        const graidients = [
+          'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500',
+          'bg-gradient-to-r from-green-300 via-blue-500 to-purple-600',
+          'bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100',
+          'bg-gradient-to-r from-green-200 via-green-300 to-blue-500',
+          'bg-gradient-to-r from-green-300 via-yellow-300 to-pink-300',
+        ];
+
+        const random = Math.floor(Math.random() * 5);
         const response = await prisma.cluster.create({
           data: {
             name: input.name,
             securityGroup: [groupId],
             brokerPerZone: input.brokerPerZone,
+            img: graidients[random],
             instanceSize: input.instanceSize,
             zones: input.zones,
             storagePerBroker: input.storagePerBroker,
@@ -405,6 +416,7 @@ export const clusterRouter = createTRPCRouter({
         }
       } catch (err) {
         console.log("Error deleting from aws: ", err);
+
       }
     }),
 

@@ -42,13 +42,14 @@ const NavBar = () => {
         <Link className="btn btn-ghost text-xl normal-case" href="/">Kafka Nimbus</Link>
       </div>
 
-      <div className="overflow-hidden rounded-full hover:bg-slate-300">
+      <div className="">
+        <Link href="/cluster-dashboard" className="font-bold mx-8">Clusters</Link>
         <Image
           width="34"
           height="34"
           src={sessionData ? sessionData.user.image : logo}
           alt="profile-pic"
-          className=""
+          className="rounded-full overflow-hidden  hover:bg-slate-300"
           onClick={profileModalHandler}
         />
       </div>
