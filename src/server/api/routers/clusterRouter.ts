@@ -8,7 +8,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-import { KafkaClient, GetBootstrapBrokersCommand, UpdateConnectivityCommand, DescribeClusterCommand } from '@aws-sdk/client-kafka';
+import { KafkaClient, GetBootstrapBrokersCommand, UpdateConnectivityCommand, DescribeClusterCommand, DeleteClusterCommand, type DeleteClusterCommandInput, type DeleteClusterCommandOutput } from '@aws-sdk/client-kafka';
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -178,13 +178,13 @@ export const clusterRouter = createTRPCRouter({
 
   checkClusterStatus: publicProcedure
     .input(z.object({
-      name: z.string()
+      id: z.string()
     }))
     .query(async ({ input }) => {
       try {
         const clusterResponse = await prisma.cluster.findUnique({
           where: {
-            name: input.name
+            id: input.id
           },
           include: {
             User: true,
@@ -227,20 +227,20 @@ export const clusterRouter = createTRPCRouter({
           }
 
           console.log(`Current cluster state: ${curState}`);
-          
+
           /**
            * Cluster going from Creating to active
            */
           if (curState === 'ACTIVE' && lifeCycleStage === 0) {
-            const client = new KafkaClient({region: region});
-
+            const client = new KafkaClient({ region: region });
             try {
               // get the current version so that we can update the public access params
-              const cluster = new DescribeClusterCommand({ClusterArn: kafkaArn});
+              const cluster = new DescribeClusterCommand({ ClusterArn: kafkaArn });
               const describeClusterResponse = await client.send(cluster);
-  
+              console.log(describeClusterResponse);
+              const connectivityInfo = describeClusterResponse.ClusterInfo?.BrokerNodeGroupInfo?.ConnectivityInfo?.PublicAccess?.Type;
               const currentVersion = describeClusterResponse.ClusterInfo?.CurrentVersion;
-  
+
               // now we want to turn on public access
               const updateParams = {
                 ClusterArn: kafkaArn,
@@ -251,20 +251,20 @@ export const clusterRouter = createTRPCRouter({
                 },
                 CurrentVersion: currentVersion
               };
-              
+
               const commandUpdate = new UpdateConnectivityCommand(updateParams);
               await client.send(commandUpdate);
               console.log(`Successfully updated the public access`)
 
               // now update it in the database
-              const updateResponse = prisma.cluster.update({
+              const updateResponse = await prisma.cluster.update({
                 where: {
-                  name: input.name
+                  id: input.id
                 },
                 data: {
                   lifeCycleStage: 1
                 }
-              })
+              });
             }
             catch (err) {
               console.error('Error updating cluster, ', err);
@@ -274,30 +274,31 @@ export const clusterRouter = createTRPCRouter({
            * Cluster going from updating to active - get boostrap servers
            */
           else if (curState === 'ACTIVE' && lifeCycleStage === 1) {
-            const client = new KafkaClient({region: region});
+            const client = new KafkaClient({ region: region });
 
             try {
               const getBootstrapBrokersCommand = new GetBootstrapBrokersCommand({
                 ClusterArn: kafkaArn
               })
               const bootstrapResponse = await client.send(getBootstrapBrokersCommand);
-              const brokers = bootstrapResponse.BootstrapBrokerStringSaslIam;
+              const brokers = bootstrapResponse.BootstrapBrokerStringPublicSaslIam ? bootstrapResponse.BootstrapBrokerStringPublicSaslIam : '';
+              const splitBrokers = brokers.split(',');
               if (brokers === undefined) {
                 throw new Error('Error getting brokers');
               }
-              console.log("successfully got boostrap brokers: ", brokers);
+              console.log("successfully got boostrap brokers: ", splitBrokers);
 
               // store in the database
-              const updateResponse = prisma.cluster.update({
+              const updateResponse = await prisma.cluster.update({
                 where: {
-                  name: input.name,
+                  id: input.id
                 },
                 data: {
-                  bootStrapServer: [brokers]
+                  bootStrapServer: splitBrokers
                 }
               })
             }
-            catch(err) {
+            catch (err) {
               console.error('Error going from updating to active, ', err);
             }
           }
@@ -318,8 +319,8 @@ export const clusterRouter = createTRPCRouter({
     }))
     .mutation(async ({ input }) => {
       try {
-        //deleting cluster in database
-        const deletedCluster = await prisma.cluster.delete({
+        //Getting cluster from db
+        const toDelete = await prisma.cluster.findUnique({
           where: {
             id: input.id,
           },
@@ -328,14 +329,14 @@ export const clusterRouter = createTRPCRouter({
           }
         });
 
-        if (!deletedCluster) throw new Error('Cluster to delete was not found in the database');
+        if (!toDelete) throw new Error('Cluster to delete was not found in the database');
 
-        const accessKeyId = deletedCluster.User.awsAccessKey;
-        const secretAccessKey = deletedCluster.User.awsSecretAccessKey;
-        const region = deletedCluster.User.region;
-        const ClusterArn = deletedCluster.kafkaArn ? deletedCluster.kafkaArn : '';
+        const accessKeyId = toDelete.User.awsAccessKey;
+        const secretAccessKey = toDelete.User.awsSecretAccessKey;
+        const region = toDelete.User.region;
+        const ClusterArn = toDelete.kafkaArn ? toDelete.kafkaArn : '';
 
-        const client = new Kafka({
+        const client = new KafkaClient({
           region,
           credentials: {
             accessKeyId,
@@ -350,12 +351,22 @@ export const clusterRouter = createTRPCRouter({
         const command = new DeleteClusterCommand(params);
 
         const response: DeleteClusterCommandOutput = await client.send(command);
-        if (response.State !== 'DELETING') throw new Error('Failed to delete cluster from AWS');
-
-        return deletedCluster;
+        if (response.State !== 'DELETING') throw new Error('Failed to delete cluster from AWS')
+        else {
+          //if the cluster was successfully deleted from AWS, then delete cluster from db
+          const deletedCluster = await prisma.cluster.delete({
+            where: {
+              id: input.id,
+            },
+            include: {
+              User: true
+            }
+          });
+          if (!deletedCluster) throw new Error('Unable to delete cluster from the database');
+        }
       }
       catch (err) {
-        console.log('Error deleting from aws , ', err);
+        console.log('Error deleting from aws: ', err);
       }
     }),
 
