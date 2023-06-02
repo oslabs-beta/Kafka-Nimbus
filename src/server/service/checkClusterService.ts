@@ -7,9 +7,6 @@ import {
   GetBootstrapBrokersCommand,
   UpdateConnectivityCommand,
   DescribeClusterCommand,
-  DeleteClusterCommand,
-  type DeleteClusterCommandInput,
-  type DeleteClusterCommandOutput,
 } from "@aws-sdk/client-kafka";
 
 export const getClusterResponse = async (id: string) => {
@@ -40,6 +37,9 @@ export const getClusterResponse = async (id: string) => {
 }
 
 export const describeCluster = async (kafka: AWS.Kafka, kafkaArn: string) => {
+  if (kafkaArn === '' || kafkaArn === undefined) {
+    throw new Error('kafkaArn not included in request')
+  }
   try {
     const sdkResponse = await kafka
       .describeCluster({ ClusterArn: kafkaArn })

@@ -51,7 +51,7 @@ describe('createSecurityGroup',() => {
     const error = new Error('VPC Id doesn\'t exist');
     const vpcId = '';
     const randomString = 'randomString';
-
+    // mocks the v4 random string 
     (uuidv4 as jest.Mock).mockReturnValue(randomString);
     try {
       await awsService.createSecurityGroup(mockEC2, vpcId);
