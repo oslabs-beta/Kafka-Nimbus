@@ -33,7 +33,6 @@
     const { clusterInfo } = useAppSelector((state) => state);
     const [inFocus, setInFocus] = useState<string>('metrics');
     let result;
-    console.log("params", params);
 
     switch (inFocus) {
       case 'consumers':
