@@ -31,8 +31,6 @@ export type topics = {
 };
 
 const layout = async (props) => {
-  // console.log('test')
-  // console.log(props);
   
   try {
     interface ResponseBody {
