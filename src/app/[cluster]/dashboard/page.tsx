@@ -15,7 +15,7 @@ import {
 
 type Props = {
   inFocus: string;
-  params: { metrics: metrics };
+  
   // cluster: {
   //   clusterId:'string',
   // }
