@@ -4,9 +4,6 @@ import Link from "next/link";
 import { AuthShowcase } from "./components/AuthShowcase";
 import { api } from "~/trpc/api";
 import Demovideo from "./components/Demovideo";
-import { CldVideoPlayer } from "next-cloudinary";
-
-import HeroPage from "public/heroPage.png";
 
 const Home: NextPage = () => {
   return (
@@ -31,6 +28,7 @@ const Home: NextPage = () => {
         </div>
       </main>
 
+
       <div className="hero min-h-screen bg-base-200 z-0">
         <div className="hero-content flex-col lg:flex-row-reverse">
           <Demovideo />
@@ -43,7 +41,7 @@ const Home: NextPage = () => {
             </p>
             <Link href="/cluster-dashboard" className="font-bold mx-8">
               <button className="btn-primary btn ">Get Started</button>
-              </Link>
+            </Link>
           </div>
         </div>
       </div>

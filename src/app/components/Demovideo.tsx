@@ -1,15 +1,17 @@
-import { CldVideoPlayer } from "next-cloudinary";
+import React, { useRef } from "react";
 
 function Demovideo() {
-
   return (
-    <CldVideoPlayer
-      width="400"
-      height="400"
-      src="test-demo-kafka_szbixp"
-      controls={false}
-      quality="auto"
-    />
+    <video
+      width="50%"
+      height="50%"
+      autoPlay
+      playsInline
+      muted
+      loop
+    >
+      <source src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1685814776/test-demo-kafka_szbixp.mov" />
+    </video>
   );
 }
 
