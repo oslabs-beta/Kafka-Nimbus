@@ -30,6 +30,14 @@ export type topics = {
   partitions: partitions[]
 };
 
+export type consumerGroups = {
+  groupId: string,
+  protocol: string,
+  state: string, 
+  members: string[],
+  subscribedTopics: string[]
+}
+
 const layout = async (props) => {
   
   try {

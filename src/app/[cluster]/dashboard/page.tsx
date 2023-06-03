@@ -6,6 +6,8 @@
   import ClusterTopics from './components/ClusterTopics';
   import type { metrics } from './layout';
   import type { topics } from './layout'
+  import type { consumerGroups } from './layout'
+
 
   //REDUX
   import { useAppDispatch, useAppSelector } from '~/app/redux/hooks';
@@ -25,7 +27,7 @@ type Props = {
 
   type Props = {
     inFocus: string;
-    params: { metrics: metrics, topics:topics };
+    params: { metrics: metrics, topics:topics, consumerGroups: consumerGroups };
   };
 
 
@@ -46,7 +48,7 @@ type Props = {
 
     switch (inFocus) {
       case 'consumers':
-        result = <ClusterConsumers />;
+        result = <ClusterConsumers consumers={params.consumerGroups} />;
         break;
       case 'metrics':
         result = <ClusterMetrics clusterInfo={clusterInfo} />;
