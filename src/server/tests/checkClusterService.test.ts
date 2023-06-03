@@ -52,7 +52,5 @@ describe('describeCluster', () => {
     catch (e) {
       expect(e).toEqual(error);
     }
-
-
   })
 })
