@@ -1,9 +1,8 @@
 import { z } from "zod";
 import AWS from "aws-sdk";
-import { v4 } from "uuid";
 import { prisma } from "../../db";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc"; 
 
 import {
   KafkaClient,
@@ -14,6 +13,10 @@ import {
   type DeleteClusterCommandInput,
   type DeleteClusterCommandOutput,
 } from "@aws-sdk/client-kafka";
+
+// importing functionality
+import * as awsService from '../../service/createClusterService';
+import * as checkService from '../../service/checkClusterService'
 
 export const clusterRouter = createTRPCRouter({
   createCluster: publicProcedure
@@ -60,36 +63,11 @@ export const clusterRouter = createTRPCRouter({
         if (!vpcId) {
           throw new Error("vpcId assignment error");
         }
-        // create security group for msk cluster
-        const randString: string = v4();
-        const createSecurityGroupParams = {
-          Description: "Security group for MSK Cluster",
-          GroupName: "MSKSecurityGroup" + randString,
-          VpcId: vpcId,
-        };
 
-        // security group for the cluster
-        const createSecurityGroupData = await ec2
-          .createSecurityGroup(createSecurityGroupParams)
-          .promise();
-        let groupId: string | undefined = createSecurityGroupData?.GroupId;
-        if (groupId === undefined) groupId = "";
+        // moved functionality to the service folder, to make code easier to read
+        const createSecurityGroupData = await awsService.createSecurityGroup(ec2, vpcId);
 
-        const authorizeSecurityGroupParams = {
-          GroupId: groupId,
-          IpPermissions: [
-            {
-              IpProtocol: "tcp",
-              FromPort: 0,
-              ToPort: 65535,
-              IpRanges: [{ CidrIp: "0.0.0.0/0" }], // all access
-            },
-          ],
-        };
-        await ec2
-          .authorizeSecurityGroupIngress(authorizeSecurityGroupParams)
-          .promise();
-        console.log(`Added inbound rules to security group ${groupId}`);
+        await awsService.authorizeSecurityGroupIngress(ec2, createSecurityGroupData);
 
         // kafka params
         const kafkaParams = {
@@ -97,7 +75,7 @@ export const clusterRouter = createTRPCRouter({
             BrokerAZDistribution: "DEFAULT", // We should always keep it like this, could change in future
             ClientSubnets: subnetIds,
             InstanceType: input.instanceSize,
-            SecurityGroups: [groupId],
+            SecurityGroups: [createSecurityGroupData],
             StorageInfo: {
               EbsStorageInfo: {
                 VolumeSize: input.storagePerBroker,
@@ -138,12 +116,7 @@ export const clusterRouter = createTRPCRouter({
           },
         };
 
-        const kafkaData = await kafka.createCluster(kafkaParams).promise();
-        if (!kafkaData?.ClusterArn) {
-          throw new Error('Error creating the msk cluster');
-        }
-        const kafkaArn: string = kafkaData.ClusterArn;
-        console.log(`Created Kafka Cluster with ARN ${kafkaArn}`);
+        const kafkaData = await awsService.createKafkaCluster(kafka, kafkaParams);
 
         /**
          * Now we want to store stuff in the database
@@ -160,13 +133,13 @@ export const clusterRouter = createTRPCRouter({
         const response = await prisma.cluster.create({
           data: {
             name: input.name,
-            securityGroup: [groupId],
+            securityGroup: [createSecurityGroupData],
             brokerPerZone: input.brokerPerZone,
             img: graidients[random],
             instanceSize: input.instanceSize,
             zones: input.zones,
             storagePerBroker: input.storagePerBroker,
-            kafkaArn: kafkaArn,
+            kafkaArn: kafkaData,
             lifeCycleStage: 0,
             User: {
               connect: { id: input.id },
@@ -204,21 +177,7 @@ export const clusterRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       try {
-        const clusterResponse = await prisma.cluster.findUnique({
-          where: {
-            id: input.id,
-          },
-          include: {
-            User: true,
-          },
-        });
-        if (clusterResponse?.User === undefined) {
-          throw new Error("User does not exist on the cluster Response");
-        }
-        const awsAccessKey = clusterResponse?.User.awsAccessKey;
-        const awsSecretAccessKey = clusterResponse?.User.awsSecretAccessKey;
-        const region = clusterResponse?.User.region;
-        const lifeCycleStage = clusterResponse?.lifeCycleStage;
+        const { awsAccessKey, awsSecretAccessKey, region, lifeCycleStage, kafkaArn } =  await checkService.getClusterResponse(input.id);
         // setting sdk config
         AWS.config.update({
           accessKeyId: awsAccessKey,
@@ -231,125 +190,19 @@ export const clusterRouter = createTRPCRouter({
           throw new Error("One or both access keys doesn't exist");
         }
 
-        if (!clusterResponse) {
-          throw new Error("Didn't find cluster in db");
-        }
-        const kafkaArn = clusterResponse.kafkaArn; // obtaining the arn of the cluster
         if (kafkaArn) {
-          const sdkResponse = await kafka
-            .describeCluster({ ClusterArn: kafkaArn })
-            .promise();
-
-          if (!sdkResponse) {
-            throw new Error("SDK couldn't find the cluster");
-          }
-          const curState = sdkResponse.ClusterInfo?.State;
-          if (curState === undefined) {
-            throw new Error("Cur state undefined");
-          }
-
-          console.log(`Current cluster state: ${curState}`);
-
+          const curState = await checkService.describeCluster(kafka, kafkaArn);
           /**
            * Cluster going from Creating to active
            */
           if (curState === "ACTIVE" && lifeCycleStage === 0) {
-            const client = new KafkaClient({
-              region: region,
-              credentials: {
-                accessKeyId: awsAccessKey,
-                secretAccessKey: awsSecretAccessKey,
-              },
-            });
-            try {
-              // get the current version so that we can update the public access params
-              const cluster = new DescribeClusterCommand({
-                ClusterArn: kafkaArn,
-              });
-              const describeClusterResponse = await client.send(cluster);
-              const connectivityInfo =
-                describeClusterResponse.ClusterInfo?.BrokerNodeGroupInfo
-                  ?.ConnectivityInfo?.PublicAccess?.Type;
-              const currentVersion =
-                describeClusterResponse.ClusterInfo?.CurrentVersion;
-              if (connectivityInfo !== "SERVICE_PROVIDED_EIPS") {
-                // now we want to turn on public access
-                const updateParams = {
-                  ClusterArn: kafkaArn,
-                  ConnectivityInfo: {
-                    PublicAccess: {
-                      Type: "SERVICE_PROVIDED_EIPS", // enables public access
-                    },
-                  },
-                  CurrentVersion: currentVersion,
-                };
-
-                const commandUpdate = new UpdateConnectivityCommand(
-                  updateParams
-                );
-                await client.send(commandUpdate);
-                console.log(`Successfully updated the public access`);
-              }
-
-              // now update it in the database
-              const updateResponse = await prisma.cluster.update({
-                where: {
-                  id: input.id,
-                },
-                data: {
-                  lifeCycleStage: 1,
-                },
-              });
-            } catch (err) {
-              console.error("Error updating cluster, ", err);
-            }
-          } else if (curState === "ACTIVE" && lifeCycleStage === 1) {
-          /**
-           * Cluster going from updating to active - get boostrap servers
-           */
-            const client = new KafkaClient({
-              region: region,
-              credentials: {
-                accessKeyId: awsAccessKey,
-                secretAccessKey: awsSecretAccessKey,
-              },
-            });
-
-            try {
-              const getBootstrapBrokersCommand = new GetBootstrapBrokersCommand(
-                {
-                  ClusterArn: kafkaArn,
-                }
-              );
-              const bootstrapResponse = await client.send(
-                getBootstrapBrokersCommand
-              );
-              const brokers =
-                bootstrapResponse.BootstrapBrokerStringPublicSaslIam
-                  ? bootstrapResponse.BootstrapBrokerStringPublicSaslIam
-                  : "";
-              const splitBrokers = brokers.split(",");
-              if (brokers === undefined) {
-                throw new Error("Error getting brokers");
-              }
-              console.log("successfully got boostrap brokers: ", splitBrokers);
-
-              // store in the database
-              const updateResponse = await prisma.cluster.update({
-                where: {
-                  id: input.id,
-                },
-                data: {
-                  bootStrapServer: splitBrokers,
-                  lifeCycleStage: 2
-                },
-              });
-              console.log("Successfully updated boostrap broker and set lifeCycleStage to 2");
-            } catch (err) {
-              console.error("Error going from updating to active, ", err);
-            }
+            await checkService.updatePublicAccess(region, awsAccessKey, awsSecretAccessKey, kafkaArn, input.id);
           }
-
+          // cluster going from updating to fully ready to go
+          // grabs boostrap broker strings and stores them in the db 
+          else if (curState === "ACTIVE" && lifeCycleStage === 1) {
+            await checkService.getBoostrapBrokers(region, awsAccessKey, awsSecretAccessKey, kafkaArn, input.id)
+          }
           return curState;
         }
         return undefined;
