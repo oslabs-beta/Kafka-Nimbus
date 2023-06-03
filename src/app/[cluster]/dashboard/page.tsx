@@ -48,7 +48,7 @@ type Props = {
 
     switch (inFocus) {
       case 'consumers':
-        result = <ClusterConsumers consumer={params.consumerGroups} />;
+        result = <ClusterConsumers consumers={params.consumerGroups} />;
         break;
       case 'metrics':
         result = <ClusterMetrics clusterInfo={clusterInfo} />;

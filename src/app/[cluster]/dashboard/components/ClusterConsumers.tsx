@@ -1,54 +1,28 @@
 "use client";
 import React, { useState } from "react";
-import { useAppDispatch, useAppSelector } from "~/app/redux/hooks";
-import {
-  settopicName,
-  settopicPartitions,
-  settopicReplications,
-} from "~/app/redux/features/createSingleTopicSlice";
-import { trpc } from "../../../../trpc/trpc-provider";
 
 const ClusterConsumers = ({ consumers }) => {
   console.log("consumers:", consumers);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(-1);
   const [isTopicsModalOpen, setIsTopicsModalOpen] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const dispatch = useAppDispatch();
 
   return (
     <>
-
-     {/* Modal for members array */}
+      {/* Modal for members array */}
       {isMembersModalOpen >= 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50">
           <div className="max-w-md rounded-lg bg-white p-6">
             <h3 className="text-center text-lg font-bold">Members</h3>
             <p className="py-4"></p>
+            {/* Creates new div for each member in members array */}
+            <div className="left-0 top-0 float-left">
+              {consumers[isMembersModalOpen].members.map((member) => (
+                <div>{member}</div>
+              ))}
+            </div>
             <div className="modal-action">
-              <div className="max-h-60 overflow-x-auto">
-                <table className="table w-full">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Group ID</th>
-                      <th>State</th>
-                      <th>ISR</th>
-                    </tr>
-                  </thead>
-                  {/* <tbody>
-                    {topics[isPartitionsModalOpen].partitions.map(
-                      (partition, index) => (
-                        <tr key={index}>
-                          <td>{partition.partitionId}</td>
-                          <td>{partition.leader}</td>
-                          <td>{partition.replicas.split('').join(",")}</td>
-                          <td>{partition.isr}</td>
-                        </tr>
-                      )
-                    )}
-                  </tbody> */}
-                </table>
-              </div>
+              <div className="max-h-60 overflow-x-auto"></div>
             </div>
             <button
               onClick={() => {
@@ -62,37 +36,20 @@ const ClusterConsumers = ({ consumers }) => {
         </div>
       )}
 
-     {/* Modal for subscribed topics array */}
+      {/* Modal for subscribed topics array */}
       {isTopicsModalOpen >= 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50">
           <div className="max-w-md rounded-lg bg-white p-6">
-            <h3 className="text-center text-lg font-bold">Subscribe Topics</h3>
+            <h3 className="text-center text-lg font-bold">Subscribed Topics</h3>
             <p className="py-4"></p>
+            <div className="left-0 top-0 float-left">
+              {/* Creates new div for each topic in subscribedTopics array */}
+              {consumers[isTopicsModalOpen].subscribedTopics.map((member) => (
+                <div>{member}</div>
+              ))}
+            </div>
             <div className="modal-action">
-              <div className="max-h-60 overflow-x-auto">
-                <table className="table w-full">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Group ID</th>
-                      <th>State</th>
-                      <th>ISR</th>
-                    </tr>
-                  </thead>
-                  {/* <tbody>
-                    {topics[isPartitionsModalOpen].partitions.map(
-                      (partition, index) => (
-                        <tr key={index}>
-                          <td>{partition.partitionId}</td>
-                          <td>{partition.leader}</td>
-                          <td>{partition.replicas.split('').join(",")}</td>
-                          <td>{partition.isr}</td>
-                        </tr>
-                      )
-                    )}
-                  </tbody> */}
-                </table>
-              </div>
+              <div className="max-h-60 overflow-x-auto"></div>
             </div>
             <button
               onClick={() => {
@@ -108,7 +65,6 @@ const ClusterConsumers = ({ consumers }) => {
 
       <div className="mt-8 w-full p-8">
         <h1 className="mb-8 text-3xl">Consumer Groups</h1>
-
         <div className="overflow-x-auto">
           <table className="table w-full">
             <thead>
