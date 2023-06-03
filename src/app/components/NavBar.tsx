@@ -9,31 +9,7 @@ import Link from 'next/link';
 
 const NavBar = () => {
   const { data: sessionData } = useSession();
-  const [profileModal, setProfileModal] = useState(false);
 
-  const profileModalHandler = () => {
-    setProfileModal(!profileModal);
-  };
-
-  const dropDownMenu = (
-    <ul
-      tabIndex={0}
-      className="menu menu-compact  dropdown-content bg-base-100 rounded-box mt-3 w-52 p-2 shadow"
-    >
-      <li>
-        <a className="justify-between">
-          Profile
-          <span className="badge">New</span>
-        </a>
-      </li>
-      <li>
-        <a>Settings</a>
-      </li>
-      <li>
-        <a onClick={() => void signOut({ callbackUrl: '/' })}>Logout</a>
-      </li>
-    </ul>
-  );
 
   return (
     <div className="navbar relative bg-base-100 mx-auto flex w-full items-center justify-between p-6 lg:px-8 border-b-2">
@@ -43,17 +19,30 @@ const NavBar = () => {
       </div>
 
       <div className="">
-        <Link href="/cluster-dashboard" className="font-bold mx-8">Clusters</Link>
-        <Image
-          width="34"
-          height="34"
-          src={sessionData ? sessionData.user.image : logo}
-          alt="profile-pic"
-          className="rounded-full overflow-hidden  hover:bg-slate-300"
-          onClick={profileModalHandler}
-        />
+        {(!sessionData) ?
+          <Image
+            width="34"
+            height="34"
+            src={logo}
+            alt="logo-not-logged-in"
+            className="overflow-hidden hover:bg-slate-300"
+          /> :
+          <details className="dropdown dropdown-end">
+            <summary><Image
+              width="34"
+              height="34"
+              src={sessionData ? sessionData.user.image : logo}
+              alt="profile-pic"
+              className="rounded-full overflow-hidden  hover:bg-slate-300"
+            /></summary>
+            <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+              <li><Link href="/cluster-dashboard">Clusters</Link>
+              </li>
+              <li><a onClick={() => void signOut({ callbackUrl: '/' })}>Logout</a></li>
+            </ul>
+          </details>}
       </div>
-      {profileModal ? dropDownMenu : null}
+
     </div>
   );
 };
