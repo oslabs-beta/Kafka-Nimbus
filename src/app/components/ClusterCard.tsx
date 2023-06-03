@@ -15,39 +15,39 @@ export interface cardCluster {
 
 export default function ClusterCard({ cluster }: cardCluster) {
   const router = useRouter();
+  let clusterStatus: string;
   // Fetching the cluster status to display
+  if (cluster.lifeCycleStage !== 2) {
     const { data: status } = trpc.createCluster.checkClusterStatus.useQuery({
       id: cluster.id
-    })
+    });
+    clusterStatus = status ? status : 'UNKNOWN';
+  } else { clusterStatus = 'ACTIVE'; }
+
 
 
   const [delCluster, setdelCluster] = React.useState<string>('');
-  const [isHoverDelete, setIsHoverDelete] = React.useState<boolean>(false);
+  const [isHoverDelete, updateHover] = React.useState<boolean>(false);
+  //Currently isHoverDelete is a react hook in order to re-render the cluster card to not show hover border when hovering over the delete button
+  // let isHoverDelete = false;
+  // const updateHover = (bool: boolean): void => { isHoverDelete = bool; }
 
 
   const deleteCluster = trpc.createCluster.deleteCluster.useMutation();
 
-
-  console.log('STATUS',status)
   const routeToCluster = () => {
-    if (!isHoverDelete && status === 'ACTIVE') router.push(`${cluster.id}/dashboard`)
+    if (!isHoverDelete && clusterStatus === 'ACTIVE' && cluster.lifeCycleStage === 2) router.push(`${cluster.id}/dashboard`)
     else return;
   };
 
+  const statusColor = clusterStatus === 'ACTIVE' ? 'green' : 'red';
 
-  
-  const statusColor = status === 'ACTIVE' ? 'green' : 'red';
-
-  
-
-
+  //The API call to backend to handle deleting the cluster in AWS and DB
   const deleteClusterHandler = () => {
     try {
-      console.log('----------------Deleting cluster');
       deleteCluster.mutate({
         id: cluster.id
       });
-      console.log('----------------Rerouting cluster');
       router.push('/cluster-dashboard');
     } catch (err) {
       console.log('Error occurred when deleting cluster on frontend: ', err);
@@ -70,13 +70,12 @@ export default function ClusterCard({ cluster }: cardCluster) {
           </div>
 
         </div>
-        {/* <label style={{ position: 'absolute', zIndex: 7 }} className="modal-backdrop" htmlFor={`modal${cluster.name}${cluster.id}`}>BACKDROP</label> */}
+        {/* <label className="modal-backdrop" htmlFor={`modal${cluster.name}${cluster.id}`}>BACKDROP</label> */}
       </div>
 
       <div
         onClick={routeToCluster}
-        style={{ position: 'relative', zIndex: 5 }}
-        className={`card h-48 max-w-98 w-72 overflow-hidden rounded-xl bg-base-100 shadow-xl ${(status === 'ACTIVE') ? 'hover:ring-4 cursor-pointer' : ''}`}
+        className={`relative card h-48 max-w-98 w-72 rounded-xl bg-base-100 shadow-xl ${(clusterStatus === 'ACTIVE' && !isHoverDelete) ? 'hover:ring-4 cursor-pointer' : ''}`}
       >
         <figure className='w-full'>
           <div className={`h-24 w-full object-cover ${cluster.img}`} />
@@ -87,12 +86,15 @@ export default function ClusterCard({ cluster }: cardCluster) {
             <p
               className={`text-${statusColor}-600  mr-6 w-min rounded-xl bg-${statusColor}-100  px-4 align-bottom mx-1 items-end shadow-md`}
             >
-              {status}
+              {clusterStatus}
             </p>
           </div>
         </div>
-        {(status === 'ACTIVE') ? <label onMouseEnter={() => setIsHoverDelete(true)} onMouseLeave={() => setIsHoverDelete(false)} htmlFor={`modal${cluster.name}${cluster.id}`} style={{ position: 'absolute', zIndex: 8 }} className="top-0 right-0 bg-red-600 hover:bg-red-800 text-white text-sm px-3.5 py-2.5 m-0.5 rounded-full hover:border-slate-400 hover:border-solid">X</label> : null}
-
+        {(clusterStatus === 'ACTIVE') ?
+          <label className="absolute -top-2 -right-2 bg-white transition duration-300 hover:bg-red-600 text-black font-semibold hover:text-black p-2 border border-black hover:border-transparent rounded-full cursor-pointer" onMouseEnter={() => updateHover(true)} onMouseLeave={() => updateHover(false)} htmlFor={`modal${cluster.name}${cluster.id}`}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </label>
+          : null}
       </div >
     </>
 
