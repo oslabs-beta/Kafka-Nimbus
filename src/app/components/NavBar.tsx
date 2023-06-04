@@ -20,13 +20,11 @@ const NavBar = () => {
 
       <div className="">
         {(!sessionData) ?
-          <Image
-            width="34"
-            height="34"
-            src={logo}
-            alt="logo-not-logged-in"
+          <Link href="./api/auth/signin?callbackUrl=/cluster-dashboard"
             className="overflow-hidden hover:bg-slate-300"
-          /> :
+          ><Image width="34"
+            height="34"
+            alt="logo-not-logged-in" src={logo}></Image></Link> :
           <details className="dropdown dropdown-end">
             <summary><Image
               width="34"
