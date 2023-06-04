@@ -43,7 +43,7 @@ const ClusterConsumers = ({ consumers }) => {
             <h3 className="text-center text-lg font-bold">Subscribed Topics</h3>
             <p className="py-4"></p>
             <div className="left-0 top-0 float-left">
-              {/* Creates new div for each topic in subscribedTopics array */}
+              {/* Creates new row for each element in subscribedTopics array */}
               {consumers[isTopicsModalOpen].subscribedTopics.map((member) => (
                 <div>{member}</div>
               ))}
@@ -78,6 +78,8 @@ const ClusterConsumers = ({ consumers }) => {
               </tr>
             </thead>
             <tbody>
+              {/* Creates new row for each consumer in consumerGroup array */}
+
               {consumers.map((consumer, index) => (
                 <tr key={index}>
                   <td>{index + 1}</td>

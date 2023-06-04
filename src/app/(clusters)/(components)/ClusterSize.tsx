@@ -90,6 +90,7 @@ const ClusterSize: React.FC<ProviderProps> = ({ inFocusHandler }) => {
     inFocusHandler('brokers')
   };
 
+    // changes cluster size stored in state
   const onSelectHandler = (size: string) => {
     console.log(size);
     setSizeValue(size);
