@@ -32,7 +32,7 @@ export const getClusterResponse = async (id: string) => {
     return response;
   }
   catch (err) {
-    throw new Error('Error finding the unique user in database ');
+    throw new Error('Error finding the unique user in database');
   }
 }
 
@@ -76,6 +76,12 @@ export const updatePublicAccess = async (region: string, awsAccessKey: string, a
       secretAccessKey: awsSecretAccessKey,
     },
   });
+  if (kafkaArn === '' || kafkaArn === undefined) {
+    throw new Error('KafkaArn doesn\'t exist');
+  }
+  if (client === undefined) {
+    throw new Error('Kafka error');
+  }
   try {
     // get the current version so that we can update the public access params
     const cluster = new DescribeClusterCommand({
