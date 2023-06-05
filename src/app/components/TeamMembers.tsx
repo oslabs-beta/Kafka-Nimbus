@@ -7,7 +7,7 @@ const TeamList = () => {
   const Team = [
     {
       id: 1,
-      alt: "Andreww",
+      alt: "Andrew",
       imageSrc: "/aws-logo.svg",
       NamedNodeMap: "Andrew Kim",
       github: "/github-logo.svg",
