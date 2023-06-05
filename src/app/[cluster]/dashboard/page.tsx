@@ -17,17 +17,16 @@ import {
 //   params: any;
 // };
 
-type Props = {
-  inFocus: string;
+type PageProps = {
   params: { metrics: metrics; topics: topics; consumerGroups: consumerGroups, cluster: string };
 };
 
-const Page: React.FC<Props> = (props) => {
+const Page = ({ params }: PageProps) => {
   // pulling in redux dispatch
   const dispatch = useAppDispatch();
   // saving the metrics to the clusterMetrics store
   useEffect(() => {
-    dispatch(updateClusterInfo(props.params.metrics));
+    dispatch(updateClusterInfo(params.metrics));
   }, []);
   // retrieving those metrics to pass to ClusterMetrics components
   const { clusterInfo } = useAppSelector((state) => state);
@@ -36,7 +35,7 @@ const Page: React.FC<Props> = (props) => {
 
   switch (inFocus) {
     case "consumers":
-      result = <ClusterConsumers consumers={props.params.consumerGroups} />;
+      result = <ClusterConsumers consumers={params.consumerGroups} />;
       break;
     case "metrics":
       result = <ClusterMetrics clusterInfo={clusterInfo} />;
@@ -45,8 +44,8 @@ const Page: React.FC<Props> = (props) => {
       result = (
         <ClusterTopics
           clusterInfo={clusterInfo}
-          topics={props.params.topics}
-          clusterid={props.params.cluster}
+          topics={params.topics}
+          clusterid={params.cluster}
         />
       );
       break;
