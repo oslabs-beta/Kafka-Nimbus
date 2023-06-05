@@ -11,17 +11,21 @@ interface ProviderProps {
   vpcId: string
 }
 
+
+
 const CloudProvider: React.FC<ProviderProps> = ({
   inFocusHandler,
   vpcId
 }) => {
   const dispatch = useAppDispatch();
   const onClickHandler = () => {
-    
+    // if use has no vpcId, will redirect to aws credientials page
     if (!vpcId) {
       inFocusHandler('aws');
       dispatch(setProvider('aws'));
-    } else {
+    } 
+    // if vpcID does exist, redirect to region page
+    else {
       inFocusHandler('region');
       dispatch(setProvider('region'));
     }

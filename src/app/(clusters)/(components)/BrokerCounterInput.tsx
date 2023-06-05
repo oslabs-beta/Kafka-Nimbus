@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import { useAppDispatch } from '~/app/redux/hooks';
 import { setBrokerNumbers, setZones } from '~/app/redux/features/createClusterSlice';
 
@@ -9,7 +9,7 @@ interface ProviderProps {
 
 const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const dispatch = useAppDispatch();
-
+// amount of brokers that can be created
   const brokerNumArray: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 
@@ -17,7 +17,7 @@ const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const onSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setBrokerNumbers(Number(e.target.value)));
   };
-  // chagnes the # zones stored in state
+  // changes the # zones stored in state
   const onSelectHandlerZones = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setZones(Number(e.target.value)))
   };

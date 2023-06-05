@@ -6,14 +6,12 @@ import { useSession, signOut } from "next-auth/react";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-
-
 const NavBar = () => {
   const router = useRouter();
   const { data: sessionData } = useSession();
 
   return (
-    <div className="navbar relative bg-base-100 mx-auto flex w-full items-center justify-between p-6 lg:px-8 border-b-2">
+    <div className="navbar fixed top-0 left-0 right-0 bg-gray-100 bg-opacity-50 z-30 backdrop-blur-sm">
       <div className="flex cursor-pointer flex-row align-middle">
         <Link href="/"><Image width="60" height="60" src={logo} alt="logo" className="mr-2 h-8 w-8" /></Link>
         <Link className="btn btn-ghost text-xl normal-case" href="/">Kafka Nimbus</Link>

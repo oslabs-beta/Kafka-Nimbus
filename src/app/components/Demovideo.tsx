@@ -1,5 +1,4 @@
-import React, { useRef } from "react";
-
+// demonstration video
 function Demovideo() {
   return (
     <video
@@ -9,6 +8,7 @@ function Demovideo() {
       playsInline
       muted
       loop
+      className="shadow-2xl hover:shadow-2xl red"
     >
       <source src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1685814776/test-demo-kafka_szbixp.mov" />
     </video>
