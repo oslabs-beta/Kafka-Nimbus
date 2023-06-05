@@ -9,8 +9,8 @@ import {
 import { trpc } from "../../../../trpc/trpc-provider";
 
 const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
+  // Limits replication factor to only be equal to or less than amount of brokers
   const replicationArray: number[] = [];
-
   for (let i = 1; i <= clusterInfo.NumberOfBrokerNodes; i++) {
     replicationArray.push(i);
   }
@@ -29,7 +29,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
   const [isPartitionsModalOpen, setIsPartitionsModalOpen] = useState(-1);
 
   const dispatch = useAppDispatch();
-  const TopicReplications: number[] = replicationArray; // Must be less than or equal to the number of the number of brokers (Recommded to have 3)
+  const TopicReplications: number[] = replicationArray;
   const TopicPartitions: number[] = [1, 2, 3, 4, 5, 7, 8, 9, 10]; // Determine how many partitions we want to allow
   const { createTopic } = useAppSelector((state) => state);
   const createNewTopic = trpc.topic.createTopic.useMutation();
@@ -63,7 +63,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
 
   // creates a new topic
   const createTopicHandler = async () => {
-    const { Name, numPartitions, replicationFactor, cleanUpPolicy } =
+    const { Name, numPartitions, replicationFactor } =
       createTopic;
     // api call
     await createNewTopic.mutateAsync({
@@ -77,16 +77,17 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
 
   return (
     <>
+      {/* Modal for partitions array */}
       {isPartitionsModalOpen >= 0 && (
         <form
           method="dialog"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50"
         >
-          <div className="max-w-md rounded-lg bg-white p-6 justify-center">
-            <h3 className="text-lg font-bold text-center">Partitions</h3>
+          <div className="max-w-md justify-center rounded-lg bg-white p-6">
+            <h3 className="text-center text-lg font-bold">Partitions</h3>
             <p className="py-4"></p>
             <div className="modal-action">
-              <div className="overflow-x-auto max-h-60">
+              <div className="max-h-60 overflow-x-auto">
                 <table className="table w-full ">
                   <thead>
                     <tr>
@@ -97,6 +98,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
                     </tr>
                   </thead>
                   <tbody>
+                    {/* Creates new partitions row for each partition in topic */}
                     {topics[isPartitionsModalOpen].partitions.map(
                       (partition, index) => (
                         <tr key={index}>
@@ -115,13 +117,15 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
               onClick={() => {
                 setIsPartitionsModalOpen(-1);
               }}
-              className="btn mx-2 mt-6 text-center justify-center"
+              className="btn mx-2 mt-6 justify-center text-center"
             >
               Close
             </button>
           </div>
         </form>
       )}
+
+      {/* Table to display topic information */}
       <div className="mt-8 w-full p-8">
         <h1 className="mb-8 text-3xl">
           Topics
@@ -144,6 +148,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
               </tr>
             </thead>
             <tbody>
+              {/* Creates new topic row for each topic in cluster */}
               {topics.map((topic, index) => (
                 <tr key={index}>
                   <td>{index + 1}</td>
@@ -164,6 +169,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
           </table>
         </div>
 
+        {/* Modal for creating a new topic */}
         <input type="checkbox" id="my-modal-4" className="modal-toggle" />
         <label htmlFor="my-modal-4" className="modal cursor-pointer">
           <div className="modal-box relative w-3/5">

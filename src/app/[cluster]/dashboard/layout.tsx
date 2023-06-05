@@ -1,10 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React from 'react';
 import { KafkaClient, DescribeClusterCommand, type DescribeClusterCommandInput, type DescribeClusterCommandOutput } from '@aws-sdk/client-kafka';
-import { Kafka, logLevel, AssignerProtocol, type MemberDescription, type ITopicMetadata, ConfigResourceTypes, type Admin, type Producer, type Consumer, type DescribeConfigResponse } from 'kafkajs';
+import { Kafka, logLevel, AssignerProtocol, type MemberDescription, type ITopicMetadata, ConfigResourceTypes, type Admin, type DescribeConfigResponse } from 'kafkajs';
 import { createMechanism } from '@jm18457/kafkajs-msk-iam-authentication-mechanism';
 import { prisma } from '~/server/db';
 
@@ -20,7 +16,6 @@ export type partitions = {
   partitionErrorCode: number,
   partitionId: number,
   leader: number,
-  // replicas: any[],
   isr: any[],
   offlineReplicas: any[]
 }
@@ -104,8 +99,6 @@ const layout = async (props) => {
     const command = new DescribeClusterCommand(commInput);
     const descClusterResponse: DescribeClusterCommandOutput = await client.send(command);
     const cluster = descClusterResponse.ClusterInfo;
-    //cluster.ClusterName, cluster.CreationTime, cluster.CurrentBrokerSoftwareInfo.KafkaVersion, cluster.InstanceType,
-    //cluster.NumberOfBrokerNodes, cluster.State
     if (!cluster) throw new Error('Error: MSK Cluster does not have info');
     const { ClusterName, CreationTime, CurrentBrokerSoftwareInfo, NumberOfBrokerNodes, State } = cluster;
 
@@ -153,7 +146,6 @@ const layout = async (props) => {
 
     const topicsData: any[] = [];
     for (const topic of kTopicsData) {
-      //add list of Consumer Groups subscribed to this topic [TODO]
 
       //add config description to topic
       const configData = await descTopicConfig(topic.name);
@@ -210,7 +202,6 @@ const layout = async (props) => {
     console.log('------ADDED consumer groups to response');
 
     //return response as the response body
-    // console.log('response.Metrics:', response.Metrics)
     props.params.metrics = response.Metrics;
     props.params.topics = response.Topics;
     props.params.consumerGroups = response.ConsumerGroups;
@@ -222,7 +213,6 @@ const layout = async (props) => {
 
   return (
     <div>
-      {/* <Page params={params} metrics={metrics} /> */}
       {props.children}
     </div>
   );

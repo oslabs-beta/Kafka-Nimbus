@@ -29,6 +29,7 @@ const RegionInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
       return result; // Return the content inside the parentheses (group 1)
     };
 
+      // changes region stored in state
     const selectedRegion = getContentInParentheses(e.target.value);
     setCurrentRegion(selectedRegion);
   };
