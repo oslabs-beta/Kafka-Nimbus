@@ -1,28 +1,14 @@
 import {
   type FetchCreateContextFnOptions,
-  fetchRequestHandler,
+  fetchRequestHandler
 } from '@trpc/server/adapters/fetch';
+import { PrismaClient } from '@prisma/client';
 import { prisma } from '~/server/db';
-
+import type { Session } from 'next-auth';
 import { env } from '~/env.mjs';
 import { createTRPCContext } from '~/server/api/trpc';
 import { appRouter } from '~/server/api/root';
 import type { NextApiRequest, NextApiResponse } from 'next';
-
-// const nextApiHandler = fetchRequestHandler({
-//   router: appRouter,
-//   createContext: createTRPCContext,
-//   onError:
-//     env.NODE_ENV === 'development'
-//       ? ({ path, error }) => {
-//           console.error(
-//             `❌ tRPC failed on ${path ?? '<no-path>'}: ${error.message}`
-//           );
-//         }
-//       : undefined,
-// });
-
-// export API handler
 
 const handler = (request: Request) => {
   console.log(`incoming request ${request.url}`);
@@ -30,11 +16,7 @@ const handler = (request: Request) => {
     endpoint: "/api/trpc",
     req: request,
     router: appRouter,
-    createContext: function (
-      opts: FetchCreateContextFnOptions
-    ): object | Promise<object> {
-      return {};
-    },
+    createContext: () => ({ session: null, prisma: new PrismaClient() }),
   });
 };
 

@@ -5,11 +5,10 @@ import { setRegion } from '~/app/redux/features/createClusterSlice';
 
 interface ProviderProps {
   inFocusHandler: (string: string) => void;
-  regions: string[];
 }
 
 const RegionInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
-  const regions: ProviderProps['regions'] = [
+  const regions = [
     'N. Virginia (us-east-1)',
     'Ohio (us-east-2)',
     'Ireland (eu-west-1)',
@@ -19,13 +18,15 @@ const RegionInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
 
   const dispatch = useAppDispatch();
   const [regionsArray, setRegionsArray] = useState(regions);
-  const [currentRegion, setCurrentRegion] = useState<string>(regions[0]);
+  const [currentRegion, setCurrentRegion] = useState<string>('N. Virginia (us-east-1)');
 
   const onSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const getContentInParentheses = (str: string): string => {
       const regex = /\(([^)]+)\)/; // Regular expression to match content inside parentheses
       const matches: RegExpMatchArray | null = str.match(regex); // Find matches using the regex
-      return matches[1]; // Return the content inside the parentheses (group 1)
+      const matchResult = (matches !== null) ? matches[1] : '';
+      const result = (matchResult !== undefined) ? matchResult : '';
+      return result; // Return the content inside the parentheses (group 1)
     };
 
     const selectedRegion = getContentInParentheses(e.target.value);

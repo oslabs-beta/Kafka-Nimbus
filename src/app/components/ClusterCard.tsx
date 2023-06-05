@@ -6,7 +6,7 @@ import { trpc } from '~/trpc/trpc-provider';
 
 export interface cardCluster {
   cluster: {
-    img: string;
+    img: string | null;
     name: string;
     id: string;
     lifeCycleStage: number;
@@ -78,7 +78,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
         className={`relative card h-48 max-w-98 w-72 rounded-xl bg-base-100 shadow-xl ${(clusterStatus === 'ACTIVE' && !isHoverDelete) ? 'hover:ring-4 cursor-pointer' : ''}`}
       >
         <figure className='w-full'>
-          <div className={`h-24 w-full object-cover ${cluster.img}`} />
+          <div className={`h-24 w-full object-cover ${(cluster.img) ? cluster.img : ''}`} />
         </figure>
         <div className='m-4 flex w-full flex-col justify-between'>
           <h2 className='card-title '>{cluster.name}</h2>

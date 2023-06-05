@@ -6,9 +6,12 @@ import {
   CloudIcon,
 } from '@heroicons/react/24/solid';
 import type { ClusterInfo } from '~/app/redux/features/clusterInfoSlice';
+import type { metrics, topics, consumerGroups } from '../layout';
 
 
-const ClusterMetrics: React.FC<ClusterInfo> = ({ clusterInfo }) => {
+// const ClusterMetrics: React.FC<ClusterInfo> = ({ clusterInfo }) => {
+
+const ClusterMetrics = ({ clusterInfo }) => {
   // console.log(clusterInfo)
   return (
     <div className=' h-full w-screen'>
@@ -28,7 +31,7 @@ const ClusterMetrics: React.FC<ClusterInfo> = ({ clusterInfo }) => {
               {clusterInfo.State}
             </div>
             <div className='stat-desc'>
-              Created at: {clusterInfo.CreationTime}
+              Created at: {clusterInfo.CreationTimeString}
             </div>
           </div>
 

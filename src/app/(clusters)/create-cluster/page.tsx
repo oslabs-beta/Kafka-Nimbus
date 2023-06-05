@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import { trpc } from '../../../trpc/trpc-provider';
 
 export type ComponentState = {
-  inFocus: string;
+  inFocus?: string;
   loadingState: string;
 };
 
@@ -30,7 +30,8 @@ const CreateClusterPage = () => {
   const { data: sessionData } = useSession(); // gets current user info. .id references
   const createVPC = trpc.createVPC.createVPC.useMutation(); // createVPC route, as hook
   const createNewCluster = trpc.createCluster.createCluster.useMutation(); // create cluster route, as hook
-  const findVPC = trpc.createVPC.findVPC.useQuery({ id: sessionData?.user.id }); // defining the query
+  const id = (sessionData?.user) ? sessionData.user.id : '';
+  const findVPC = trpc.createVPC.findVPC.useQuery({ id }); // defining the query
   const inFocusHandler = (string: string) => {
     setInFocus(string);
   };
@@ -51,7 +52,6 @@ const CreateClusterPage = () => {
     // gets the vpcdata from the find vpc route
     // if it returns undefined, then we do error handling
     const vpcId = findVPC.data;
-    console.log(vpcId);
     if (vpcId !== undefined) {
       setLoadingState('Creating Cluster'); // sends us to loading page
       if (vpcId === '') {
@@ -83,7 +83,7 @@ const CreateClusterPage = () => {
     router.push('/cluster-dashboard');
   };
 
-  
+
 
   switch (inFocus) {
     case 'provider':

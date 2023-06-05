@@ -9,7 +9,7 @@ import {
 import { trpc } from "../../../../trpc/trpc-provider";
 
 const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
-  const replicationArray = [];
+  const replicationArray: number[] = [];
 
   for (let i = 1; i <= clusterInfo.NumberOfBrokerNodes; i++) {
     replicationArray.push(i);
@@ -56,7 +56,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
   };
 
   // keeps track of name change
-  const nameChangeHandler = (event: React.FormEvent<HTMLSelectElement>) => {
+  const nameChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     console.log(event.currentTarget.value);
     dispatch(settopicName(event.currentTarget.value));
   };

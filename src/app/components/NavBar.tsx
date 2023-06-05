@@ -47,7 +47,7 @@ const NavBar = () => {
         <Image
           width="34"
           height="34"
-          src={sessionData ? sessionData.user.image : logo}
+          src={sessionData ? sessionData?.user?.image : logo}
           alt="profile-pic"
           className="rounded-full overflow-hidden  hover:bg-slate-300"
           onClick={profileModalHandler}
