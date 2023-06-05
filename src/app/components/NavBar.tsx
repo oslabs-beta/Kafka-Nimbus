@@ -30,7 +30,7 @@ const NavBar = () => {
               <Image
                 width="35"
                 height="35"
-                src={sessionData ? sessionData?.user?.image : "https://upload.wikimedia.org/wikipedia/commons/3/3f/Github-circle_%28CoreUI_Icons_v1.0.0%29.svg"}
+                src={sessionData?.user?.image || "https://upload.wikimedia.org/wikipedia/commons/3/3f/Github-circle_%28CoreUI_Icons_v1.0.0%29.svg"}
                 alt="profile-pic"
                 className="rounded-full overflow-hidden  hover:bg-slate-300"
               />

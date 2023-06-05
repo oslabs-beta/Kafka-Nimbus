@@ -6,7 +6,7 @@ import { prisma } from '~/server/db';
 
 export type metrics = {
   ClusterName: string;
-  CreationTime: string;
+  CreationTimeString: string;
   KafkaVersion: string;
   NumberOfBrokerNodes: number;
   State: string;
@@ -28,13 +28,13 @@ export type topics = {
 export type consumerGroups = {
   groupId: string,
   protocol: string,
-  state: string, 
+  state: string,
   members: string[],
   subscribedTopics: string[]
 }
 
 const layout = async (props) => {
-  
+
   try {
     interface ResponseBody {
       Metrics: any;
@@ -104,7 +104,7 @@ const layout = async (props) => {
 
     response.Metrics = {
       ClusterName,
-      CreationTime: CreationTime?.toLocaleDateString(),
+      CreationTimeString: CreationTime?.toLocaleDateString(),
       KafkaVersion: CurrentBrokerSoftwareInfo?.KafkaVersion,
       NumberOfBrokerNodes,
       State
@@ -119,29 +119,32 @@ const layout = async (props) => {
     if (!fetchTopicMetaResponse) throw new Error('Error: No topics data received from KJS client');
 
     //Helper function to get Topic config information
-    const descTopicConfig = async function (name: string): DescribeConfigResponse {
-      try {
-        const responseConfig = await admin.describeConfigs({
-          includeSynonyms: false,
-          resources: [
-            {
-              type: ConfigResourceTypes.TOPIC,
-              name,
-              configNames: ['cleanup.policy', 'retention.ms', 'message.format.version', 'file.delete.delay.ms', 'max.message.bytes', 'index.interval.bytes'],
-            },
-          ]
-        });
-        return responseConfig;
-      } catch (err) {
-        console.log('Error occurred in descTopicConfig');
-      }
+    const descTopicConfig = async function (name: string): Promise<DescribeConfigResponse> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const responseConfig = await admin.describeConfigs({
+            includeSynonyms: false,
+            resources: [
+              {
+                type: ConfigResourceTypes.TOPIC,
+                name,
+                configNames: ['cleanup.policy', 'retention.ms', 'message.format.version', 'file.delete.delay.ms', 'max.message.bytes', 'index.interval.bytes'],
+              },
+            ]
+          });
+          resolve(responseConfig)
+        } catch (err) {
+          reject(err);
+        }
+      });
+
     }
 
     //Processing each topic's data and storing it in an array topicsData
 
     const kTopicsData: ITopicMetadata[] = fetchTopicMetaResponse.topics;
 
-    const topicsData = [];
+    const topicsData: any[] = [];
     for (const topic of kTopicsData) {
 
       //add config description to topic
@@ -149,12 +152,14 @@ const layout = async (props) => {
 
       //get offsetdata for each Topic
       const offSetData = await admin.fetchTopicOffsets(topic.name);
-      const config = (configData.resources.length != 0) ? configData.resources[0].configEntries : [];
-      topicsData.push({
-        ...topic,
-        config,
-        offsets: offSetData,
-      });
+      if (configData != undefined) {
+        const config = (configData?.resources?.length != 0) ? configData?.resources[0]?.configEntries : [];
+        topicsData.push({
+          ...topic,
+          config,
+          offsets: offSetData,
+        });
+      }
     }
 
     response.Topics = topicsData;
@@ -166,20 +171,22 @@ const layout = async (props) => {
     //getting list of consumer group Ids
     const groupIds = listGroups.groups.map(group => group.groupId);
 
-    const groupsData = [];
+    const groupsData: any[] = [];
     const describeGroupsResponse = await admin.describeGroups(groupIds);
     const descGroups = describeGroupsResponse.groups;
 
     //for each group in array add to members and subscribedTopics List
     for (const group of descGroups) {
       const { groupId, protocol, state, members } = group;
-      let membersId = [];
-      const subscribedTopics = [];
+      let membersId: string[] = [];
+      const subscribedTopics: string[] = [];
       if (members.length > 0) {
         membersId = members.map(member => member.memberId);
-        const memberAssignment = AssignerProtocol.MemberAssignment.decode(members[0].memberAssignment);
-        for (const key in memberAssignment) {
-          subscribedTopics.push(key);
+        if (members[0] !== undefined) {
+          const memberAssignment = AssignerProtocol.MemberAssignment.decode(members[0].memberAssignment);
+          for (const key in memberAssignment) {
+            subscribedTopics.push(key);
+          }
         }
       }
       groupsData.push({
@@ -203,7 +210,7 @@ const layout = async (props) => {
   }
 
 
-  
+
   return (
     <div>
       {props.children}

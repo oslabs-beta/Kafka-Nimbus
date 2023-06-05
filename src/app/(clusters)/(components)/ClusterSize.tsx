@@ -82,7 +82,7 @@ const ClusterSize: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   ];
 
   const dispatch = useAppDispatch();
-  const [sizeValue, setSizeValue] = useState(storageOptions[0].name);
+  const [sizeValue, setSizeValue] = useState('kafka.t3.small');
 
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();

@@ -30,7 +30,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "noImplicitAny": false
   },
   "include": [
     ".eslintrc.cjs",
