@@ -19,10 +19,10 @@ const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler, createClust
     inFocusHandler('loading')
   };
 
-  // this is one step behind for some reason
+  // chnages storage size stored in state
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
-    dispatch(setStoragePerBroker(value));   // should be dispatching on every change
+    dispatch(setStoragePerBroker(value));
   };
   
 

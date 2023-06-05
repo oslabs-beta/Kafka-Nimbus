@@ -1,20 +1,20 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { useAppSelector } from '~/app/redux/hooks';
-import { useSession } from 'next-auth/react';
-import CloudProvider from '../(components)/CloudProvider';
-import AwsSecrets from '../(components)/AwsSecrets';
-import RegionInput from '../(components)/RegionInput';
-import ClusterNameInput from '../(components)/ClusterNameInput';
-import BrokerCountInput from '../(components)/BrokerCounterInput';
-import StoragePerBroker from '../(components)/StoragePerBroker';
-import ClusterSize from '../(components)/ClusterSize';
-import ClusterLoadingState from '../(components)/ClusterLoadingState';
+"use client";
+import React, { useState } from "react";
+import { useAppSelector } from "~/app/redux/hooks";
+import { useSession } from "next-auth/react";
+import CloudProvider from "../(components)/CloudProvider";
+import AwsSecrets from "../(components)/AwsSecrets";
+import RegionInput from "../(components)/RegionInput";
+import ClusterNameInput from "../(components)/ClusterNameInput";
+import BrokerCountInput from "../(components)/BrokerCounterInput";
+import StoragePerBroker from "../(components)/StoragePerBroker";
+import ClusterSize from "../(components)/ClusterSize";
+import ClusterLoadingState from "../(components)/ClusterLoadingState";
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 // TRPC IMPORTS
-import { trpc } from '../../../trpc/trpc-provider';
+import { trpc } from "../../../trpc/trpc-provider";
 
 export type ComponentState = {
   inFocus: string;
@@ -22,9 +22,9 @@ export type ComponentState = {
 };
 
 const CreateClusterPage = () => {
-  const [inFocus, setInFocus] = useState<ComponentState['inFocus']>('provider');
+  const [inFocus, setInFocus] = useState<ComponentState["inFocus"]>("provider");
   const [loadingState, setLoadingState] =
-    useState<ComponentState['loadingState']>('Creating VPC');
+    useState<ComponentState["loadingState"]>("Creating VPC");
   const { createCluster } = useAppSelector((state) => state);
   const router = useRouter();
   const { data: sessionData } = useSession(); // gets current user info. .id references
@@ -42,7 +42,6 @@ const CreateClusterPage = () => {
       brokerNumbers,
       region,
       clusterName,
-      provider, // uneeded?
       storagePerBroker,
       clusterSize,
       zones,
@@ -53,21 +52,21 @@ const CreateClusterPage = () => {
     const vpcId = findVPC.data;
     console.log(vpcId);
     if (vpcId !== undefined) {
-      setLoadingState('Creating Cluster'); // sends us to loading page
-      if (vpcId === '') {
+      setLoadingState("Creating Cluster"); // sends us to loading page
+      if (vpcId === "") {
         // if vpcId is an empty string, vpc hasn't been created yet. so we
         // create it.
         await createVPC.mutateAsync({
           aws_access_key_id: awsId,
           aws_secret_access_key: awsSecret,
-          id: sessionData?.user.id ? sessionData?.user.id : '',
+          id: sessionData?.user.id ? sessionData?.user.id : "",
           region: region,
         });
       }
       // we will now create the cluster
       await createNewCluster.mutateAsync({
         brokerPerZone: brokerNumbers,
-        id: sessionData?.user.id ? sessionData?.user.id : '',
+        id: sessionData?.user.id ? sessionData?.user.id : "",
         instanceSize: clusterSize,
         name: clusterName,
         storagePerBroker: storagePerBroker,
@@ -77,16 +76,16 @@ const CreateClusterPage = () => {
       /**
        * TODO: Error Handling
        */
-      console.log('Error, user not found');
+      console.log("Error, user not found");
     }
 
-    router.push('/cluster-dashboard');
+    router.push("/cluster-dashboard");
   };
 
-  
 
+  // rerenders new component instead of redirecting to new page while navigating through cluster creation
   switch (inFocus) {
-    case 'provider':
+    case "provider":
       return (
         <CloudProvider
           vpcId={findVPC.data}
@@ -94,24 +93,24 @@ const CreateClusterPage = () => {
           inFocusHandler={inFocusHandler}
         />
       );
-    case 'aws':
+    case "aws":
       return <AwsSecrets inFocusHandler={inFocusHandler} />;
-    case 'region':
+    case "region":
       return <RegionInput inFocusHandler={inFocusHandler} />;
-    case 'name':
+    case "name":
       return <ClusterNameInput inFocusHandler={inFocusHandler} />;
-    case 'size':
+    case "size":
       return <ClusterSize inFocusHandler={inFocusHandler} />;
-    case 'brokers':
+    case "brokers":
       return <BrokerCountInput inFocusHandler={inFocusHandler} />;
-    case 'storage':
+    case "storage":
       return (
         <StoragePerBroker
           inFocusHandler={inFocusHandler}
           createClusterHandler={createClusterHandler}
         />
       );
-    case 'loading':
+    case "loading":
       return <ClusterLoadingState loadingState={loadingState} />;
   }
 };

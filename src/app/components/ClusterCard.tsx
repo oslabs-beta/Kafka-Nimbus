@@ -37,9 +37,15 @@ export default function ClusterCard({ cluster }: cardCluster) {
   const deleteCluster = trpc.createCluster.deleteCluster.useMutation();
 
   const routeToCluster = () => {
-    if (!isHoverDelete && clusterStatus === 'ACTIVE' && cluster.lifeCycleStage === 2) router.push(`${cluster.id}/dashboard`)
-    else return;
-  };
+    if (!isHoverDelete && clusterStatus === 'ACTIVE' && cluster.lifeCycleStage === 2) {
+      router.push(`${cluster.id}/dashboard`);
+      console.log('Rerouting to cluster-dashboard for cluster: ', cluster.name);
+    }
+    else {
+      console.log('Rerouting denied for cluster: ', cluster.name);
+      return;
+    }
+  }
 
   // changes color based on status
   const statusColor = clusterStatus === 'ACTIVE' ? 'green'
