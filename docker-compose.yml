@@ -28,9 +28,21 @@ services:
       - "--web.enable-lifecycle"
     restart: unless-stopped
 
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - 3001:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
 
 volumes:
   shared-volume:
     driver: local
   prometheus-data:
+    driver: local
+  grafana-data:
     driver: local
