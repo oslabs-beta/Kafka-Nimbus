@@ -7,7 +7,11 @@ import {
 } from "@heroicons/react/24/solid";
 import type { ClusterInfo } from "~/app/redux/features/clusterInfoSlice";
 
-const ClusterMetrics: React.FC<ClusterInfo> = ({ clusterInfo }) => {
+type ClusterMetricsProps = {
+  clusterInfo: ClusterInfo;
+};
+
+const ClusterMetrics = ({ clusterInfo }: ClusterMetricsProps) => {
   return (
     <div className=" h-full w-screen">
       <div className="mt-8 w-full p-8">
@@ -25,10 +29,10 @@ const ClusterMetrics: React.FC<ClusterInfo> = ({ clusterInfo }) => {
             <div className="stat-title">Status</div>
             <div className="stat-value text-green-400">
               {clusterInfo.State}
-            </div>{" "}
+            </div>
             {/* Displays creation time of cluster */}
-            <div className="stat-desc">
-              Created at: {clusterInfo.CreationTime}
+            <div className='stat-desc'>
+              Created at: {clusterInfo.CreationTimeString}
             </div>
           </div>
 

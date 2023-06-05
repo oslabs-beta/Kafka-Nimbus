@@ -17,8 +17,8 @@ const ClusterConsumers = ({ consumers }) => {
             <p className="py-4"></p>
             {/* Creates new div for each member in members array */}
             <div className="left-0 top-0 float-left">
-              {consumers[isMembersModalOpen].members.map((member) => (
-                <div>{member}</div>
+              {consumers[isMembersModalOpen].members.map((member, index) => (
+                <div key={index}>{member}</div>
               ))}
             </div>
             <div className="modal-action">
@@ -44,8 +44,8 @@ const ClusterConsumers = ({ consumers }) => {
             <p className="py-4"></p>
             <div className="left-0 top-0 float-left">
               {/* Creates new row for each element in subscribedTopics array */}
-              {consumers[isTopicsModalOpen].subscribedTopics.map((member) => (
-                <div>{member}</div>
+              {consumers[isTopicsModalOpen].subscribedTopics.map((member, index) => (
+                <div key={index}>{member}</div>
               ))}
             </div>
             <div className="modal-action">

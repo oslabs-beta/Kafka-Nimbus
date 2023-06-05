@@ -4,9 +4,8 @@ import { Bars3Icon } from "@heroicons/react/24/solid";
 import ClusterConsumers from "./components/ClusterConsumers";
 import ClusterMetrics from "./components/ClusterMetrics";
 import ClusterTopics from "./components/ClusterTopics";
-import type { metrics } from "./layout";
-import type { topics } from "./layout";
-import type { consumerGroups } from "./layout";
+import type { metrics, topics, consumerGroups } from './layout';
+
 
 import { useAppDispatch, useAppSelector } from "~/app/redux/hooks";
 import {
@@ -15,12 +14,11 @@ import {
 
 
 
-type Props = {
-  inFocus: string;
-  params: { metrics: metrics; topics: topics; consumerGroups: consumerGroups };
+type PageProps = {
+  params: { metrics: metrics; topics: topics; consumerGroups: consumerGroups, cluster: string };
 };
 
-const Page = ({ params }: Props) => {
+const Page = ({ params }: PageProps) => {
   // pulling in redux dispatch
   const dispatch = useAppDispatch();
   // saving the metrics to the clusterMetrics store

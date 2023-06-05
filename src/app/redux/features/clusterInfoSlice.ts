@@ -4,7 +4,7 @@ export interface ClusterInfo {
   ActiveOperationArn?: string;
   ClusterArn?: string;
   ClusterName?: string;
-  CreationTime?: Date | null;
+  CreationTimeString?: string | null;
   KafkaVersion?: string
   CurrentVersion?: string;
   NumberOfBrokerNodes?: number;
@@ -15,7 +15,7 @@ const initialState: ClusterInfo = {
   ActiveOperationArn: '',
   ClusterArn: '',
   ClusterName: '',
-  CreationTime: null,
+  CreationTimeString: null,
   KafkaVersion: '',
   NumberOfBrokerNodes: 0,
   State: ''
@@ -26,7 +26,7 @@ const clusterInfoSlice = createSlice({
   initialState: initialState,
   reducers: {
     updateClusterInfo: (
-      state ,
+      state,
       action: PayloadAction<ClusterInfo>
     ) => {
       return {

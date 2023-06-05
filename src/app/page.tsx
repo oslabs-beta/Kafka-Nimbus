@@ -7,8 +7,10 @@ import Demovideo from "./components/Demovideo";
 import FeaturesList from "./components/Features";
 import TeamList from "./components/TeamMembers";
 import { motion } from "framer-motion";
+import { signIn, signOut, useSession } from 'next-auth/react';
 
 const Home: NextPage = () => {
+  const { data: sessionData } = useSession();
   return (
     <>
       <video
@@ -40,6 +42,12 @@ const Home: NextPage = () => {
                 <button className="btn-primary btn ">Read our Docs </button>
               </Link>
               {<AuthShowcase />}
+            </div>
+            <div>
+              {sessionData ? <Link href="/cluster-dashboard" className="font-bold mx-8">
+                <button className='btn-primary btn btn-light-grey rounded-full' style={{ color: 'white'}}>Go To Clusters</button>
+                </Link> : <div></div>}
+              
             </div>
           </div>
         </div>
