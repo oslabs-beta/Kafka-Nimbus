@@ -17,9 +17,9 @@ export const AuthShowcase: React.FC = () => {
         className='btn-accent btn'
         onClick={
           sessionData
-            ? () => void signOut()
+            ? () => void signOut({ callbackUrl: '/' })
             : () =>
-                void signIn(undefined, { callbackUrl: '/cluster-dashboard' })
+              void signIn(undefined, { callbackUrl: '/cluster-dashboard' })
         }
       >
         {sessionData ? 'Sign out' : 'Sign in with Github'}
