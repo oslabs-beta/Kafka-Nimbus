@@ -14,7 +14,7 @@ const NavBar = () => {
   return (
     <div className="navbar relative bg-base-100 mx-auto flex w-full items-center justify-between p-6 lg:px-8 border-b-2">
       <div className="flex cursor-pointer flex-row align-middle">
-        <Link href="/"><Image src={logo} alt="logo" className="mr-2 h-8 w-8" /></Link>
+        <Link href="/"><Image width="60" height="60" src={logo} alt="logo" className="mr-2 h-8 w-8" /></Link>
         <Link className="btn btn-ghost text-xl normal-case" href="/">Kafka Nimbus</Link>
       </div>
 
@@ -24,12 +24,12 @@ const NavBar = () => {
             className="overflow-hidden hover:bg-slate-300"
           ><Image width="34"
             height="34"
-            alt="logo-not-logged-in" src={logo}></Image></Link> :
+            alt="logo-not-logged-in" src={"https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg"}></Image></Link> :
           <details className="dropdown dropdown-end">
             <summary><Image
               width="34"
               height="34"
-              src={sessionData ? sessionData.user.image : logo}
+              src={sessionData ? sessionData?.user?.image : "https://upload.wikimedia.org/wikipedia/commons/3/3f/Github-circle_%28CoreUI_Icons_v1.0.0%29.svg"}
               alt="profile-pic"
               className="rounded-full overflow-hidden  hover:bg-slate-300"
             /></summary>
@@ -41,7 +41,7 @@ const NavBar = () => {
           </details>}
       </div>
 
-    </div>
+    </div >
   );
 };
 
