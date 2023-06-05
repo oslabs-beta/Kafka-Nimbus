@@ -2,24 +2,18 @@
 'use client';
 
 import { signIn, signOut, useSession } from 'next-auth/react';
-import Link from 'next/link';
 
 export const AuthShowcase: React.FC = () => {
   const { data: sessionData } = useSession();
-
-  // const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-  //   undefined, // no input
-  //   { enabled: sessionData?.user !== undefined },
-  // );
   return (
     <div className='flex gap-2'>
       <button
-        className='btn-accent btn'
+        className='btn-primary btn'
         onClick={
           sessionData
-            ? () => void signOut()
+            ? () => void signOut({ callbackUrl: '/' })
             : () =>
-                void signIn(undefined, { callbackUrl: '/cluster-dashboard' })
+              void signIn(undefined, { callbackUrl: '/cluster-dashboard' })
         }
       >
         {sessionData ? 'Sign out' : 'Sign in with Github'}
