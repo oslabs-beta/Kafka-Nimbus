@@ -12,18 +12,17 @@ import {
   updateClusterInfo,
 } from "~/app/redux/features/clusterInfoSlice";
 
-type Props = {
-  inFocus: string;
-  params: any;
-};
-
 // type Props = {
 //   inFocus: string;
-//   params: { metrics: metrics; topics: topics; consumerGroups: consumerGroups };
+//   params: any;
 // };
 
+type Props = {
+  inFocus: string;
+  params: { metrics: metrics; topics: topics; consumerGroups: consumerGroups, cluster: string };
+};
 
-const Page = (props) => {
+const Page: React.FC<Props> = (props) => {
   // pulling in redux dispatch
   const dispatch = useAppDispatch();
   // saving the metrics to the clusterMetrics store

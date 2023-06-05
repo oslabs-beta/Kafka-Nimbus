@@ -1,6 +1,6 @@
 import React from 'react';
 import { KafkaClient, DescribeClusterCommand, type DescribeClusterCommandInput, type DescribeClusterCommandOutput } from '@aws-sdk/client-kafka';
-import { Kafka, logLevel, AssignerProtocol, type MemberDescription, type ITopicMetadata, ConfigResourceTypes, type Admin, type DescribeConfigResponse } from 'kafkajs';
+import { Kafka, logLevel, AssignerProtocol, type ITopicMetadata, ConfigResourceTypes, type Admin, type DescribeConfigResponse } from 'kafkajs';
 import { createMechanism } from '@jm18457/kafkajs-msk-iam-authentication-mechanism';
 import { prisma } from '~/server/db';
 
