@@ -203,6 +203,7 @@ export const clusterRouter = createTRPCRouter({
           // grabs boostrap broker strings and stores them in the db 
           else if (curState === "ACTIVE" && lifeCycleStage === 1) {
             await checkService.getBoostrapBrokers(region, awsAccessKey, awsSecretAccessKey, kafkaArn, input.id)
+            
           }
           return curState;
         }

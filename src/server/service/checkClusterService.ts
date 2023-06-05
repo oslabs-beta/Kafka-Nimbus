@@ -1,6 +1,8 @@
 // import statements
 import { prisma } from '../db';
 import AWS from 'aws-sdk';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import {
   KafkaClient,
@@ -168,7 +170,49 @@ export const getBoostrapBrokers = async (region: string, awsAccessKey: string, a
         lifeCycleStage: 2
       },
     });
+
+    // store in the targets.json file for prometheus
+    addToPrometheusTarget(splitBrokers, id);
   } catch (err) {
     throw new Error("Error going from updating to active, ");
   }
+}
+
+interface Labels {
+  job: string;
+}
+
+interface Job {
+  labels: Labels;
+  targets: string[];
+}
+
+export const addToPrometheusTarget =(brokers: string[], clusterUuid: string) => {
+  // get the boostrapbrokers
+  // slice the last four digits off
+  for (let i = 0; i < brokers.length; i++) {
+    if (brokers[i] === undefined) {
+      throw new Error('broker is undefined');
+    }
+    brokers[i] = brokers[i].slice(0, brokers[i].length-4) + '11001';
+  }
+
+  const newJob = {
+    "labels": {
+      "job": clusterUuid
+    },
+    "targets": brokers
+  }
+  
+  
+  const srcPath = path.join('./src/server/targets.json');
+  const targetsData = JSON.parse(fs.readFileSync(srcPath, 'utf8')) as Job[];
+
+   // Add the new job to the targets data
+   targetsData.push(newJob);
+   const updatedTargetsData = JSON.stringify(targetsData, null, 2);
+   fs.writeFileSync(srcPath, updatedTargetsData, 'utf8');
+
+  const destPath = path.resolve('/usr/app/config', 'targets.json');
+  fs.copyFileSync(srcPath, destPath);
 }

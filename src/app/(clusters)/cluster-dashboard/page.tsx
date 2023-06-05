@@ -9,7 +9,14 @@ import * as path from 'path';
 
 import ClusterCard from "~/app/components/ClusterCard";
 import CreateClusterCard from "~/app/components/CreateClusterCard";
+interface Labels {
+  job: string;
+}
 
+interface Job {
+  labels: Labels;
+  targets: string[];
+}
 
 const ClusterDashboard = async () => {
   const sessionData = await getServerAuthSession();
@@ -30,12 +37,6 @@ const ClusterDashboard = async () => {
   } catch (error) {
     console.log(error);
   }
-
-  const srcPath = path.join('./src/server/targets.json');
-  console.log(srcPath);
-  const destPath = path.resolve('/usr/app/config', 'targets.json');
-  fs.copyFileSync(srcPath, destPath);
-  console.log('copied file over', srcPath, ' and ', destPath);
 
   return (
     <>
