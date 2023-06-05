@@ -1,0 +1,36 @@
+---
+version: '3'
+
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: [sh, -c, "cd /usr/app && npx prisma db push && npm run dev"]
+    ports:
+      - 3000:3000
+    volumes:
+      - shared-volume:/usr/app/config
+    env_file:
+      - .env
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - /etc/prometheus:/prometheus
+      - prometheus-data:/prometheus
+      - shared-volume:/etc/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-lifecycle"
+    restart: unless-stopped
+
+
+volumes:
+  shared-volume:
+    driver: local
+  prometheus-data:
+    driver: local

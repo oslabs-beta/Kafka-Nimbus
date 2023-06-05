@@ -17,13 +17,7 @@
   } from '~/app/redux/features/clusterInfoSlice';
 
 
-type Props = {
-  inFocus: string;
-  
-  // cluster: {
-  //   clusterId:'string',
-  // }
-};
+
 
   type Props = {
     inFocus: string;

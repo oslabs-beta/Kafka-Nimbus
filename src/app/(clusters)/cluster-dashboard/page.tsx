@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation';
 import { getServerAuthSession } from '~/server/auth';
 import { prisma } from '../../../server/db'
 
+import * as fs from 'fs';
+import * as path from 'path';
+
 import ClusterCard from "~/app/components/ClusterCard";
 import CreateClusterCard from "~/app/components/CreateClusterCard";
 
@@ -25,6 +28,13 @@ const ClusterDashboard = async () => {
   } catch (error) {
     console.log(error);
   }
+
+  const srcPath = path.join('./src/server/targets.json');
+  console.log(srcPath);
+  const destPath = path.resolve('/usr/app/config', 'targets.json');
+  fs.copyFileSync(srcPath, destPath);
+  console.log('copied file over', srcPath, ' and ', destPath);
+
   return (
     <>
       <div className="mx-20 my-8">

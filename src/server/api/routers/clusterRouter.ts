@@ -2,6 +2,7 @@ import { z } from "zod";
 import AWS from "aws-sdk";
 import { prisma } from "../../db";
 
+
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc"; 
 
 import {
@@ -277,6 +278,11 @@ export const clusterRouter = createTRPCRouter({
    * ID: userId
    * @returns true or false if vpcid exists or not
    */
+  updateTargetsJson: publicProcedure
+  .query(() => {
+    // do stuff to file first
+
+  }),
 
   /**
    * Does not work correctly
