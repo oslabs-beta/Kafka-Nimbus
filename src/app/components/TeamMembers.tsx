@@ -77,29 +77,29 @@ const TeamList = () => {
               width="200"
               height="200"
             />
-              </div>
-            <h2 className="member-name text-3xl font-sans">{member.Name}</h2>
-            <div className="flex justify-center px-3">
-              {/*  Linkedin Link  */}
-              <Link href={member.LinkedInlink} className="mx-0 flex font-bold px-3">
-                <Image
-                  src={member.LinkedIn}
-                  alt="linkedin"
-                  height="35"
-                  width="35"
-                ></Image>
-              </Link>
-              {/*  Github Link  */}
-              <Link href={member.githublink} className="mx-0 flex font-bold px-3">
-                <Image
-                  src={member.github}
-                  alt="github"
-                  height="35"
-                  width="35"
-                ></Image>
-              </Link>
-            </div>
-            <div className="relative w-auto rounded-xl"></div>
+          </div>
+          <h2 className="member-name text-3xl font-sans">{member.Name}</h2>
+          <div className="flex justify-center mx-3">
+            {/*  Linkedin Link  */}
+            <Link href={member.LinkedInlink} className="mx-0 flex font-bold mx-3">
+              <Image
+                src={member.LinkedIn}
+                alt="linkedin"
+                height="35"
+                width="35"
+              ></Image>
+            </Link>
+            {/*  Github Link  */}
+            <Link href={member.githublink} className="mx-0 flex font-bold mx-3">
+              <Image
+                src={member.github}
+                alt="github"
+                height="35"
+                width="35"
+              ></Image>
+            </Link>
+          </div>
+          <div className="relative w-auto rounded-xl"></div>
         </motion.div>
       ))}
     </div>
