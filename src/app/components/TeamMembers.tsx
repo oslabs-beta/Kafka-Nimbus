@@ -8,7 +8,7 @@ const TeamList = () => {
     {
       id: 1,
       alt: "Andrew",
-      imageSrc: "/Andrew.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062389/Andrew_kevibc.jpg",
       Name: "Andrew Kim",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
@@ -18,7 +18,7 @@ const TeamList = () => {
     {
       id: 2,
       alt: "Paul",
-      imageSrc: "/Paul.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062705/Paul_Vachon_mctipz.jpg",
       Name: "Paul Vachon",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
@@ -28,7 +28,7 @@ const TeamList = () => {
     {
       id: 3,
       alt: "Ariel",
-      imageSrc: "/Ariel.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062599/Ariel_h65hwf.jpg",
       Name: "Ariel Lin",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
@@ -38,7 +38,7 @@ const TeamList = () => {
     {
       id: 4,
       alt: "Jackson",
-      imageSrc: "/Jackson.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062669/JacksonImage_byhsyi.jpg",
       Name: "Jackson Dahl",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
@@ -48,7 +48,7 @@ const TeamList = () => {
     {
       id: 5,
       alt: "Ijoo",
-      imageSrc: "/Ijoo.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062627/ijooimage_eggied.jpg",
       Name: "Ijoo Yoon",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
