@@ -193,16 +193,17 @@ export const addToPrometheusTarget = (brokers: string[], clusterUuid: string) =>
   const newBrokerArr: string[] = [];
   for (const broker of brokers) {
 
-    newBrokerArr.push(broker.slice(0, broker.length-4) + '11001');
     // remove the port and replace with 11001 so that prometheus can see it
-    // brokers[i] = brokers[i].slice(0, brokers[i].length-4) + '11001';
+    newBrokerArr.push(broker.slice(0, broker.length-4) + '11001');
   }
 
+  // define the newjob obj that we are going to store in targets.json so that 
+  // prometheus tracks it
   const newJob = {
     "labels": {
       "job": clusterUuid
     },
-    "targets": brokers
+    "targets": newBrokerArr
   }
   
   
