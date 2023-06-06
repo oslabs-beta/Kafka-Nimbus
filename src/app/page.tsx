@@ -7,7 +7,7 @@ import Demovideo from "./components/Demovideo";
 import FeaturesList from "./components/Features";
 import TeamList from "./components/TeamMembers";
 import { motion } from "framer-motion";
-import { signIn, signOut, useSession } from 'next-auth/react';
+import { signIn, signOut, useSession } from "next-auth/react";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
@@ -19,13 +19,16 @@ const Home: NextPage = () => {
         muted
         className="fixed z-0 min-h-screen w-full min-w-full object-cover"
       >
-        <source src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1685977440/AdobeStock_142908704_ch2pwb.mp4" type="video/mp4" />
+        <source
+          src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1685977440/AdobeStock_142908704_ch2pwb.mp4"
+          type="video/mp4"
+        />
       </video>
       <motion.div
         className="z-2 flex flex-row"
         initial={{ scale: 0.1 }}
         animate={{ scale: 1 }}
-        transition={{ duration: 1}}
+        transition={{ duration: 1 }}
       >
         <div className=" hero flex flex-col items-center justify-center py-16">
           <div className="hero-content flex w-full max-w-md flex-col items-center align-middle">
@@ -39,15 +42,31 @@ const Home: NextPage = () => {
             </p>
             <div className=" flex gap-4">
               <Link href="https://github.com/oslabs-beta/Kafka-Nimbus/blob/dev/README.md">
-                <button className="btn-primary btn ">Read our Docs </button>
+                <motion.button
+                  className="btn-primary btn"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.8 }}
+                >
+                  Read our Docs{" "}
+                </motion.button>
               </Link>
               {<AuthShowcase />}
             </div>
             <div>
-              {sessionData ? <Link href="/cluster-dashboard" className="font-bold mx-8">
-                <button className='btn-primary btn btn-light-grey rounded-full' style={{ color: 'white'}}>Go To Clusters</button>
-                </Link> : <div></div>}
-              
+              {sessionData ? (
+                <Link href="/cluster-dashboard" className="mx-8 font-bold">
+                  <motion.button
+                    className="btn-light-grey btn-primary btn"
+                    style={{ color: "white" }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.8 }}
+                  >
+                    Go To Clusters
+                  </motion.button>
+                </Link>
+              ) : (
+                <div></div>
+              )}
             </div>
           </div>
         </div>
@@ -66,7 +85,13 @@ const Home: NextPage = () => {
               managing your clusters on the cloud.
             </p>
             <Link href="/cluster-dashboard" className="mx-8 font-bold">
-              <button className="btn-primary btn ">Get Started</button>
+              <motion.button
+                className="btn-primary btn "
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.8 }}
+              >
+                Get Started
+              </motion.button>
             </Link>
           </div>
         </div>
