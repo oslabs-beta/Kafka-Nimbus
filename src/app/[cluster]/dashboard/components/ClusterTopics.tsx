@@ -8,6 +8,8 @@ import {
 } from "~/app/redux/features/createSingleTopicSlice";
 import { trpc } from "../../../../trpc/trpc-provider";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { motion } from "framer-motion";
 
 const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
   const router = useRouter();
@@ -59,8 +61,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
 
   // creates a new topic
   const createTopicHandler = async () => {
-    const { Name, numPartitions, replicationFactor } =
-      createTopic;
+    const { Name, numPartitions, replicationFactor } = createTopic;
     // api call
     await createNewTopic.mutateAsync({
       id: clusterid,
@@ -121,15 +122,32 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
       )}
 
       {/* Table to display topic information */}
-      <button onClick={() => router.refresh()}>Refresh</button>
-      <div className="mt-8 w-full p-8 mb-10">
+
+      <div className="mb-10 mt-8 w-full p-8">
         <h1 className="mb-8 text-3xl">
           Topics
-          <div className="btn float-right ml-2 flex-col items-center">
+          <motion.div
+            className="btn float-right ml-2 flex-col items-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.8 }}
+          >
             <label htmlFor="my-modal-4" className="btn">
               Create Topic
             </label>
-          </div>
+          </motion.div>
+          <motion.button
+            onClick={() => router.refresh()}
+            className=" btn-small btn-warning glass btn-square btn float-right ml-5"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.8 }}
+          >
+            <Image
+              src="https://upload.wikimedia.org/wikipedia/commons/1/17/OOjs_UI_icon_reload.svg"
+              width="20"
+              height="20"
+              alt="Reload"
+            />
+          </motion.button>
         </h1>
 
         <div className="overflow-x-auto">

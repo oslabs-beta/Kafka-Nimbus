@@ -4,9 +4,6 @@ import { redirect } from 'next/navigation';
 import { getServerAuthSession } from '~/server/auth';
 import { prisma } from '../../../server/db'
 
-import * as fs from 'fs';
-import * as path from 'path';
-
 import ClusterCard from "~/app/components/ClusterCard";
 import CreateClusterCard from "~/app/components/CreateClusterCard";
 interface Labels {
