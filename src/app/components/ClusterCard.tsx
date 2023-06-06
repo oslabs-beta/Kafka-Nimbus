@@ -6,7 +6,7 @@ import { trpc } from '~/trpc/trpc-provider';
 
 export interface cardCluster {
   cluster: {
-    img: string;
+    img: string | null;
     name: string;
     id: string;
     lifeCycleStage: number;
@@ -21,8 +21,9 @@ export default function ClusterCard({ cluster }: cardCluster) {
     const { data: status } = trpc.createCluster.checkClusterStatus.useQuery({
       id: cluster.id
     });
-    clusterStatus = status ? status : 'UNKNOWN';
-  } else { clusterStatus = 'ACTIVE'; }
+    clusterStatus = status ? status : '';
+    console.log("status:", status)
+  } else { clusterStatus = 'ACTIVE' }
 
 
 
@@ -36,11 +37,16 @@ export default function ClusterCard({ cluster }: cardCluster) {
   const deleteCluster = trpc.createCluster.deleteCluster.useMutation();
 
   const routeToCluster = () => {
-    if (!isHoverDelete && clusterStatus === 'ACTIVE' && cluster.lifeCycleStage === 2) router.push(`${cluster.id}/dashboard`)
-    else return;
-  };
+    if (!isHoverDelete && clusterStatus === 'ACTIVE' && cluster.lifeCycleStage === 2) {
+      router.push(`${cluster.id}/dashboard`);
+    }
+  }
 
-  const statusColor = clusterStatus === 'ACTIVE' ? 'green' : 'red';
+  // changes color based on status
+  const statusColor = clusterStatus === 'ACTIVE' ? 'green'
+    : clusterStatus === 'UPDATING' ? console.log(clusterStatus)
+      : clusterStatus === 'CREATING' ? 'blue'
+        : 'red';
 
   //The API call to backend to handle deleting the cluster in AWS and DB
   const deleteClusterHandler = () => {
@@ -78,13 +84,13 @@ export default function ClusterCard({ cluster }: cardCluster) {
         className={`relative card h-48 max-w-98 w-72 rounded-xl bg-base-100 shadow-xl ${(clusterStatus === 'ACTIVE' && !isHoverDelete) ? 'hover:ring-4 cursor-pointer' : ''}`}
       >
         <figure className='w-full'>
-          <div className={`h-24 w-full object-cover ${cluster.img}`} />
+          <div className={`h-24 w-full object-cover ${(cluster.img) ? cluster.img : ''}`} />
         </figure>
         <div className='m-4 flex w-full flex-col justify-between'>
           <h2 className='card-title '>{cluster.name}</h2>
           <div className='flex justify-end items-end'>
             <p
-              className={`text-${statusColor}-600  mr-6 w-min rounded-xl bg-${statusColor}-100  px-4 align-bottom mx-1 items-end shadow-md`}
+              className={`text-green-600  mr-6 w-min rounded-xl bg-green-100  px-4 align-bottom mx-1 items-end shadow-md`}
             >
               {clusterStatus}
             </p>

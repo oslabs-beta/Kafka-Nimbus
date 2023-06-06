@@ -15,6 +15,7 @@ const AwsSecrets: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const [awsIdValue, setAwsIdValue] = useState<string>("");
   const [awsSecretValue, setAwsSecretValue] = useState<string>("");
 
+  // add current user info into to state
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch(setAwsId(awsIdValue));
@@ -22,17 +23,20 @@ const AwsSecrets: React.FC<ProviderProps> = ({ inFocusHandler }) => {
     inFocusHandler("region");
   };
 
+    // changes the aws id stored in state
   const idChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     console.log(event.currentTarget.value);
     setAwsIdValue(event.currentTarget.value);
   };
+
+    // changes the aws secret stored in state
   const secretChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     console.log(event.currentTarget.value);
     setAwsSecretValue(event.currentTarget.value);
   };
 
   return (
-    <div className="flex h-[70vh] flex-col items-center justify-center">
+    <div className="flex h-[70vh] flex-col items-center justify-center py-16">
       <h1 className="mb-8 text-2xl font-bold">AWS Credentials</h1>
       <div className="form-control w-full max-w-xs ">
         <form id="aws-form" onSubmit={onSubmitHandler}>

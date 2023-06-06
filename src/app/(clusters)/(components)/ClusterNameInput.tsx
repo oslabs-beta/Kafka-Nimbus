@@ -11,6 +11,7 @@ const ClusterNameInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState("");
 
+    // changes name stored in state
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
