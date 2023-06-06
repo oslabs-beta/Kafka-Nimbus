@@ -39,6 +39,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
 
+
 volumes:
   shared-volume:
     driver: local

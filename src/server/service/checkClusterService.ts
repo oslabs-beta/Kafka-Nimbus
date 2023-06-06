@@ -202,7 +202,7 @@ export const addToPrometheusTarget = (brokers: string[], clusterUuid: string) =>
     "labels": {
       "job": clusterUuid
     },
-    "targets": brokers
+    "targets": newBrokerArr
   }
   
   
