@@ -8,7 +8,7 @@ import type { Session } from 'next-auth';
 interface ProviderProps {
   inFocusHandler: (string: string) => void;
   sessionData: Session | null;
-  vpcId: string
+  vpcId: string | undefined
 }
 
 
@@ -23,7 +23,7 @@ const CloudProvider: React.FC<ProviderProps> = ({
     if (!vpcId) {
       inFocusHandler('aws');
       dispatch(setProvider('aws'));
-    } 
+    }
     // if vpcID does exist, redirect to region page
     else {
       inFocusHandler('region');

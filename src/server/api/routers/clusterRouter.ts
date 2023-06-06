@@ -2,7 +2,7 @@ import { z } from "zod";
 import AWS from "aws-sdk";
 import { prisma } from "../../db";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc"; 
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 import {
   KafkaClient,
@@ -129,13 +129,14 @@ export const clusterRouter = createTRPCRouter({
           'bg-gradient-to-r from-green-300 via-yellow-300 to-pink-300',
         ];
 
-        const random = Math.floor(Math.random() * 5);
+        const random = Math.floor(Math.random() * graidients.length);
+        const imgStr = graidients[random] || 'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500';
         const response = await prisma.cluster.create({
           data: {
             name: input.name,
             securityGroup: [createSecurityGroupData],
             brokerPerZone: input.brokerPerZone,
-            img: graidients[random],
+            img: imgStr,
             instanceSize: input.instanceSize,
             zones: input.zones,
             storagePerBroker: input.storagePerBroker,
@@ -177,7 +178,7 @@ export const clusterRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       try {
-        const { awsAccessKey, awsSecretAccessKey, region, lifeCycleStage, kafkaArn } =  await checkService.getClusterResponse(input.id);
+        const { awsAccessKey, awsSecretAccessKey, region, lifeCycleStage, kafkaArn } = await checkService.getClusterResponse(input.id);
         // setting sdk config
         AWS.config.update({
           accessKeyId: awsAccessKey,
@@ -202,6 +203,7 @@ export const clusterRouter = createTRPCRouter({
           // grabs boostrap broker strings and stores them in the db 
           else if (curState === "ACTIVE" && lifeCycleStage === 1) {
             await checkService.getBoostrapBrokers(region, awsAccessKey, awsSecretAccessKey, kafkaArn, input.id)
+            
           }
           return curState;
         }
@@ -277,6 +279,11 @@ export const clusterRouter = createTRPCRouter({
    * ID: userId
    * @returns true or false if vpcid exists or not
    */
+  updateTargetsJson: publicProcedure
+  .query(() => {
+    // do stuff to file first
+
+  }),
 
   /**
    * Does not work correctly

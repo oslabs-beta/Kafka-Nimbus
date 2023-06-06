@@ -4,9 +4,19 @@ import { redirect } from 'next/navigation';
 import { getServerAuthSession } from '~/server/auth';
 import { prisma } from '../../../server/db'
 
+import * as fs from 'fs';
+import * as path from 'path';
+
 import ClusterCard from "~/app/components/ClusterCard";
 import CreateClusterCard from "~/app/components/CreateClusterCard";
+interface Labels {
+  job: string;
+}
 
+interface Job {
+  labels: Labels;
+  targets: string[];
+}
 
 const ClusterDashboard = async () => {
   const sessionData = await getServerAuthSession();
@@ -27,6 +37,7 @@ const ClusterDashboard = async () => {
   } catch (error) {
     console.log(error);
   }
+
   return (
     <>
       <div className="mx-20 my-8 py-16">
