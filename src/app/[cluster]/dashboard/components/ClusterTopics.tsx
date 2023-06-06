@@ -7,8 +7,10 @@ import {
   settopicReplications,
 } from "~/app/redux/features/createSingleTopicSlice";
 import { trpc } from "../../../../trpc/trpc-provider";
+import { useRouter } from "next/navigation";
 
 const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
+  const router = useRouter();
   // Limits replication factor to only be equal to or less than amount of brokers
   const replicationArray: number[] = [];
   for (let i = 1; i <= clusterInfo.NumberOfBrokerNodes; i++) {
@@ -25,7 +27,6 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
     return totalOffset;
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPartitionsModalOpen, setIsPartitionsModalOpen] = useState(-1);
 
   const dispatch = useAppDispatch();
@@ -33,11 +34,6 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
   const TopicPartitions: number[] = [1, 2, 3, 4, 5, 7, 8, 9, 10]; // Determine how many partitions we want to allow
   const { createTopic } = useAppSelector((state) => state);
   const createNewTopic = trpc.topic.createTopic.useMutation();
-
-  const onSubmitHandler = (event: React.FormEvent) => {
-    event.preventDefault();
-    console.log(createTopic);
-  };
 
   // keeps track of partition change
   const partitionChangeHandler = (
@@ -72,7 +68,6 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
       numPartitions: numPartitions,
       replicationFactor: replicationFactor,
     });
-    setIsModalOpen(false);
   };
 
   return (
@@ -126,7 +121,8 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
       )}
 
       {/* Table to display topic information */}
-      <div className="mt-8 w-full p-8">
+      <button onClick={() => router.refresh()}>Refresh</button>
+      <div className="mt-8 w-full p-8 mb-10">
         <h1 className="mb-8 text-3xl">
           Topics
           <div className="btn float-right ml-2 flex-col items-center">
@@ -173,7 +169,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
         <input type="checkbox" id="my-modal-4" className="modal-toggle" />
         <label htmlFor="my-modal-4" className="modal cursor-pointer">
           <div className="modal-box relative w-3/5">
-            <form id="topic-form" onSubmit={onSubmitHandler}>
+            <form id="topic-form">
               <label htmlFor="topic-form" className="label">
                 Topic Name
               </label>
@@ -208,16 +204,15 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
                 ))}
               </select>
               <div className="flex justify-center">
-                <button
-                  className="btn-primary btn mx-2 mt-6"
-                  type="submit"
-                  onClick={createTopicHandler}
-                >
-                  Submit
-                </button>
                 <label
                   className="btn-primary btn mx-2 mt-6"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={createTopicHandler}
+                  htmlFor="my-modal-4"
+                >
+                  Submit
+                </label>
+                <label
+                  className="btn-primary btn mx-2 mt-6"
                   htmlFor="my-modal-4"
                 >
                   Cancel

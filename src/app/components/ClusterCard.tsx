@@ -71,12 +71,11 @@ export default function ClusterCard({ cluster }: cardCluster) {
           <p>To confirm deletion, type the cluster name in the text input field. </p>
           <input className="border-solid border-2 border-black-600" placeholder={cluster.name} value={delCluster} onChange={e => setdelCluster(e.target.value)} />
           <div className="modal-action">
-            <button className="btn" disabled={delCluster !== cluster.name} onClick={deleteClusterHandler}>DELETE</button>
+            <button className="btn" disabled={delCluster !== cluster.name} onClick={deleteClusterHandler}><label htmlFor={`modal${cluster.name}${cluster.id}`}>DELETE</label></button>
             <label onClick={() => setdelCluster('')} htmlFor={`modal${cluster.name}${cluster.id}`} className="btn">CANCEL</label>
           </div>
 
         </div>
-        {/* <label className="modal-backdrop" htmlFor={`modal${cluster.name}${cluster.id}`}>BACKDROP</label> */}
       </div>
 
       <div

@@ -45,7 +45,7 @@ const Home: NextPage = () => {
             </div>
             <div>
               {sessionData ? <Link href="/cluster-dashboard" className="font-bold mx-8">
-                <button className='btn-primary btn btn-light-grey rounded-full' style={{ color: 'white'}}>Go To Clusters</button>
+                <button className='btn-primary btn btn-light-grey' style={{ color: 'white'}}>Go To Clusters</button>
                 </Link> : <div></div>}
               
             </div>
