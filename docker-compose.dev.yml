@@ -5,11 +5,12 @@ services:
   webapp:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     command: [sh, -c, "cd /usr/app && npx prisma db push && npm run dev"]
     ports:
       - 3000:3000
     volumes:
+      - ./:/usr/app
       - shared-volume:/usr/app/config
     env_file:
       - .env
@@ -38,6 +39,7 @@ services:
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
+
 
 volumes:
   shared-volume:
