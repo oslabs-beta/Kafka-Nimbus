@@ -187,14 +187,15 @@ interface Job {
   targets: string[];
 }
 
-export const addToPrometheusTarget =(brokers: string[], clusterUuid: string) => {
+export const addToPrometheusTarget = (brokers: string[], clusterUuid: string) => {
   // get the boostrapbrokers
   // slice the last four digits off
-  for (let i = 0; i < brokers.length; i++) {
-    if (brokers[i] === undefined) {
-      throw new Error('broker is undefined');
-    }
-    brokers[i] = brokers[i].slice(0, brokers[i].length-4) + '11001';
+  const newBrokerArr: string[] = [];
+  for (const broker of brokers) {
+
+    newBrokerArr.push(broker.slice(0, broker.length-4) + '11001');
+    // remove the port and replace with 11001 so that prometheus can see it
+    // brokers[i] = brokers[i].slice(0, brokers[i].length-4) + '11001';
   }
 
   const newJob = {
