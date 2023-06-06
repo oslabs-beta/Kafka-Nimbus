@@ -38,7 +38,7 @@ const Home: NextPage = () => {
               the cloud
             </p>
             <div className=" flex gap-4">
-              <Link href="https://github.com/Kafka-Nimbus/Kafka-Nimbus-GUI/blob/main/README.md">
+              <Link href="https://github.com/oslabs-beta/Kafka-Nimbus/blob/dev/README.md">
                 <button className="btn-primary btn ">Read our Docs </button>
               </Link>
               {<AuthShowcase />}

@@ -155,7 +155,7 @@ export const getBoostrapBrokers = async (region: string, awsAccessKey: string, a
         ? bootstrapResponse.BootstrapBrokerStringPublicSaslIam
         : "";
     const splitBrokers = brokers.split(",");
-    if (brokers === undefined) {
+    if (brokers === undefined || splitBrokers === undefined) {
       throw new Error("Error getting brokers");
     }
     console.log("successfully got boostrap brokers: ", splitBrokers);
