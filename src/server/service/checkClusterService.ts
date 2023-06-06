@@ -3,7 +3,6 @@ import { prisma } from '../db';
 import AWS from 'aws-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
-
 import {
   KafkaClient,
   GetBootstrapBrokersCommand,
@@ -174,7 +173,7 @@ export const getBoostrapBrokers = async (
     });
 
     // store in the targets.json file for prometheus
-    addToPrometheusTarget(splitBrokers, id);
+    addToPrometheusTarget(splitBrokers, id)
   } catch (err) {
     throw new Error('Error going from updating to active, ');
   }
@@ -188,6 +187,33 @@ interface Job {
   labels: Labels;
   targets: string[];
 }
+
+export const createDash = (clusterName: string, apiKey: string) => {
+  // create dash
+  fetch('http://localhost:3001/api/dashboards/db', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + apiKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      dashboard: {
+        id: null,
+        title: clusterName,
+        tags: ['msk'],
+        timezone: 'browser',
+        rows: [{}],
+        schemaVersion: 6,
+        version: 0,
+      },
+      overwrite: false,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => console.log(data))
+    .catch((error) => console.error(error));
+};
+
 
 export const addToPrometheusTarget = (
   brokers: string[],
@@ -220,36 +246,15 @@ export const addToPrometheusTarget = (
 
   const destPath = path.resolve('/usr/app/config', 'targets.json');
   fs.copyFileSync(srcPath, destPath);
+
+
+  createDash(clusterUuid, "eyJrIjoiVkJodDVwSkg0SXB5RlZUMjdGVVkwSUpxdGNxZko0UzEiLCJuIjoiYXBpa2V5Y3VybCIsImlkIjoyfQ==")
+
 };
 
-export const createDash = (clusterName, apiKey) => {
-  // create dash
-  fetch('http://localhost:3000/api/dashboards/db', {
-    method: 'POST',
-    headers: {
-      Authorization: 'Bearer ' + apiKey,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      dashboard: {
-        id: null,
-        title: clusterName,
-        tags: ['msk'],
-        timezone: 'browser',
-        rows: [{}],
-        schemaVersion: 6,
-        version: 0,
-      },
-      overwrite: false,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => console.log(data))
-    .catch((error) => console.error(error));
-};
 
-export const getDash = (uuid, apiKey) => {
-  fetch(`http://localhost:3000/api/dashboards/uid/${uuid}`, {
+export const getDash = (uuid: string, apiKey: string) => {
+  fetch(`http://localhost:3001/api/dashboards/uid/${uuid}`, {
     method: 'GET',
     headers: {
       Accept: 'application/json',
@@ -258,6 +263,6 @@ export const getDash = (uuid, apiKey) => {
     },
   })
     .then((response) => response.json())
-    .then((data) => console.log(data))
+    .then((data) => data)
     .catch((error) => console.error(error));
-};
+}; 

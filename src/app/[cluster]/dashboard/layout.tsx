@@ -14,6 +14,7 @@ import {
   type Admin,
   type DescribeConfigResponse,
 } from 'kafkajs';
+import { getDash } from 'src/server/service/checkClusterService';
 import { createMechanism } from '@jm18457/kafkajs-msk-iam-authentication-mechanism';
 import { prisma } from '~/server/db';
 
@@ -101,6 +102,9 @@ const layout = async (props) => {
     });
 
     //GETTING METRICS
+    const metricsDashboard = await getDash(props.params.cluster, "eyJrIjoiVkJodDVwSkg0SXB5RlZUMjdGVVkwSUpxdGNxZko0UzEiLCJuIjoiYXBpa2V5Y3VybCIsImlkIjoyfQ==")
+
+    console.log('METRICSDASH: ', metricsDashboard)
 
     //Cluster Dashboard Information from MSK
     const commInput: DescribeClusterCommandInput = {
@@ -119,8 +123,9 @@ const layout = async (props) => {
       CurrentBrokerSoftwareInfo,
       NumberOfBrokerNodes,
       State,
-      
     } = cluster;
+
+    //
 
     response.Metrics = {
       ClusterName,
@@ -128,7 +133,7 @@ const layout = async (props) => {
       KafkaVersion: CurrentBrokerSoftwareInfo?.KafkaVersion,
       NumberOfBrokerNodes,
       State,
-      bootStrapServer
+      bootStrapServer,
     };
     console.log('------ADDED metrics to response');
 
