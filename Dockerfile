@@ -9,5 +9,6 @@ COPY .env ./.env
 RUN npm i -g prisma
 RUN npx prisma generate --schema ./prisma/schema.prisma
 
+RUN npm run build
 EXPOSE 3000
-ENTRYPOINT npm run dev
+ENTRYPOINT npm run start
