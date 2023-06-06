@@ -1,6 +1,12 @@
 'use client';
 import Link from 'next/link';
 // global error handler
+/**
+ * 
+ * Whenever an error occurs, it invokes the error handler, which displays a error
+ * page. It re-renders an 'error page', if you try again, it just refreshes the page
+ * for you.
+ */
 export default function Error({error, reset} : {error: Error; reset: () => void}) {
   return (
     <main className='grid min-h-full place-items-center px-6 py-24 sm:py-32 lg:px-8'>

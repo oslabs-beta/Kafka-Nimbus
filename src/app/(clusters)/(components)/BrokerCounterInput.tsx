@@ -9,7 +9,7 @@ interface ProviderProps {
 
 const BrokerCounterInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const dispatch = useAppDispatch();
-// amount of brokers that can be created
+  // amount of brokers that can be created
   const brokerNumArray: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 

@@ -11,6 +11,17 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
+
+// Caclulates total offset for each topic
+const calculateOffset = (offsets: any[]): number => {
+  let totalOffset = 0;
+  for (let i = 0; i < offsets.length; i++) {
+    const offset = Number(offsets[i].offset);
+    totalOffset += offset;
+  }
+  return totalOffset;
+};
+
 const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
   const router = useRouter();
   // Limits replication factor to only be equal to or less than amount of brokers
@@ -18,17 +29,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
   for (let i = 1; i <= clusterInfo.NumberOfBrokerNodes; i++) {
     replicationArray.push(i);
   }
-
-  // Caclulates total offset for each topic
-  const calculateOffset = (offsets: any[]): number => {
-    let totalOffset = 0;
-    for (let i = 0; i < offsets.length; i++) {
-      const offset = Number(offsets[i].offset);
-      totalOffset += offset;
-    }
-    return totalOffset;
-  };
-
+  // state for the topic partition modal
   const [isPartitionsModalOpen, setIsPartitionsModalOpen] = useState(-1);
 
   const dispatch = useAppDispatch();

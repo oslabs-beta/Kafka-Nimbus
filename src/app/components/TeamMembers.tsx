@@ -4,6 +4,7 @@ import Link from "next/link";
 
 const TeamList = () => {
   // data of each individual feature card
+  // images stored on cloudinary for fast loading
   const Team = [
     {
       id: 1,

@@ -1,19 +1,23 @@
 "use client";
+// react imports
 import React, { useState, useEffect } from "react";
-import { Bars3Icon } from "@heroicons/react/24/solid";
-import ClusterConsumers from "./components/ClusterConsumers";
-import ClusterMetrics from "./components/ClusterMetrics";
-import ClusterTopics from "./components/ClusterTopics";
-import type { metrics, topics, consumerGroups } from './layout';
-
-
 import { useAppDispatch, useAppSelector } from "~/app/redux/hooks";
 import {
   updateClusterInfo,
 } from "~/app/redux/features/clusterInfoSlice";
 
+// component imports
+import ClusterConsumers from "./components/ClusterConsumers";
+import ClusterMetrics from "./components/ClusterMetrics";
+import ClusterTopics from "./components/ClusterTopics";
+import { Bars3Icon } from "@heroicons/react/24/solid";
 
 
+// type imports
+import type { metrics, topics, consumerGroups } from './layout';
+
+// Giving a type to prop to the type of page
+// this is the props of the cluster layout
 type PageProps = {
   params: { metrics: metrics; topics: topics; consumerGroups: consumerGroups, cluster: string };
 };
@@ -30,6 +34,9 @@ const Page = ({ params }: PageProps) => {
   const [inFocus, setInFocus] = useState<string>("metrics");
   let result;
 
+  /**
+   * Rendering the new page when you navigate using the side bar
+   */
   switch (inFocus) {
     case "consumers":
       result = <ClusterConsumers consumers={params.consumerGroups} />;

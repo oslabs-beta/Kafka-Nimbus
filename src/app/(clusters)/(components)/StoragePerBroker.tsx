@@ -1,6 +1,6 @@
 'use client';
-import React, { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '~/app/redux/hooks';
+import React from 'react';
+import { useAppDispatch } from '~/app/redux/hooks';
 import { setStoragePerBroker } from '~/app/redux/features/createClusterSlice';
 
 interface ProviderProps {
@@ -8,13 +8,13 @@ interface ProviderProps {
   createClusterHandler: () => void
 }
 
+
 const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler, createClusterHandler }) => {
   const dispatch = useAppDispatch();
-  const { createCluster } = useAppSelector((state) => state);
 
+  // handles selection of storage and stores it in redux state
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log(createCluster);
     createClusterHandler()
     inFocusHandler('loading')
   };

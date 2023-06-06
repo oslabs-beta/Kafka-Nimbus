@@ -15,6 +15,8 @@ type StorageOptions = {
 };
 
 const ClusterSize: React.FC<ProviderProps> = ({ inFocusHandler }) => {
+  // various sizes that the cluster could be, recommended to be as small
+  // as possible
   const storageOptions: StorageOptions[] = [
     {
       name: 'kafka.t3.small',
@@ -84,6 +86,7 @@ const ClusterSize: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const dispatch = useAppDispatch();
   const [sizeValue, setSizeValue] = useState('kafka.t3.small');
 
+  // stores cluster size decision in redux state
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch(setClusterSize(sizeValue));
@@ -92,7 +95,6 @@ const ClusterSize: React.FC<ProviderProps> = ({ inFocusHandler }) => {
 
     // changes cluster size stored in state
   const onSelectHandler = (size: string) => {
-    console.log(size);
     setSizeValue(size);
   };
 

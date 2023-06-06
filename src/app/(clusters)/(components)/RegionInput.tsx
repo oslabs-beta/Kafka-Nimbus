@@ -8,6 +8,7 @@ interface ProviderProps {
 }
 
 const RegionInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
+  // the available aws regions
   const regions = [
     'N. Virginia (us-east-1)',
     'Ohio (us-east-2)',
@@ -17,9 +18,9 @@ const RegionInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   ];
 
   const dispatch = useAppDispatch();
-  const [regionsArray, setRegionsArray] = useState(regions);
   const [currentRegion, setCurrentRegion] = useState<string>('N. Virginia (us-east-1)');
 
+  // handles what happens when you select a region, and converts it to the proper form
   const onSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const getContentInParentheses = (str: string): string => {
       const regex = /\(([^)]+)\)/; // Regular expression to match content inside parentheses
@@ -34,6 +35,7 @@ const RegionInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
     setCurrentRegion(selectedRegion);
   };
 
+  // submit to redux state
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch(setRegion(currentRegion));
@@ -51,7 +53,7 @@ const RegionInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
           <option disabled value={'Select Region'}>
             Select Region
           </option>
-          {regionsArray.map((region) => {
+          {regions.map((region) => {
             return (
               <option key={region} value={region}>
                 {region}
