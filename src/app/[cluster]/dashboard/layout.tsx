@@ -185,8 +185,9 @@ const layout = async (props) => {
       if (members.length > 0) {
         membersId = members.map(member => member.memberId);
         if (members[0] !== undefined) {
-          const memberAssignment = AssignerProtocol.MemberAssignment.decode(members[0].memberAssignment);
-          for (const key in memberAssignment) {
+          const memberAssignmentInfo = AssignerProtocol.MemberAssignment.decode(members[0].memberAssignment) || { assignment: {} };
+          const memberAssignment = memberAssignmentInfo?.assignment;
+          for (const key of Object.keys(memberAssignment)) {
             subscribedTopics.push(key);
           }
         }
