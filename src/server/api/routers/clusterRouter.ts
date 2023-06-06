@@ -203,6 +203,7 @@ export const clusterRouter = createTRPCRouter({
           // grabs boostrap broker strings and stores them in the db 
           else if (curState === "ACTIVE" && lifeCycleStage === 1) {
             await checkService.getBoostrapBrokers(region, awsAccessKey, awsSecretAccessKey, kafkaArn, input.id)
+            
           }
           return curState;
         }
@@ -278,6 +279,11 @@ export const clusterRouter = createTRPCRouter({
    * ID: userId
    * @returns true or false if vpcid exists or not
    */
+  updateTargetsJson: publicProcedure
+  .query(() => {
+    // do stuff to file first
+
+  }),
 
   /**
    * Does not work correctly

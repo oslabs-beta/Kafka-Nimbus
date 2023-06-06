@@ -12,10 +12,7 @@ import {
   updateClusterInfo,
 } from "~/app/redux/features/clusterInfoSlice";
 
-// type Props = {
-//   inFocus: string;
-//   params: any;
-// };
+
 
 type PageProps = {
   params: { metrics: metrics; topics: topics; consumerGroups: consumerGroups, cluster: string };
