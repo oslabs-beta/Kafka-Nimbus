@@ -89,8 +89,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
                     <tr>
                       <th>Partition ID</th>
                       <th>Leader</th>
-                      <td>Replicas</td>
-                      <th>ISR</th>
+                      <th>Offsets</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -100,8 +99,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
                         <tr key={index}>
                           <td>{partition.partitionId}</td>
                           <td>{partition.leader}</td>
-                          <td>{partition.replicas}</td>
-                          <td>{partition.isr}</td>
+                          <td>{topics[isPartitionsModalOpen].offsets[index].offset}</td>
                         </tr>
                       )
                     )}
