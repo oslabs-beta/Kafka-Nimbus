@@ -63,6 +63,7 @@ const layout = async (props) => {
     //get bootstrap public endpoints
     const brokers = clusterInfo.bootStrapServer;
 
+    const bootStrapServer = clusterInfo.bootStrapServer;
     const accessKeyId = clusterInfo.User.awsAccessKey;
     const secretAccessKey = clusterInfo.User.awsSecretAccessKey;
     const region = clusterInfo.User.region;
@@ -107,7 +108,8 @@ const layout = async (props) => {
       CreationTimeString: CreationTime?.toLocaleDateString(),
       KafkaVersion: CurrentBrokerSoftwareInfo?.KafkaVersion,
       NumberOfBrokerNodes,
-      State
+      State,
+      bootStrapServer
     };
     console.log('------ADDED metrics to response');
 
