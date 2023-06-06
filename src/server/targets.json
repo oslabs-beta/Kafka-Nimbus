@@ -3,6 +3,17 @@
     "labels": {
       "job": "node"
     },
-    "targets": ["localhost:9100"]
+    "targets": [
+      "localhost:9100"
+    ]
+  },
+  {
+    "labels": {
+      "job": "647f4580b1ab42ce7756d07a"
+    },
+    "targets": [
+      "b-2-public.simon.can3a0.c2.kafka.us-east-2.amazonaws.com:9198",
+      "b-1-public.simon.can3a0.c2.kafka.us-east-2.amazonaws.com:9198"
+    ]
   }
 ]

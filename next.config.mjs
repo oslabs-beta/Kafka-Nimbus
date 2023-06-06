@@ -8,6 +8,7 @@ await import('./src/env.mjs');
 const config = {
   reactStrictMode: true,
   images: {
+    domains: ['res.cloudinary.com'],
     remotePatterns: [
       {
         protocol: 'https',
