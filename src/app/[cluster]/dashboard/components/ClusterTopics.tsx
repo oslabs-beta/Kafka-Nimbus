@@ -122,7 +122,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
 
       {/* Table to display topic information */}
 
-      <div className="mb-10 mt-8 w-full p-8">
+      <div className="mt-8 w-full pl-12 pr-10 pb-20">
         <h1 className="mb-8 text-3xl">
           Topics
           <motion.div

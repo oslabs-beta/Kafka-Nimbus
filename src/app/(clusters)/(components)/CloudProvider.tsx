@@ -30,7 +30,7 @@ const CloudProvider: React.FC<ProviderProps> = ({
   };
 
   return (
-    <div className='flex h-[70vh] flex-col items-center justify-center '>
+    <div className='flex h-[70vh] flex-col items-center justify-center text-center'>
       <h1 className='mb-8 text-3xl'>Choose Your Provider</h1>
       <div
         onClick={onClickHandler}

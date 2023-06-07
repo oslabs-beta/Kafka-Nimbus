@@ -68,20 +68,22 @@ const ClusterConsumers = ({ consumers }) => {
         </div>
       )}
 
-      <div className="mt-8 w-full p-8">
-      <motion.button
-            onClick={() => router.refresh()}
-            className=" btn-small btn-warning glass btn-square btn float-right ml-5"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.8 }}
-          >
-            <Image
-              src="https://upload.wikimedia.org/wikipedia/commons/1/17/OOjs_UI_icon_reload.svg"
-              width="20"
-              height="20"
-              alt="Reload"
-            />
-          </motion.button>
+      <div className="mt-8 w-full pl-12 pr-10 pb-20">
+        {/* Refresh button */}
+        <motion.button
+          onClick={() => router.refresh()}
+          className=" btn-small btn-warning glass btn-square btn float-right ml-5"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.8 }}
+        >
+          <Image
+            src="https://upload.wikimedia.org/wikipedia/commons/1/17/OOjs_UI_icon_reload.svg"
+            width="20"
+            height="20"
+            alt="Reload"
+          />
+        </motion.button>
+
         <h1 className="mb-8 text-3xl">Consumer Groups</h1>
         <div className="overflow-x-auto">
           <table className="table w-full">

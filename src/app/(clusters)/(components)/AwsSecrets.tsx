@@ -24,14 +24,20 @@ const AwsSecrets: React.FC<ProviderProps> = ({ inFocusHandler }) => {
     inFocusHandler("region");
   };
 
-    // changes the aws id stored in state
+  // changes the aws id stored in state
   const idChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setAwsIdValue(event.currentTarget.value);
   };
 
-    // changes the aws secret stored in state
+  // changes the aws secret stored in state
   const secretChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setAwsSecretValue(event.currentTarget.value);
+  };
+
+  // sets state to previous page
+  const backHandler = (event: React.FormEvent) => {
+    event.preventDefault();
+    inFocusHandler("provider");
   };
 
   return (
@@ -61,6 +67,12 @@ const AwsSecrets: React.FC<ProviderProps> = ({ inFocusHandler }) => {
           </div>
           <button className="btn-primary btn mt-6 w-full" type="submit">
             Submit
+          </button>
+          <button
+            className="btn-primary btn mt-8 w-full max-w-xs"
+            onClick={backHandler}
+          >
+            Back
           </button>
         </form>
       </div>
