@@ -83,8 +83,6 @@ model Cluster {
   lifeCycleStage   Int
   brokers          Broker[]
   topics           Topic[]
-  consumers        ConsumerGroup[]
-  Consumer         Consumer[]
 }
 
 model VerificationToken {

@@ -68,7 +68,7 @@ export const clusterRouter = createTRPCRouter({
         const createSecurityGroupData = await awsService.createSecurityGroup(ec2, vpcId);
 
         await awsService.authorizeSecurityGroupIngress(ec2, createSecurityGroupData);
-        if (input.zones === 2) {
+        if (input.zones === 2 && subnetIds.length > 2) {
           subnetIds.pop()
         }
         // kafka params

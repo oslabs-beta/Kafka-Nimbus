@@ -8,6 +8,7 @@ import Demovideo from "./components/Demovideo";
 import FeaturesList from "./components/Features";
 import TeamList from "./components/TeamMembers";
 import { motion } from "framer-motion";
+import Heroleft from "./components/Heropage-left";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 const Home: NextPage = () => {
@@ -25,7 +26,7 @@ const Home: NextPage = () => {
           type="video/mp4"
         />
       </video>
-      <motion.div
+      {/* <motion.div
         className="z-2 flex flex-row"
       >
         <div className=" hero flex flex-col items-center justify-center py-16">
@@ -68,7 +69,8 @@ const Home: NextPage = () => {
             </div>
           </div>
         </div>
-      </motion.div>
+      </motion.div> */}
+      <Heroleft />
 
       {/* Demo Video */}
       <div className="hero z-0 min-h-screen">
