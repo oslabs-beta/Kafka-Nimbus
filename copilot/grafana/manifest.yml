@@ -1,29 +1,27 @@
-# The manifest for the "kafkaprod" service.
+# The manifest for the "grafana" service.
 # Read the full specification for the "Load Balanced Web Service" type at:
 #  https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/
 
 # Your service name will be used in naming your resources like log groups, ECS services, etc.
-name: kafkaprod
+name: grafana
 type: Load Balanced Web Service
 
 # Distribute traffic to your service.
 http:
   # Requests to this path will be forwarded to your service.
   # To match all requests you can use the "/" path.
-  path: '/'
+  path: 'grafana'
   # You can specify a custom health check path. The default is "/".
   # healthcheck: '/'
 
 # Configuration for your containers and service.
 image:
-  # Docker build arguments. For additional overrides: https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/#image-build
-  build: Dockerfile
+  location: grafana/grafana-oss:latest
   # Port exposed through your container to route traffic to it.
-  port: 8000
+  port: 3000
 
 cpu: 256       # Number of CPU units for the task.
 memory: 512    # Amount of memory in MiB used by the task.
-platform: linux/x86_64  # See https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/#platform
 count: 1       # Number of tasks that should be running in your service.
 exec: true     # Enable running commands in your container.
 network:
@@ -33,20 +31,15 @@ network:
   # readonly_fs: true       # Limit to read-only access to mounted root filesystems.
 storage:
   volumes:
-    shared-volume:
-      path: '/usr/app/config'
+    sharedVolume:
+      path: '/var/lib/grafana'
       read_only: false
       efs:
-        id: fs-0843072f3c79c46a3
-
+        id: fs-04ffd5a840220b1e0
 # Optional fields for more advanced use-cases.
 #
-variables:                    # Pass environment variables as key value pairs.
-  NEXTAUTH_SECRET: 'PL1Z4T/Ffvb8Uxy4dTu2PuOjfaJWQJySLH0uVCjXTxk='
-  NEXTAUTH_URL: "http://localhost:8000"
-  DATABASE_URL: "mongodb+srv://kafkanimbus:xBNSQoyc42ZceQlb@cluster0.ykykmay.mongodb.net/Cluster0?retryWrites=true&w=majority"
-  GITHUB_ID: "347a65a263680343402d"
-  GITHUB_SECRET: "331b3d5a2e05f819df6cec4e68fadda19d1c26df"
+#variables:                    # Pass environment variables as key value pairs.
+#  LOG_LEVEL: info
 
 #secrets:                      # Pass secrets from AWS Systems Manager (SSM) Parameter Store.
 #  GITHUB_TOKEN: GITHUB_TOKEN  # The key is the name of the environment variable, the value is the name of the SSM parameter.
@@ -56,4 +49,4 @@ variables:                    # Pass environment variables as key value pairs.
 #  test:
 #    count: 2               # Number of tasks to run for the "test" environment.
 #    deployment:            # The deployment strategy for the "test" environment.
-#       rolling: 'recreate' # Stops existing tasks before new ones are started for faster deployments
+#       rolling: 'recreate' # Stops existing tasks before new ones are started for faster deployments.
