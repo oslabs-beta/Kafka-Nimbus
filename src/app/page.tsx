@@ -1,4 +1,5 @@
 "use client";
+
 import { type NextPage } from "next";
 import Link from "next/link";
 import { AuthShowcase } from "./components/AuthShowcase";
@@ -26,19 +27,16 @@ const Home: NextPage = () => {
       </video>
       <motion.div
         className="z-2 flex flex-row"
-        initial={{ scale: 0.1 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 1 }}
       >
         <div className=" hero flex flex-col items-center justify-center py-16">
           <div className="hero-content flex w-full max-w-md flex-col items-center align-middle">
             <h1 className="mt-20 text-center text-6xl font-bold">
-              Deploy your Clusters with Kafka Nimbus
+              Kafka Nimbus
             </h1>
 
+
             <p className="py-6 text-center text-2xl">
-              All in one solution for managing and deploying your clusters to
-              the cloud
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, 
             </p>
             <div className=" flex gap-4">
               <Link href="https://github.com/oslabs-beta/Kafka-Nimbus/blob/dev/README.md">
@@ -109,7 +107,7 @@ const Home: NextPage = () => {
       <div className="flex justify-center pt-60">
         <h2 className="z-10 text-4xl font-bold">The Team</h2>
       </div>
-      <div className="hero min-h-screen">
+      <div className="pb-40">
         <TeamList />
       </div>
     </>

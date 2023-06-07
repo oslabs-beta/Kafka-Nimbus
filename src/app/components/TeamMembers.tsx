@@ -78,10 +78,11 @@ const TeamList = () => {
               height="200"
             />
           </div>
-          <h2 className="member-name text-3xl font-sans">{member.Name}</h2>
+          <h2 className="member-name text-2xl font-sans font-extralight pt-3">{member.Name}</h2>
+          <h2 className="member-name text-md font-sans text-sm pb-3 text-gray-500">Software Engineer</h2>
           <div className="flex justify-center mx-3">
             {/*  Linkedin Link  */}
-            <Link href={member.LinkedInlink} className="mx-0 flex font-bold mx-3">
+            <Link href={member.LinkedInlink} className="mx-0 flex font-bold mx-3 pb-3">
               <Image
                 src={member.LinkedIn}
                 alt="linkedin"
@@ -90,7 +91,7 @@ const TeamList = () => {
               ></Image>
             </Link>
             {/*  Github Link  */}
-            <Link href={member.githublink} className="mx-0 flex font-bold mx-3">
+            <Link href={member.githublink} className="mx-0 flex font-bold mx-3 pb-3">
               <Image
                 src={member.github}
                 alt="github"

@@ -119,28 +119,3 @@ model Topic {
   configEntries     String?
   replicaAssignment String?
 }
-
-model ConsumerGroup {
-  id         String     @id @default(auto()) @map("_id") @db.ObjectId
-  Endpoint   String     @unique
-  Count      String
-  Status     String
-  Lag        Int
-  Partitions String
-  Topics     String
-  consumers  Consumer[]
-  Cluster    Cluster?   @relation(fields: [clusterId], references: [id])
-  clusterId  String?    @db.ObjectId
-}
-
-model Consumer {
-  id              String         @id @default(auto()) @map("_id") @db.ObjectId
-  Status          String
-  Lag             Int
-  Partitions      String
-  Topics          String
-  Cluster         Cluster?       @relation(fields: [clusterId], references: [id])
-  clusterId       String?        @db.ObjectId
-  ConsumerGroup   ConsumerGroup? @relation(fields: [consumerGroupId], references: [id])
-  consumerGroupId String?        @db.ObjectId
-}

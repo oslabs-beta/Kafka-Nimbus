@@ -15,5 +15,15 @@
       "b-2-public.simon.can3a0.c2.kafka.us-east-2.amazonaws.com:9198",
       "b-1-public.simon.can3a0.c2.kafka.us-east-2.amazonaws.com:9198"
     ]
+  },
+  {
+    "labels": {
+      "job": "647fb3cc2b2f93d537843ffc"
+    },
+    "targets": [
+      "b-4-public.testingnew.gbme8y.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-2-public.testingnew.gbme8y.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-3-public.testingnew.gbme8y.c2.kafka.us-east-2.amazonaws.com:11001"
+    ]
   }
 ]
