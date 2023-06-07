@@ -7,12 +7,13 @@ import Demovideo from "./components/Demovideo";
 import FeaturesList from "./components/Features";
 import TeamList from "./components/TeamMembers";
 import { motion } from "framer-motion";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
   return (
     <>
+    {/** Background video for hero page */}
       <video
         autoPlay
         loop
@@ -24,6 +25,7 @@ const Home: NextPage = () => {
           type="video/mp4"
         />
       </video>
+      {/** Text that appears at the top, making it come in larger */}
       <motion.div
         className="z-2 flex flex-row"
         initial={{ scale: 0.1 }}
@@ -53,6 +55,9 @@ const Home: NextPage = () => {
               {<AuthShowcase />}
             </div>
             <div>
+              {/** If they are already logged in, they can go straight to clusters 
+               * This sessionData is from nextAuth
+              */}
               {sessionData ? (
                 <Link href="/cluster-dashboard" className="mx-8 font-bold">
                   <motion.button

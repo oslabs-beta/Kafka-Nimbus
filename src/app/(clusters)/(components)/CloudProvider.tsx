@@ -11,8 +11,6 @@ interface ProviderProps {
   vpcId: string | undefined
 }
 
-
-
 const CloudProvider: React.FC<ProviderProps> = ({
   inFocusHandler,
   vpcId

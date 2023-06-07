@@ -15,7 +15,8 @@ const ClusterNameInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
-
+  
+  // Submits the name into redux state
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch(setClusterName(name));

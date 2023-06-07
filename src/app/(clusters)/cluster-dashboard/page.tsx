@@ -6,24 +6,20 @@ import { prisma } from '../../../server/db'
 
 import ClusterCard from "~/app/components/ClusterCard";
 import CreateClusterCard from "~/app/components/CreateClusterCard";
-interface Labels {
-  job: string;
-}
 
-interface Job {
-  labels: Labels;
-  targets: string[];
-}
 
 const ClusterDashboard = async () => {
-  const sessionData = await getServerAuthSession();
-  // if user is not logged in, will first go to log in page before going to cluster dashboard
+  // gets sessiondata on the server side
+  const sessionData = await getServerAuthSession();   
+  // if user is not logged in, will bring you to login page, and then redirect you
+  // back to this page
   if (!sessionData) {
     redirect('../../api/auth/signin?callbackUrl=/cluster-dashboard');
   }
 
   let clusters: Cluster[] = [];
   // looks for clusters only made by user
+  // stores them in the clusters variable
   try {
     clusters = await prisma.cluster.findMany({
       where: {
