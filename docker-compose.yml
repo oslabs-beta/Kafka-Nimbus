@@ -5,7 +5,7 @@ services:
   webapp:
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     command: [sh, -c, "cd /usr/app && npx prisma db push && npm run start"]
     ports:
       - 3000:3000
