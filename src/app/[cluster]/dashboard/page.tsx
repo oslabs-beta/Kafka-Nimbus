@@ -42,7 +42,7 @@ const Page = ({ params }: PageProps) => {
       result = <ClusterConsumers consumers={params.consumerGroups} />;
       break;
     case "metrics":
-      result = <ClusterMetrics clusterInfo={clusterInfo} />;
+      result = <ClusterMetrics clusterInfo={clusterInfo} metricsDashboard={params.metrics.metricsDashboard} />;
       break;
     case "topics":
       result = (

@@ -104,10 +104,13 @@ const layout = async (props) => {
       sasl: createMechanism(authParams),
     });
 
-    //GETTING METRICS
-    const metricsDashboard = await getDash(props.params.cluster, "eyJrIjoiVkJodDVwSkg0SXB5RlZUMjdGVVkwSUpxdGNxZko0UzEiLCJuIjoiYXBpa2V5Y3VybCIsImlkIjoyfQ==")
+    // GETTING METRICS
+    const metricsDashboard = await getDash(
+      props.params.cluster,
+      'eyJrIjoiVkJodDVwSkg0SXB5RlZUMjdGVVkwSUpxdGNxZko0UzEiLCJuIjoiYXBpa2V5Y3VybCIsImlkIjoyfQ=='
+    );
 
-    console.log('METRICSDASH: ', metricsDashboard)
+    // console.log('METRICSDASH: ', metricsDashboard);
 
     //Cluster Dashboard Information from MSK
     const commInput: DescribeClusterCommandInput = {
@@ -130,6 +133,7 @@ const layout = async (props) => {
     //
 
     response.Metrics = {
+      metricsDashboard,
       ClusterName,
       CreationTimeString: CreationTime?.toLocaleDateString(),
       KafkaVersion: CurrentBrokerSoftwareInfo?.KafkaVersion,
@@ -137,7 +141,6 @@ const layout = async (props) => {
       State,
       bootStrapServer,
     };
-
 
     //GETTING TOPICS using kafkajs
     const admin: Admin = kafka.admin();
@@ -147,7 +150,9 @@ const layout = async (props) => {
       throw new Error('Error: No topics data received from KJS client');
 
     // Helper function to get specific information from a specific topic
-    const descTopicConfig = async function (name: string): Promise<DescribeConfigResponse> {
+    const descTopicConfig = async function (
+      name: string
+    ): Promise<DescribeConfigResponse> {
       return new Promise(async (resolve, reject) => {
         try {
           const responseConfig = await admin.describeConfigs({
@@ -198,11 +203,10 @@ const layout = async (props) => {
     }
     response.Topics = topicsData;
 
-
     // GETTING CONSUMER GROUPS
     const listGroups = await admin.listGroups();
     // getting list of consumer group Ids
-    const groupIds = listGroups.groups.map(group => group.groupId);
+    const groupIds = listGroups.groups.map((group) => group.groupId);
 
     const groupsData: any[] = [];
     const describeGroupsResponse = await admin.describeGroups(groupIds);
@@ -216,7 +220,9 @@ const layout = async (props) => {
       if (members.length > 0) {
         membersId = members.map((member) => member.memberId);
         if (members[0] !== undefined) {
-          const memberAssignmentInfo = AssignerProtocol.MemberAssignment.decode(members[0].memberAssignment) || { assignment: {} };
+          const memberAssignmentInfo = AssignerProtocol.MemberAssignment.decode(
+            members[0].memberAssignment
+          ) || { assignment: {} };
           const memberAssignment = memberAssignmentInfo?.assignment;
           for (const key of Object.keys(memberAssignment)) {
             subscribedTopics.push(key);
@@ -244,11 +250,7 @@ const layout = async (props) => {
     throw new Error('Error occurred when getting metrics for cluster');
   }
 
-  return (
-    <div>
-      {props.children}
-    </div>
-  );
+  return <div>{props.children}</div>;
 };
 
 export default layout;
