@@ -17,7 +17,7 @@
         "environment": [
           {
             "name": "NEXTAUTH_SECRET",
-            "value": "placeholder"
+            "value": "{NEXTAUTH_SECRET}"
           },
           {
               "name": "NEXTAUTH_URL",
@@ -25,15 +25,15 @@
           },
           {
               "name": "DATABASE_URL",
-              "value": "placeholder"
+              "value": "{DATABASE_URL}"
           },
           {
               "name": "GITHUB_ID",
-              "value": "placeholder"
+              "value": "{GITHUB_ID}"
           },
           {
               "name": "GITHUB_SECRET",
-              "value": "placeholder"
+              "value": "{GITHUB_SECRET}"
           }
         ],
         "mountPoints": [
