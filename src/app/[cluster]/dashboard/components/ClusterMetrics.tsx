@@ -11,6 +11,10 @@ type ClusterMetricsProps = {
   clusterInfo: ClusterInfo;
 };
 
+/**
+ * 
+ * This is where the graphs are displayed, and other misc. metrics
+ */
 const ClusterMetrics = ({ clusterInfo }: ClusterMetricsProps) => {
   return (
     <div className=" h-full w-screen">

@@ -1,7 +1,11 @@
 "use client";
+// react and redux imports
 import React, { useState } from "react";
 import { useAppSelector } from "~/app/redux/hooks";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+// component imports
 import CloudProvider from "../(components)/CloudProvider";
 import AwsSecrets from "../(components)/AwsSecrets";
 import RegionInput from "../(components)/RegionInput";
@@ -11,31 +15,38 @@ import StoragePerBroker from "../(components)/StoragePerBroker";
 import ClusterSize from "../(components)/ClusterSize";
 import ClusterLoadingState from "../(components)/ClusterLoadingState";
 
-import { useRouter } from "next/navigation";
-
 // TRPC IMPORTS
 import { trpc } from "../../../trpc/trpc-provider";
 
+// Which component is currently in view 
 export type ComponentState = {
   inFocus?: string;
   loadingState: string;
 };
 
 const CreateClusterPage = () => {
-  const [inFocus, setInFocus] = useState<ComponentState["inFocus"]>("provider");
+  const router = useRouter();   // use router hook
+
+  const [inFocus, setInFocus] = useState<ComponentState["inFocus"]>("provider");  // state that switches which component is in focus
   const [loadingState, setLoadingState] =
-    useState<ComponentState["loadingState"]>("Creating VPC");
-  const { createCluster } = useAppSelector((state) => state);
-  const router = useRouter();
+    useState<ComponentState["loadingState"]>("Creating VPC");   // loading state when the user creates cluster
+  const { createCluster } = useAppSelector((state) => state);   // pulling down the redux store, createCluster slice
   const { data: sessionData } = useSession(); // gets current user info. .id references
   const createVPC = trpc.createVPC.createVPC.useMutation(); // createVPC route, as hook
   const createNewCluster = trpc.createCluster.createCluster.useMutation(); // create cluster route, as hook
-  const id = (sessionData?.user) ? sessionData.user.id : '';
+  const id = (sessionData?.user) ? sessionData.user.id : '';    // which user is currently logged in
   const findVPC = trpc.createVPC.findVPC.useQuery({ id }); // defining the query
+
+  /**
+   * Handles which component is in view / focus
+   */
   const inFocusHandler = (string: string) => {
     setInFocus(string);
   };
 
+  /**
+   * Takes user input and sends it to the create cluster route
+   */
   const createClusterHandler = async () => {
     const {
       awsId,
@@ -70,18 +81,14 @@ const CreateClusterPage = () => {
         instanceSize: clusterSize,
         name: clusterName,
         storagePerBroker: storagePerBroker,
-        zones: zones, // at the moment this is hard coded in as 2
+        zones: zones, 
       });
     } else {
-      /**
-       * TODO: Error Handling
-       */
-      console.log("Error, user not found");
+      throw new Error("Error, user not found");
     }
 
     router.push("/cluster-dashboard");
   };
-
 
   // rerenders new component instead of redirecting to new page while navigating through cluster creation
   switch (inFocus) {

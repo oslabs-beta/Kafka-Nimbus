@@ -1,20 +1,19 @@
 "use client";
-
 import { type NextPage } from "next";
 import Link from "next/link";
-import { AuthShowcase } from "./components/AuthShowcase";
 import { api } from "~/trpc/api";
 import Demovideo from "./components/Demovideo";
 import FeaturesList from "./components/Features";
 import TeamList from "./components/TeamMembers";
 import { motion } from "framer-motion";
-import Heroleft from "./components/Heropage-left";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import Heroright from "./components/Herpage-right";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
   return (
     <>
+      {/** Background video for hero page */}
       <video
         autoPlay
         loop
@@ -26,51 +25,7 @@ const Home: NextPage = () => {
           type="video/mp4"
         />
       </video>
-      {/* <motion.div
-        className="z-2 flex flex-row"
-      >
-        <div className=" hero flex flex-col items-center justify-center py-16">
-          <div className="hero-content flex w-full max-w-md flex-col items-center align-middle">
-            <h1 className="mt-20 text-center text-6xl font-bold">
-              Kafka Nimbus
-            </h1>
 
-
-            <p className="py-6 text-center text-2xl">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, 
-            </p>
-            <div className=" flex gap-4">
-              <Link href="https://github.com/oslabs-beta/Kafka-Nimbus/blob/dev/README.md">
-                <motion.button
-                  className="btn-primary btn"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.8 }}
-                >
-                  Read our Docs{" "}
-                </motion.button>
-              </Link>
-              {<AuthShowcase />}
-            </div>
-            <div>
-              {sessionData ? (
-                <Link href="/cluster-dashboard" className="mx-8 font-bold">
-                  <motion.button
-                    className="btn-light-grey btn-primary btn"
-                    style={{ color: "white" }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.8 }}
-                  >
-                    Go To Clusters
-                  </motion.button>
-                </Link>
-              ) : (
-                <div></div>
-              )}
-            </div>
-          </div>
-        </div>
-      </motion.div> */}
-      <Heroleft />
 
       {/* Demo Video */}
       <div className="hero z-0 min-h-screen">
@@ -78,11 +33,11 @@ const Home: NextPage = () => {
           <Demovideo />
           <div>
             <h1 className="text-5xl font-bold">
-              Create your own Kafka Cluster
+            Seamlessly Deploy Your Apache Kafka Cluster to the Cloud!
             </h1>
             <p className="py-6">
-              Our intuitive design abstracts the difficuly when setting up and
-              managing your clusters on the cloud.
+            Kafka Nimbus is an easy to use web application that simplifies and automates the creation of clusters in cloud environments.
+
             </p>
             <Link href="/cluster-dashboard" className="mx-8 font-bold">
               <motion.button
@@ -97,19 +52,21 @@ const Home: NextPage = () => {
         </div>
       </div>
 
+      <Heroright />
+
       {/* List of Features */}
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-60 pb-10">
         <h2 className="z-10 text-4xl font-bold">Features</h2>
       </div>
-      <div className="hero min-h-screen">
+      <div className="hero">
         <FeaturesList />
       </div>
 
       {/* List of Team Members */}
-      <div className="flex justify-center pt-60">
+      <div className="flex justify-center pt-60 pb-1">
         <h2 className="z-10 text-4xl font-bold">The Team</h2>
       </div>
-      <div className="pb-40">
+      <div className="hero">
         <TeamList />
       </div>
     </>

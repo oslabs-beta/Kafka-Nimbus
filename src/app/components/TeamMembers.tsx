@@ -4,6 +4,7 @@ import Link from "next/link";
 
 const TeamList = () => {
   // data of each individual feature card
+  // images stored on cloudinary for fast loading
   const Team = [
     {
       id: 1,
@@ -59,7 +60,9 @@ const TeamList = () => {
   ];
 
   return (
+    <>
     <div className="flex flex-wrap justify-center">
+
       {/*  iterate through TeamList array and populate new card for each element  */}
       {Team.map((member) => (
         <motion.div
@@ -104,6 +107,7 @@ const TeamList = () => {
         </motion.div>
       ))}
     </div>
+    </>
   );
 };
 
