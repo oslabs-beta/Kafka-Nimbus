@@ -6,14 +6,15 @@ import { useRouter } from "next/navigation";
 
 const ClusterConsumers = ({ consumers }) => {
   const router = useRouter()
+  // modals initially set to -1 because it is  keepting track of which specific member
+  // you are clicking on, so that it can use that data
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(-1);
   const [isTopicsModalOpen, setIsTopicsModalOpen] = useState(-1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
 
   return (
     <>
       {/* Modal for members array */}
+      {/* will show modal with consumers of specific consumer group*/}
       {isMembersModalOpen >= 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50">
           <div className="max-w-md rounded-lg bg-white p-6">
@@ -98,7 +99,6 @@ const ClusterConsumers = ({ consumers }) => {
             </thead>
             <tbody>
               {/* Creates new row for each consumer in consumerGroup array */}
-
               {consumers.map((consumer, index) => (
                 <tr key={index}>
                   <td>{index + 1}</td>
