@@ -7,25 +7,29 @@ import {
   settopicReplications,
 } from "~/app/redux/features/createSingleTopicSlice";
 import { trpc } from "../../../../trpc/trpc-provider";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { motion } from "framer-motion";
+
+
+// Caclulates total offset for each topic
+const calculateOffset = (offsets: any[]): number => {
+  let totalOffset = 0;
+  for (let i = 0; i < offsets.length; i++) {
+    const offset = Number(offsets[i].offset);
+    totalOffset += offset;
+  }
+  return totalOffset;
+};
 
 const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
+  const router = useRouter();
   // Limits replication factor to only be equal to or less than amount of brokers
   const replicationArray: number[] = [];
   for (let i = 1; i <= clusterInfo.NumberOfBrokerNodes; i++) {
     replicationArray.push(i);
   }
-
-  // Caclulates total offset for each topic
-  const calculateOffset = (offsets: any[]): number => {
-    let totalOffset = 0;
-    for (let i = 0; i < offsets.length; i++) {
-      const offset = Number(offsets[i].offset);
-      totalOffset += offset;
-    }
-    return totalOffset;
-  };
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // state for the topic partition modal
   const [isPartitionsModalOpen, setIsPartitionsModalOpen] = useState(-1);
 
   const dispatch = useAppDispatch();
@@ -33,11 +37,6 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
   const TopicPartitions: number[] = [1, 2, 3, 4, 5, 7, 8, 9, 10]; // Determine how many partitions we want to allow
   const { createTopic } = useAppSelector((state) => state);
   const createNewTopic = trpc.topic.createTopic.useMutation();
-
-  const onSubmitHandler = (event: React.FormEvent) => {
-    event.preventDefault();
-    console.log(createTopic);
-  };
 
   // keeps track of partition change
   const partitionChangeHandler = (
@@ -63,8 +62,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
 
   // creates a new topic
   const createTopicHandler = async () => {
-    const { Name, numPartitions, replicationFactor } =
-      createTopic;
+    const { Name, numPartitions, replicationFactor } = createTopic;
     // api call
     await createNewTopic.mutateAsync({
       id: clusterid,
@@ -72,7 +70,6 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
       numPartitions: numPartitions,
       replicationFactor: replicationFactor,
     });
-    setIsModalOpen(false);
   };
 
   return (
@@ -93,8 +90,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
                     <tr>
                       <th>Partition ID</th>
                       <th>Leader</th>
-                      <td>Replicas</td>
-                      <th>ISR</th>
+                      <th>Offsets</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -104,8 +100,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
                         <tr key={index}>
                           <td>{partition.partitionId}</td>
                           <td>{partition.leader}</td>
-                          <td>{partition.replicas}</td>
-                          <td>{partition.isr}</td>
+                          <td>{topics[isPartitionsModalOpen].offsets[index].offset}</td>
                         </tr>
                       )
                     )}
@@ -126,14 +121,32 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
       )}
 
       {/* Table to display topic information */}
-      <div className="mt-8 w-full p-8">
+
+      <div className="mt-8 w-full pl-12 pr-10 pb-20">
         <h1 className="mb-8 text-3xl">
           Topics
-          <div className="btn float-right ml-2 flex-col items-center">
+          <motion.div
+            className="btn float-right ml-2 flex-col items-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.8 }}
+          >
             <label htmlFor="my-modal-4" className="btn">
               Create Topic
             </label>
-          </div>
+          </motion.div>
+          <motion.button
+            onClick={() => router.refresh()}
+            className=" btn-small btn-warning glass btn-square btn float-right ml-5"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.8 }}
+          >
+            <Image
+              src="https://upload.wikimedia.org/wikipedia/commons/1/17/OOjs_UI_icon_reload.svg"
+              width="20"
+              height="20"
+              alt="Reload"
+            />
+          </motion.button>
         </h1>
 
         <div className="overflow-x-auto">
@@ -173,7 +186,7 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
         <input type="checkbox" id="my-modal-4" className="modal-toggle" />
         <label htmlFor="my-modal-4" className="modal cursor-pointer">
           <div className="modal-box relative w-3/5">
-            <form id="topic-form" onSubmit={onSubmitHandler}>
+            <form id="topic-form">
               <label htmlFor="topic-form" className="label">
                 Topic Name
               </label>
@@ -208,16 +221,15 @@ const ClusterTopics = ({ topics, clusterInfo, clusterid }) => {
                 ))}
               </select>
               <div className="flex justify-center">
-                <button
-                  className="btn-primary btn mx-2 mt-6"
-                  type="submit"
-                  onClick={createTopicHandler}
-                >
-                  Submit
-                </button>
                 <label
                   className="btn-primary btn mx-2 mt-6"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={createTopicHandler}
+                  htmlFor="my-modal-4"
+                >
+                  Submit
+                </label>
+                <label
+                  className="btn-primary btn mx-2 mt-6"
                   htmlFor="my-modal-4"
                 >
                   Cancel

@@ -18,6 +18,7 @@ import { getDash } from 'src/server/service/checkClusterService';
 import { createMechanism } from '@jm18457/kafkajs-msk-iam-authentication-mechanism';
 import { prisma } from '~/server/db';
 
+// Various types needed for the cluster displays
 export type metrics = {
   ClusterName: string;
   CreationTimeString: string;
@@ -54,6 +55,7 @@ const layout = async (props) => {
       Topics: any[];
       ConsumerGroups: any[];
     }
+    // The initial empty response of fetching the metrics
     const response: ResponseBody = {
       Metrics: {},
       Topics: [],
@@ -74,6 +76,7 @@ const layout = async (props) => {
     }
 
     //get bootstrap public endpoints
+    // and deconstruct more of the database fetch
     const brokers = clusterInfo.bootStrapServer;
 
     const bootStrapServer = clusterInfo.bootStrapServer;
@@ -110,7 +113,6 @@ const layout = async (props) => {
     const commInput: DescribeClusterCommandInput = {
       ClusterArn: clusterInfo?.kafkaArn ? clusterInfo?.kafkaArn : '',
     };
-
     const command = new DescribeClusterCommand(commInput);
     const descClusterResponse: DescribeClusterCommandOutput = await client.send(
       command
@@ -135,19 +137,17 @@ const layout = async (props) => {
       State,
       bootStrapServer,
     };
-    console.log('------ADDED metrics to response');
 
-    //GETTING TOPICS
+
+    //GETTING TOPICS using kafkajs
     const admin: Admin = kafka.admin();
 
     const fetchTopicMetaResponse = await admin.fetchTopicMetadata();
     if (!fetchTopicMetaResponse)
       throw new Error('Error: No topics data received from KJS client');
 
-    //Helper function to get Topic config information
-    const descTopicConfig = async function (
-      name: string
-    ): Promise<DescribeConfigResponse> {
+    // Helper function to get specific information from a specific topic
+    const descTopicConfig = async function (name: string): Promise<DescribeConfigResponse> {
       return new Promise(async (resolve, reject) => {
         try {
           const responseConfig = await admin.describeConfigs({
@@ -174,8 +174,7 @@ const layout = async (props) => {
       });
     };
 
-    //Processing each topic's data and storing it in an array topicsData
-
+    // Processing each topic's data and storing it in an array topicsData
     const kTopicsData: ITopicMetadata[] = fetchTopicMetaResponse.topics;
 
     const topicsData: any[] = [];
@@ -183,7 +182,7 @@ const layout = async (props) => {
       //add config description to topic
       const configData = await descTopicConfig(topic.name);
 
-      //get offsetdata for each Topic
+      // get offsetdata for each Topic
       const offSetData = await admin.fetchTopicOffsets(topic.name);
       if (configData != undefined) {
         const config =
@@ -197,20 +196,19 @@ const layout = async (props) => {
         });
       }
     }
-
     response.Topics = topicsData;
-    console.log('------ADDED topics to response');
 
-    //GETTING CONSUMER GROUPS
+
+    // GETTING CONSUMER GROUPS
     const listGroups = await admin.listGroups();
-    //getting list of consumer group Ids
-    const groupIds = listGroups.groups.map((group) => group.groupId);
+    // getting list of consumer group Ids
+    const groupIds = listGroups.groups.map(group => group.groupId);
 
     const groupsData: any[] = [];
     const describeGroupsResponse = await admin.describeGroups(groupIds);
     const descGroups = describeGroupsResponse.groups;
 
-    //for each group in array add to members and subscribedTopics List
+    // for each group in array add to members and subscribedTopics List
     for (const group of descGroups) {
       const { groupId, protocol, state, members } = group;
       let membersId: string[] = [];
@@ -218,10 +216,9 @@ const layout = async (props) => {
       if (members.length > 0) {
         membersId = members.map((member) => member.memberId);
         if (members[0] !== undefined) {
-          const memberAssignment = AssignerProtocol.MemberAssignment.decode(
-            members[0].memberAssignment
-          );
-          for (const key in memberAssignment) {
+          const memberAssignmentInfo = AssignerProtocol.MemberAssignment.decode(members[0].memberAssignment) || { assignment: {} };
+          const memberAssignment = memberAssignmentInfo?.assignment;
+          for (const key of Object.keys(memberAssignment)) {
             subscribedTopics.push(key);
           }
         }
@@ -236,17 +233,22 @@ const layout = async (props) => {
     }
 
     response.ConsumerGroups = groupsData;
-    console.log('------ADDED consumer groups to response');
 
-    //return response as the response body
+    // return response as the response body
+    // you cant pass down directly, so we have to store it in the params component
+    // of props
     props.params.metrics = response.Metrics;
     props.params.topics = response.Topics;
     props.params.consumerGroups = response.ConsumerGroups;
   } catch (err) {
-    console.log('Error occurred in metricRouter getClusterInformation: ', err);
+    throw new Error('Error occurred when getting metrics for cluster');
   }
 
-  return <div>{props.children}</div>;
+  return (
+    <div>
+      {props.children}
+    </div>
+  );
 };
 
 export default layout;

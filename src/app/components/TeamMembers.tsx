@@ -4,11 +4,12 @@ import Link from "next/link";
 
 const TeamList = () => {
   // data of each individual feature card
+  // images stored on cloudinary for fast loading
   const Team = [
     {
       id: 1,
       alt: "Andrew",
-      imageSrc: "/Andrew.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062389/Andrew_kevibc.jpg",
       Name: "Andrew Kim",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
@@ -18,7 +19,7 @@ const TeamList = () => {
     {
       id: 2,
       alt: "Paul",
-      imageSrc: "/Paul.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062705/Paul_Vachon_mctipz.jpg",
       Name: "Paul Vachon",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
@@ -28,7 +29,7 @@ const TeamList = () => {
     {
       id: 3,
       alt: "Ariel",
-      imageSrc: "/Ariel.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062599/Ariel_h65hwf.jpg",
       Name: "Ariel Lin",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
@@ -38,7 +39,7 @@ const TeamList = () => {
     {
       id: 4,
       alt: "Jackson",
-      imageSrc: "/Jackson.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062669/JacksonImage_byhsyi.jpg",
       Name: "Jackson Dahl",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
@@ -48,7 +49,7 @@ const TeamList = () => {
     {
       id: 5,
       alt: "Ijoo",
-      imageSrc: "/Ijoo.JPG",
+      imageSrc: "https://res.cloudinary.com/dpqdqryvo/image/upload/v1686062627/ijooimage_eggied.jpg",
       Name: "Ijoo Yoon",
       github: "/github-logo.svg",
       LinkedIn: "/LinkedInLogo.png",
@@ -64,7 +65,7 @@ const TeamList = () => {
       {Team.map((member) => (
         <motion.div
           key={member.id}
-          className="card mx-4 my-6 w- rounded-xl border border-solid border-gray-500 bg-transparent shadow-xl"
+          className="card mx-4 my-6 text-center rounded-xl border border-solid border-gray-500 bg-transparent shadow-xl"
           whileHover={{ scale: 1.1 }}
           transition={{ stiffness: 400, damping: 10 }}
         >
@@ -77,29 +78,29 @@ const TeamList = () => {
               width="200"
               height="200"
             />
-            <h2 className="member-name">{member.Name}</h2>
-            <div className="flex justify-center px-3">
-              {/*  Linkedin Link  */}
-              <Link href={member.LinkedInlink} className="mx-0 flex font-bold">
-                <Image
-                  src={member.LinkedIn}
-                  alt="linkedin"
-                  height="45"
-                  width="45"
-                ></Image>
-              </Link>
-              {/*  Github Link  */}
-              <Link href={member.githublink} className="mx-0 flex font-bold">
-                <Image
-                  src={member.github}
-                  alt="github"
-                  height="45"
-                  width="45"
-                ></Image>
-              </Link>
-            </div>
-            <div className="relative w-auto rounded-xl"></div>
           </div>
+          <h2 className="member-name text-3xl font-sans">{member.Name}</h2>
+          <div className="flex justify-center mx-3">
+            {/*  Linkedin Link  */}
+            <Link href={member.LinkedInlink} className="mx-0 flex font-bold mx-3">
+              <Image
+                src={member.LinkedIn}
+                alt="linkedin"
+                height="35"
+                width="35"
+              ></Image>
+            </Link>
+            {/*  Github Link  */}
+            <Link href={member.githublink} className="mx-0 flex font-bold mx-3">
+              <Image
+                src={member.github}
+                alt="github"
+                height="35"
+                width="35"
+              ></Image>
+            </Link>
+          </div>
+          <div className="relative w-auto rounded-xl"></div>
         </motion.div>
       ))}
     </div>

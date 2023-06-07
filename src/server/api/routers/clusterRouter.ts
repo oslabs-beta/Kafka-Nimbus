@@ -69,7 +69,7 @@ export const clusterRouter = createTRPCRouter({
         const createSecurityGroupData = await awsService.createSecurityGroup(ec2, vpcId);
 
         await awsService.authorizeSecurityGroupIngress(ec2, createSecurityGroupData);
-        if (input.zones === 2) {
+        if (input.zones === 2 && subnetIds.length > 2) {
           subnetIds.pop()
         }
         // kafka params
@@ -206,7 +206,7 @@ export const clusterRouter = createTRPCRouter({
           // grabs boostrap broker strings and stores them in the db 
           else if (curState === "ACTIVE" && lifeCycleStage === 1) {
             await checkService.getBoostrapBrokers(region, awsAccessKey, awsSecretAccessKey, kafkaArn, input.id)
-            
+
           }
           return curState;
         }
@@ -283,10 +283,10 @@ export const clusterRouter = createTRPCRouter({
    * @returns true or false if vpcid exists or not
    */
   updateTargetsJson: publicProcedure
-  .query(() => {
-    // do stuff to file first
+    .query(() => {
+      // do stuff to file first
 
-  }),
+    }),
 
   /**
    * Does not work correctly

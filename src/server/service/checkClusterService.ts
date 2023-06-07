@@ -10,6 +10,14 @@ import {
   DescribeClusterCommand,
 } from '@aws-sdk/client-kafka';
 
+/**
+ * 
+ * @param id 
+ * @returns awsAccessKey, awsSecretAccessKey, region, lifeCycleStage, kafkaArn
+ * 
+ * This function fetches the cluster from the database and returns the specified
+ * values that are needed
+ */
 export const getClusterResponse = async (id: string) => {
   try {
     const clusterResponse = await prisma.cluster.findUnique({
@@ -23,6 +31,8 @@ export const getClusterResponse = async (id: string) => {
     if (clusterResponse?.User === undefined) {
       throw new Error('User does not exist on the cluster Response');
     }
+    
+    // only take out the values that we need
     const response = {
       awsAccessKey: clusterResponse?.User.awsAccessKey,
       awsSecretAccessKey: clusterResponse?.User.awsSecretAccessKey,
@@ -36,6 +46,15 @@ export const getClusterResponse = async (id: string) => {
   }
 };
 
+/**
+ * 
+ * @param kafka 
+ * @param kafkaArn 
+ * @returns curState of the cluster
+ * 
+ * Uses the amazon sdk to fetch the response of describing the cluster,
+ * which lets ups grab the current state of the cluster.
+ */
 export const describeCluster = async (kafka: AWS.Kafka, kafkaArn: string) => {
   if (kafkaArn === '' || kafkaArn === undefined) {
     throw new Error('kafkaArn not included in request');
@@ -66,6 +85,10 @@ export const describeCluster = async (kafka: AWS.Kafka, kafkaArn: string) => {
  * @param kafkaArn
  * @param id
  * @returns none
+ * 
+ * When the cluster first goes from creating to active, it updates the public
+ * access, which can only be done on an active cluster. This so that there 
+ * are public endpoints which we can access.
  */
 export const updatePublicAccess = async (
   region: string,
@@ -223,11 +246,13 @@ export const addToPrometheusTarget = (
   // slice the last four digits off
   const newBrokerArr: string[] = [];
   for (const broker of brokers) {
-    newBrokerArr.push(broker.slice(0, broker.length - 4) + '11001');
+
     // remove the port and replace with 11001 so that prometheus can see it
-    // brokers[i] = brokers[i].slice(0, brokers[i].length-4) + '11001';
+    newBrokerArr.push(broker.slice(0, broker.length-4) + '11001');
   }
 
+  // define the newjob obj that we are going to store in targets.json so that 
+  // prometheus tracks it
   const newJob = {
     labels: {
       job: clusterUuid,
