@@ -73,7 +73,7 @@ jobs:
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ..
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -85,7 +85,12 @@ jobs:
         container-name: ${{ env.CONTAINER_NAME }}
         image: ${{ steps.build-image.outputs.image }}
         
-
+    - name: Replace environment variable placeholders in task definition
+      run: |
+        sed -i 's/{NEXTAUTH_SECRET}/'"${{ secrets.NEXTAUTH_SECRET }}"'/' ${{ env.ECS_TASK_DEFINITION }}
+        sed -i 's/{DATABASE_URL}/'"${{ secrets.DATABASE_URL }}"'/' ${{ env.ECS_TASK_DEFINITION }}
+        sed -i 's/{GITHUB_ID}/'"${{ secrets.GHUB_ID }}"'/' ${{ env.ECS_TASK_DEFINITION }}
+        sed -i 's/{GITHUB_SECRET}/'"${{ secrets.GHUB_SECRET }}"'/' ${{ env.ECS_TASK_DEFINITION }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
