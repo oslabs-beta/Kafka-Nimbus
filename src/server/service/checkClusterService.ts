@@ -666,7 +666,7 @@ export const createDash = (clusterUuid: string) => {
     .catch((error) => console.log('error', error));
 };
 
-export const addToPrometheusTarget = async (
+export const addToPrometheusTarget = (
   brokers: string[],
   clusterUuid: string
 ) => {
