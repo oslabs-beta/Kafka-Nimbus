@@ -108,7 +108,7 @@ const layout = async (props) => {
     // GETTING METRICS
     const metricsDashboard = await getDash(
       props.params.cluster,
-      process.env.GRAFANA_API_KEY || '',
+      'glsa_nYo8nYS97KqWEKu47Nrp4nXyKpOb9fSb_ea068e36',
     );
 
     // console.log('METRICSDASH: ', metricsDashboard);

@@ -188,7 +188,7 @@ export const getBoostrapBrokers = async (
     });
     console.log('----CHECKING HERE----');
     // store in the targets.json file for prometheus
-    await addToPrometheusTarget(splitBrokers, id);
+    addToPrometheusTarget(splitBrokers, id);
   } catch (err) {
     throw new Error('Error going from updating to active, ');
   }
@@ -203,22 +203,21 @@ interface Job {
   targets: string[];
 }
 
-export const createDash = (
-  clusterName: string,
-  apiKey: string,
-  clusterId: string
-) => {
+export const createDash = (clusterUuid: string) => {
   // create dash
-
+  const datasource = 'a801b372-378e-4365-9654-c24561d9b858'
   const myHeaders = new Headers();
   myHeaders.append('Content-Type', 'application/json');
-  myHeaders.append('Authorization', `Bearer ${process.env.GRAFANA_API_KEY || ''}`);
+  myHeaders.append(
+    'Authorization',
+    `Bearer ${process.env.GRAFANA_API_KEY || ''}`
+  );
 
   const raw = JSON.stringify({
     dashboard: {
       id: null,
-      uid: clusterId,
-      title: clusterName,
+      uid: clusterUuid,
+      title: clusterUuid,
       tags: ['MSK-Cluster'],
       timezone: 'browser',
       schemaVersion: 16,
@@ -232,7 +231,7 @@ export const createDash = (
             builtIn: 1,
             datasource: {
               type: 'prometheus',
-              uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+              uid: datasource,
             },
             enable: true,
             hide: true,
@@ -253,7 +252,7 @@ export const createDash = (
         {
           datasource: {
             type: 'prometheus',
-            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+            uid: datasource,
           },
           fieldConfig: {
             defaults: {
@@ -314,10 +313,10 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: datasource,
               },
               editorMode: 'builder',
-              expr: `kafka_server_BrokerTopicMetrics_Count{name="TotalProduceRequestsPerSec", job="${clusterId}", topic="__consumer_offsets"}`,
+              expr: `kafka_server_BrokerTopicMetrics_Count{name="TotalProduceRequestsPerSec", job="${clusterUuid}", topic="__consumer_offsets"}`,
               intervalFactor: 2,
               legendFormat: '',
               metric: '',
@@ -332,7 +331,7 @@ export const createDash = (
         {
           datasource: {
             type: 'prometheus',
-            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+            uid: datasource,
           },
           fieldConfig: {
             defaults: {
@@ -393,10 +392,10 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: datasource,
               },
               editorMode: 'builder',
-              expr: `up{job="${clusterId}"}`,
+              expr: `up{job="${clusterUuid}"}`,
               legendFormat: '__auto',
               range: true,
               refId: 'A',
@@ -412,7 +411,7 @@ export const createDash = (
           dashes: false,
           datasource: {
             type: 'prometheus',
-            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+            uid: datasource,
           },
           editable: true,
           error: false,
@@ -456,10 +455,10 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: datasource,
               },
               editorMode: 'builder',
-              expr: `kafka_server_group_coordinator_metrics_offset_commit_count{job="${clusterId}"}`,
+              expr: `kafka_server_group_coordinator_metrics_offset_commit_count{job="${clusterUuid}"}`,
               intervalFactor: 2,
               range: true,
               refId: 'A',
@@ -504,7 +503,7 @@ export const createDash = (
           dashes: false,
           datasource: {
             type: 'prometheus',
-            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+            uid: datasource,
           },
           editable: true,
           error: false,
@@ -552,10 +551,10 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: datasource,
               },
               editorMode: 'builder',
-              expr: `kafka_server_BrokerTopicMetrics_Count{name="BytesInPerSec", job="${clusterId}"}`,
+              expr: `kafka_server_BrokerTopicMetrics_Count{name="BytesInPerSec", job="${clusterUuid}"}`,
               intervalFactor: 2,
               range: true,
               refId: 'A',
@@ -564,10 +563,10 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: datasource,
               },
               editorMode: 'builder',
-              expr: `kafka_server_BrokerTopicMetrics_OneMinuteRate{name="BytesOutPerSec", job="${clusterId}"}`,
+              expr: `kafka_server_BrokerTopicMetrics_OneMinuteRate{name="BytesOutPerSec", job="${clusterUuid}"}`,
               intervalFactor: 2,
               legendFormat: '',
               range: true,
@@ -662,15 +661,12 @@ export const createDash = (
   };
 
   fetch('http://157.230.13.68:3000/api/dashboards/db', requestOptions)
-    .then((response) => {
-      console.log('--RESPONSE--', response);
-      return response.text();
-    })
+    .then((response) => response.text())
     .then((result) => console.log(result))
     .catch((error) => console.log('error', error));
 };
 
-export const addToPrometheusTarget = async (
+export const addToPrometheusTarget = (
   brokers: string[],
   clusterUuid: string
 ) => {
@@ -701,23 +697,23 @@ export const addToPrometheusTarget = async (
 
   // const destPath = path.resolve('/usr/app/config', 'targets.json');
   // fs.copyFileSync(srcPath, destPath);
-  await fetch('http://157.230.13.68:3000/-/reload', {
-    method: 'POST',
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('HTTP request failed.');
-      }
-      // Process the successful response here
-      console.log('Refreshed Prometheus')
-    })
-    .catch((error) => {
-      // Handle any errors that occurred during the request
-      console.error(error);
-    });
+  // await fetch('http://157.230.13.68:9090/-/reload', {
+  //   method: 'POST',
+  // })
+  //   .then((response) => {
+  //     if (!response.ok) {
+  //       throw new Error('HTTP request failed.');
+  //     }
+  //     // Process the successful response here
+  //     console.log('Refreshed Prometheus');
+  //   })
+  //   .catch((error) => {
+  //     // Handle any errors that occurred during the request
+  //     console.error(error);
+  //   });
 
   console.log('---ADDED TO PROMETHEUS---');
-  createDash(clusterUuid, process.env.GRAFANA_API_KEY || '', clusterUuid);
+  createDash(clusterUuid);
 };
 
 export const getDash = async (uuid: string, apiKey: string) => {
