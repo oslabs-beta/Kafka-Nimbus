@@ -1,260 +1,147 @@
 {
-    "family": "",
-    "taskRoleArn": "",
-    "executionRoleArn": "",
-    "networkMode": "bridge",
-    "containerDefinitions": [
-        {
-            "name": "",
-            "image": "",
-            "repositoryCredentials": {
-                "credentialsParameter": ""
-            },
-            "cpu": 0,
-            "memory": 0,
-            "memoryReservation": 0,
-            "links": [
-                ""
-            ],
-            "portMappings": [
-                {
-                    "containerPort": 0,
-                    "hostPort": 0,
-                    "protocol": "tcp",
-                    "name": "",
-                    "appProtocol": "http",
-                    "containerPortRange": ""
-                }
-            ],
-            "essential": true,
-            "entryPoint": [
-                ""
-            ],
-            "command": [
-                ""
-            ],
-            "environment": [
-                {
-                    "name": "",
-                    "value": ""
-                }
-            ],
-            "environmentFiles": [
-                {
-                    "value": "",
-                    "type": "s3"
-                }
-            ],
-            "mountPoints": [
-                {
-                    "sourceVolume": "",
-                    "containerPath": "",
-                    "readOnly": true
-                }
-            ],
-            "volumesFrom": [
-                {
-                    "sourceContainer": "",
-                    "readOnly": true
-                }
-            ],
-            "linuxParameters": {
-                "capabilities": {
-                    "add": [
-                        ""
-                    ],
-                    "drop": [
-                        ""
-                    ]
-                },
-                "devices": [
-                    {
-                        "hostPath": "",
-                        "containerPath": "",
-                        "permissions": [
-                            "read"
-                        ]
-                    }
-                ],
-                "initProcessEnabled": true,
-                "sharedMemorySize": 0,
-                "tmpfs": [
-                    {
-                        "containerPath": "",
-                        "size": 0,
-                        "mountOptions": [
-                            ""
-                        ]
-                    }
-                ],
-                "maxSwap": 0,
-                "swappiness": 0
-            },
-            "secrets": [
-                {
-                    "name": "",
-                    "valueFrom": ""
-                }
-            ],
-            "dependsOn": [
-                {
-                    "containerName": "",
-                    "condition": "START"
-                }
-            ],
-            "startTimeout": 0,
-            "stopTimeout": 0,
-            "hostname": "",
-            "user": "",
-            "workingDirectory": "",
-            "disableNetworking": true,
-            "privileged": true,
-            "readonlyRootFilesystem": true,
-            "dnsServers": [
-                ""
-            ],
-            "dnsSearchDomains": [
-                ""
-            ],
-            "extraHosts": [
-                {
-                    "hostname": "",
-                    "ipAddress": ""
-                }
-            ],
-            "dockerSecurityOptions": [
-                ""
-            ],
-            "interactive": true,
-            "pseudoTerminal": true,
-            "dockerLabels": {
-                "KeyName": ""
-            },
-            "ulimits": [
-                {
-                    "name": "core",
-                    "softLimit": 0,
-                    "hardLimit": 0
-                }
-            ],
-            "logConfiguration": {
-                "logDriver": "json-file",
-                "options": {
-                    "KeyName": ""
-                },
-                "secretOptions": [
-                    {
-                        "name": "",
-                        "valueFrom": ""
-                    }
-                ]
-            },
-            "healthCheck": {
-                "command": [
-                    ""
-                ],
-                "interval": 0,
-                "timeout": 0,
-                "retries": 0,
-                "startPeriod": 0
-            },
-            "systemControls": [
-                {
-                    "namespace": "",
-                    "value": ""
-                }
-            ],
-            "resourceRequirements": [
-                {
-                    "value": "",
-                    "type": "GPU"
-                }
-            ],
-            "firelensConfiguration": {
-                "type": "fluentd",
-                "options": {
-                    "KeyName": ""
-                }
-            }
-        }
-    ],
-    "volumes": [
-        {
-            "name": "",
-            "host": {
-                "sourcePath": ""
-            },
-            "dockerVolumeConfiguration": {
-                "scope": "task",
-                "autoprovision": true,
-                "driver": "",
-                "driverOpts": {
-                    "KeyName": ""
-                },
-                "labels": {
-                    "KeyName": ""
-                }
-            },
-            "efsVolumeConfiguration": {
-                "fileSystemId": "",
-                "rootDirectory": "",
-                "transitEncryption": "ENABLED",
-                "transitEncryptionPort": 0,
-                "authorizationConfig": {
-                    "accessPointId": "",
-                    "iam": "ENABLED"
-                }
-            },
-            "fsxWindowsFileServerVolumeConfiguration": {
-                "fileSystemId": "",
-                "rootDirectory": "",
-                "authorizationConfig": {
-                    "credentialsParameter": "",
-                    "domain": ""
-                }
-            }
-        }
-    ],
-    "placementConstraints": [
-        {
-            "type": "memberOf",
-            "expression": ""
-        }
-    ],
-    "requiresCompatibilities": [
-        "EC2"
-    ],
-    "cpu": "",
-    "memory": "",
-    "tags": [
-        {
-            "key": "",
-            "value": ""
-        }
-    ],
-    "pidMode": "host",
-    "ipcMode": "host",
-    "proxyConfiguration": {
-        "type": "APPMESH",
-        "containerName": "",
-        "properties": [
+  "family": "",
+  "taskRoleArn": "",
+  "executionRoleArn": "",
+  "networkMode": "bridge",
+  "containerDefinitions": [
+    {
+        "name": "webapp",
+        "image": "090574062077.dkr.ecr.us-east-1.amazonaws.com/kafka-nimbus-prod:latest",
+        "essential": true,
+        "portMappings": [
             {
-                "name": "",
-                "value": ""
+                "hostPort": 3000,
+                "containerPort": 3000
+            }
+        ],
+        "environment": [
+          {
+            "name": "NEXTAUTH_SECRET",
+            "value": "PL1Z4T/Ffvb8Uxy4dTu2PuOjfaJWQJySLH0uVCjXTxk="
+          },
+          {
+              "name": "NEXTAUTH_URL",
+              "value": "http://localhost:3000"
+          },
+          {
+              "name": "DATABASE_URL",
+              "value": "mongodb+srv://kafkanimbus:xBNSQoyc42ZceQlb@cluster0.ykykmay.mongodb.net/Cluster0?retryWrites=true&w=majority"
+          },
+          {
+              "name": "GITHUB_ID",
+              "value": "347a65a263680343402d"
+          },
+          {
+              "name": "GITHUB_SECRET",
+              "value": "331b3d5a2e05f819df6cec4e68fadda19d1c26df"
+          }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "shared-volume",
+                "containerPath": "/usr/app/config"
             }
         ]
     },
-    "inferenceAccelerators": [
-        {
-            "deviceName": "",
-            "deviceType": ""
-        }
-    ],
-    "ephemeralStorage": {
-        "sizeInGiB": 0
+    {
+        "name": "prometheus",
+        "image": "prom/prometheus:latest",
+        "essential": true,
+        "portMappings": [
+            {
+                "hostPort": 9090,
+                "containerPort": 9090
+            }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "shared-volume",
+                "containerPath": "/etc/prometheus"
+            },
+            {
+                "sourceVolume": "prometheus-data",
+                "containerPath": "/prometheus"
+            }
+        ]
     },
-    "runtimePlatform": {
-        "cpuArchitecture": "X86_64",
-        "operatingSystemFamily": "WINDOWS_SERVER_2019_FULL"
+    {
+        "name": "grafana",
+        "image": "grafana/grafana-oss:latest",
+        "essential": true,
+        "portMappings": [
+            {
+                "hostPort": 3001,
+                "containerPort": 3000
+            }
+        ],
+        "environment": [
+            {
+                "name": "GF_USERS_ALLOW_SIGN_UP",
+                "value": "false"
+            }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "grafana-data",
+                "containerPath": "/var/lib/grafana"
+            }
+        ]
     }
+],
+"volumes": [
+    {
+        "name": "shared-volume",
+        "host": {}
+    },
+    {
+        "name": "prometheus-data",
+        "host": {}
+    },
+    {
+        "name": "grafana-data",
+        "host": {}
+    }
+],
+  "placementConstraints": [
+      {
+          "type": "memberOf",
+          "expression": ""
+      }
+  ],
+  "requiresCompatibilities": [
+      "EC2"
+  ],
+  "cpu": "",
+  "memory": "",
+  "tags": [
+      {
+          "key": "",
+          "value": ""
+      }
+  ],
+  "pidMode": "host",
+  "ipcMode": "host",
+  "proxyConfiguration": {
+      "type": "APPMESH",
+      "containerName": "",
+      "properties": [
+          {
+              "name": "",
+              "value": ""
+          }
+      ]
+  },
+  "inferenceAccelerators": [
+      {
+          "deviceName": "",
+          "deviceType": ""
+      }
+  ],
+  "ephemeralStorage": {
+      "sizeInGiB": 0
+  },
+  "runtimePlatform": {
+      "cpuArchitecture": "X86_64",
+      "operatingSystemFamily": "WINDOWS_SERVER_2019_FULL"
+  }
 }
