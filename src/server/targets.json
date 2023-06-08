@@ -7,5 +7,32 @@
     "labels": {
       "job": "6480a07694c2332fad755a2a"
     }
+  },
+  {
+    "labels": {
+      "job": "648201aea317e48a94ca5659"
+    },
+    "targets": [
+      "b-1-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-2-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001"
+    ]
+  },
+  {
+    "labels": {
+      "job": "648201aea317e48a94ca5659"
+    },
+    "targets": [
+      "b-1-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-2-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001"
+    ]
+  },
+  {
+    "labels": {
+      "job": "648201aea317e48a94ca5659"
+    },
+    "targets": [
+      "b-2-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-1-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001"
+    ]
   }
 ]

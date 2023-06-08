@@ -670,7 +670,7 @@ export const createDash = (
     .catch((error) => console.log('error', error));
 };
 
-export const addToPrometheusTarget = (
+export const addToPrometheusTarget = async (
   brokers: string[],
   clusterUuid: string
 ) => {
@@ -699,8 +699,22 @@ export const addToPrometheusTarget = (
   const updatedTargetsData = JSON.stringify(targetsData, null, 2);
   fs.writeFileSync(srcPath, updatedTargetsData, 'utf8');
 
-  const destPath = path.resolve('/usr/app/config', 'targets.json');
-  fs.copyFileSync(srcPath, destPath);
+  // const destPath = path.resolve('/usr/app/config', 'targets.json');
+  // fs.copyFileSync(srcPath, destPath);
+  await fetch('http://157.230.13.68:3000/-/reload', {
+    method: 'POST',
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('HTTP request failed.');
+      }
+      // Process the successful response here
+      console.log('Refreshed Prometheus')
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
 
   console.log('---ADDED TO PROMETHEUS---');
   createDash(clusterUuid, process.env.GRAFANA_API_KEY || '', clusterUuid);
@@ -723,6 +737,6 @@ export const getDash = async (uuid: string, apiKey: string) => {
     const dashboard: string = await fetchDashboard.json();
     return dashboard;
   } catch (error) {
-    throw new Error("Error fetching dashboard");
+    throw new Error('Error fetching dashboard');
   }
 };
