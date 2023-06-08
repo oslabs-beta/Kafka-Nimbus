@@ -212,7 +212,7 @@ export const createDash = (
 
   const myHeaders = new Headers();
   myHeaders.append('Content-Type', 'application/json');
-  myHeaders.append('Authorization', `Bearer ${apiKey}`);
+  myHeaders.append('Authorization', `Bearer ${process.env.GRAFANA_API_KEY || ''}`);
 
   const raw = JSON.stringify({
     dashboard: {
