@@ -10,9 +10,6 @@ import {
   DescribeClusterCommand,
 } from '@aws-sdk/client-kafka';
 
-import { metricsGraphJson } from './metricsGraphs.js';
-import { randomUUID } from 'crypto';
-
 export const getClusterResponse = async (id: string) => {
   try {
     const clusterResponse = await prisma.cluster.findUnique({
@@ -215,10 +212,7 @@ export const createDash = (
 
   const myHeaders = new Headers();
   myHeaders.append('Content-Type', 'application/json');
-  myHeaders.append(
-    'Authorization',
-    'Bearer eyJrIjoiVkJodDVwSkg0SXB5RlZUMjdGVVkwSUpxdGNxZko0UzEiLCJuIjoiYXBpa2V5Y3VybCIsImlkIjoyfQ=='
-  );
+  myHeaders.append('Authorization', `Bearer ${apiKey}`);
 
   const raw = JSON.stringify({
     dashboard: {
@@ -238,7 +232,7 @@ export const createDash = (
             builtIn: 1,
             datasource: {
               type: 'prometheus',
-              uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+              uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
             },
             enable: true,
             hide: true,
@@ -259,7 +253,7 @@ export const createDash = (
         {
           datasource: {
             type: 'prometheus',
-            uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
           },
           fieldConfig: {
             defaults: {
@@ -320,7 +314,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
               },
               editorMode: 'builder',
               expr: `kafka_server_BrokerTopicMetrics_Count{name="TotalProduceRequestsPerSec", job="${clusterId}", topic="__consumer_offsets"}`,
@@ -338,7 +332,7 @@ export const createDash = (
         {
           datasource: {
             type: 'prometheus',
-            uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
           },
           fieldConfig: {
             defaults: {
@@ -399,7 +393,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
               },
               editorMode: 'builder',
               expr: `up{job="${clusterId}"}`,
@@ -418,7 +412,7 @@ export const createDash = (
           dashes: false,
           datasource: {
             type: 'prometheus',
-            uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
           },
           editable: true,
           error: false,
@@ -462,7 +456,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
               },
               editorMode: 'builder',
               expr: `kafka_server_group_coordinator_metrics_offset_commit_count{job="${clusterId}"}`,
@@ -510,7 +504,7 @@ export const createDash = (
           dashes: false,
           datasource: {
             type: 'prometheus',
-            uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
           },
           editable: true,
           error: false,
@@ -558,7 +552,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
               },
               editorMode: 'builder',
               expr: `kafka_server_BrokerTopicMetrics_Count{name="BytesInPerSec", job="${clusterId}"}`,
@@ -570,7 +564,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
+                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
               },
               editorMode: 'builder',
               expr: `kafka_server_BrokerTopicMetrics_OneMinuteRate{name="BytesOutPerSec", job="${clusterId}"}`,
@@ -653,14 +647,21 @@ export const createDash = (
     },
   });
 
-  const requestOptions = {
+  type RequestOptions = {
+    method: string;
+    headers: Headers;
+    body: string;
+    redirect: any;
+  };
+
+  const requestOptions: RequestOptions = {
     method: 'POST',
     headers: myHeaders,
     body: raw,
     redirect: 'follow',
   };
 
-  fetch('http://host.docker.internal:3001/api/dashboards/db', requestOptions)
+  fetch('http://157.230.13.68:3000/api/dashboards/db', requestOptions)
     .then((response) => {
       console.log('--RESPONSE--', response);
       return response.text();
@@ -702,27 +703,26 @@ export const addToPrometheusTarget = (
   fs.copyFileSync(srcPath, destPath);
 
   console.log('---ADDED TO PROMETHEUS---');
-  createDash(
-    clusterUuid,
-    'eyJrIjoiVkJodDVwSkg0SXB5RlZUMjdGVVkwSUpxdGNxZko0UzEiLCJuIjoiYXBpa2V5Y3VybCIsImlkIjoyfQ==',
-    clusterUuid
-  );
+  createDash(clusterUuid, process.env.GRAFANA_API_KEY || '', clusterUuid);
 };
 
 export const getDash = async (uuid: string, apiKey: string) => {
   try {
-    const fetchDashboard = await fetch('http://host.docker.internal:3001/api/dashboards/uid/' + uuid, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + apiKey,
-      },
-    });
+    const fetchDashboard = await fetch(
+      'http://157.230.13.68:3000/api/dashboards/uid/' + uuid,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+      }
+    );
 
-    const dashboard = await fetchDashboard.json();
+    const dashboard: string = await fetchDashboard.json();
     return dashboard;
   } catch (error) {
-    throw new Error(error);
+    throw new Error("Error fetching dashboard");
   }
 };

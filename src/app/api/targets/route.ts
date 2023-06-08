@@ -1,13 +1,24 @@
-import { NextResponse } from 'next/server';
 import * as fs from 'fs';
 import * as path from 'path';
-import { headers } from 'next/headers';
+
+type Target = string;
+
+type Labels = {
+  job: string;
+};
+
+type DataPoint = {
+  targets: Target[];
+  labels: Labels;
+};
+
+type DataPoints = DataPoint[];
 
 export function GET(request: Request) {
     // console.log('here')
   const srcPath = path.join('./src/server/targets.json');
 
-  const targetsData = JSON.parse(fs.readFileSync(srcPath, 'utf8'));
+  const targetsData: DataPoints = JSON.parse(fs.readFileSync(srcPath, 'utf8'));
 
   return new Response(JSON.stringify(targetsData), {
     status: 200,
