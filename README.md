@@ -11,7 +11,7 @@
 Kafka Nimbus is an open source product whose goal is to provide developers a method in which they can easily host their Kafka cluster onto. The user-friendly GUI allows direct visibility and modification of data like topic partitions and consumer group information, which are typically not readily accessible through the AWS interface.
 
 
-For more information, visit our [website](www.google.com) or [LinkedIn](www.linkedin.com).
+For more information, visit our [website](https://kafka-nimbus.vercel.app/).
 <br />
 <br />
 
@@ -33,15 +33,14 @@ For more information, visit our [website](www.google.com) or [LinkedIn](www.link
     <li>
     <a href="#about-the-project">About Kafka Nimbus</a></li>
     <li><a href="#Features">Features</a></li>
-    <li><a href="#Prerequisites">Creating an AWS user</a></li>
-    <li><a href="#contributing">User Guide</a></li>
+    <li><a href="#Prerequisites">User Guide</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#license">License</a></li>
   </ol>
 
 <br />
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<br />
 
 
 ### Features
@@ -53,36 +52,72 @@ For more information, visit our [website](www.google.com) or [LinkedIn](www.link
 - Offers precise customization of parameters when creating new clusters and topics.
 - Delivers a secure and scalable solution by leveraging cloud infrastructure providers like AWS, ensuring clusters are fault tolerant and highly scalable.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<br />
 
-#### Prerequisites:
+### User Guide
 
-To be able to use our application, you must have a working AWS IAM account. 
-<br></br>
 
-#### STEP 1 — Sign into you AWS account
+If you do not have an AWS account, follow these steps. Otherwise, proceed to step 5.
 
-Visit the AWS Management Console at https://aws.amazon.com/console/ and make a Root user account if you haven't already.
+<br />
 
-#### STEP 2 — Specify user details
 
-Look for "IAM" in the AWS search bar and go to the IAM dashboard. Go to the "Users" tab under Access management and click on "Add users." You will be prompted to create a username. Once you are done with that, check the "Provide user access to the AWS Management Console" option. Checking that will open up a box asking "Are you providing console access to a person?" with two options to click between-- "Specify a user in Identity Center - Recommended" and "I want to create and IAM user." Check the second option. You will see an option for passwords, which you can keep the default configurations for.
+#### STEP 1 — Create an AWS account
 
-#### STEP 3 — Set permissions
+- Visit the AWS Management Console at https://aws.amazon.com/console/ and make a Root user account.
 
-Between the permissions options at the top, click on "Add user to group." Under that, add the user to an existing user group or create a group by selecting "Create group" on the top-right corner of the box. Click next to move to the next page.
+<br />
 
-#### STEP 4 — Review, create, and retrieve password
 
-Review if the user details and permissions summary is configured correctly and click "create user". Then, in the page to retrieve passwords, click on the "Email sign-in Instructions" button on the top-right corner of the Console sign-in details box. This will create an email draft that has all the sign in instructions that an IMA user will need that you can send. Make sure to download the CSV file containing the access key and secret access key
+#### STEP 2 — Create a Group
 
+- Go to the IAM dashboard in the searchbar, and click User Groups. Create a group and attach the `AdministratorAccess` policy.
+
+<br />
+
+#### STEP 3 — Create new users
+
+- On the left bar, click Users, and make a new user, checking off the box saying `Provide user access to the AWS Management Console` and `I want to create an IAM user`. Don't forget to make a new user for yourself.
+
+<br />
+
+
+#### STEP 4 — Add users to Group
+
+- Go to the newly created group, add add new team members to the group
+
+<br />
+
+
+#### STEP 5 — Generating New Access Keys
+
+- Log into the IAM user, and click on security credentials on the top right. As you scroll down, you should see a button called created `Create Access Key`. Make sure to keep this information somewhere safe as it is not recoverable.
+
+<br />
+
+
+#### STEP 6 — Creating a new cluster
+
+- Click on the create a cluster card input the AWS credentials that you have saved. It will only ask you for the first time you create a new cluster.
+
+<br />
+
+
+#### STEP 7 — View cluster Metrics
+
+- Navigate to different pages to view different cluster informoation through the menu on the left
+
+<br />
+
+
+
+
+
+<br />
+<br />
+<br />
 
 ______________________________________________________
-
-
-
-
-
 
 ## Authors
 
@@ -94,13 +129,15 @@ ______________________________________________________
 | Paul Vachon  |  [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/paulrvach)   |  [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/paul-vachon/)   |
 |  Ijoo Yoon   |   [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ijoo123)    |    [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ijooyoon/)    |
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<br />
+<br />
+<br />
 
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 [React.js]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
