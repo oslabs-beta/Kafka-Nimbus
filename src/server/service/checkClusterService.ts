@@ -697,7 +697,7 @@ export const addToPrometheusTarget = async (
 
   // const destPath = path.resolve('/usr/app/config', 'targets.json');
   // fs.copyFileSync(srcPath, destPath);
-  await fetch('http://157.230.13.68:3000/-/reload', {
+  fetch('http://157.230.13.68:9090/-/reload', {
     method: 'POST',
   })
     .then((response) => {
