@@ -15,15 +15,10 @@ export interface cardCluster {
 
 export default function ClusterCard({ cluster }: cardCluster) {
   const router = useRouter();
-  let clusterStatus: string;
   // Fetching the cluster status to display
-  if (cluster.lifeCycleStage !== 2) {
-    const { data: status } = trpc.createCluster.checkClusterStatus.useQuery({
-      id: cluster.id
-    });
-    clusterStatus = status ? status : '';
-    console.log("status:", status)
-  } else { clusterStatus = 'ACTIVE' }
+  const { data: status } = trpc.createCluster.checkClusterStatus.useQuery({
+    id: cluster.id
+  });
 
 
 
@@ -37,15 +32,15 @@ export default function ClusterCard({ cluster }: cardCluster) {
   const deleteCluster = trpc.createCluster.deleteCluster.useMutation();
 
   const routeToCluster = () => {
-    if (!isHoverDelete && clusterStatus === 'ACTIVE' && cluster.lifeCycleStage === 2) {
+    if (!isHoverDelete && status === 'ACTIVE' && cluster.lifeCycleStage === 2) {
       router.push(`${cluster.id}/dashboard`);
     }
   }
 
   // changes color based on status
-  const statusColor = clusterStatus === 'ACTIVE' ? 'green'
-    : clusterStatus === 'UPDATING' ? console.log(clusterStatus)
-      : clusterStatus === 'CREATING' ? 'blue'
+  const statusColor = status === 'ACTIVE' ? 'green'
+    : status === 'UPDATING' ? console.log(status)
+      : status === 'CREATING' ? 'blue'
         : 'red';
 
   //The API call to backend to handle deleting the cluster in AWS and DB
@@ -80,7 +75,7 @@ export default function ClusterCard({ cluster }: cardCluster) {
 
       <div
         onClick={routeToCluster}
-        className={`relative card h-48 max-w-98 w-72 rounded-xl bg-base-100 shadow-xl ${(clusterStatus === 'ACTIVE' && !isHoverDelete) ? 'hover:ring-4 cursor-pointer' : ''}`}
+        className={`relative card h-48 max-w-98 w-72 rounded-xl bg-base-100 shadow-xl ${(status === 'ACTIVE' && !isHoverDelete) ? 'hover:ring-4 cursor-pointer' : ''}`}
       >
         <figure className='w-full'>
           <div className={`h-24 w-full object-cover ${(cluster.img) ? cluster.img : ''}`} />
@@ -91,11 +86,11 @@ export default function ClusterCard({ cluster }: cardCluster) {
             <p
               className={`text-green-600  mr-6 w-min rounded-xl bg-green-100  px-4 align-bottom mx-1 items-end shadow-md`}
             >
-              {clusterStatus}
+              {status}
             </p>
           </div>
         </div>
-        {(clusterStatus === 'ACTIVE') ?
+        {(status === 'ACTIVE') ?
           <label className="absolute -top-2 -right-2 bg-white transition duration-300 hover:bg-red-600 text-black font-semibold hover:text-black p-2 border border-black hover:border-transparent rounded-full cursor-pointer" onMouseEnter={() => updateHover(true)} onMouseLeave={() => updateHover(false)} htmlFor={`modal${cluster.name}${cluster.id}`}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </label>

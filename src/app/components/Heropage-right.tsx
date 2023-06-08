@@ -1,13 +1,14 @@
 "use client";
 
-import Demovideo from "./Demovideo";
+import Testvideo from "./InfoVideo";
+
 
 const Heroright = () => {
   return (
     <>
     <div className="hero z-0 min-h-10">
     <div className="hero-content flex-col lg:flex-row text-right">
-      <Demovideo />
+      <Testvideo />
       <div>
         <h1 className="text-5xl font-bold">
         Manage and View Advanced Metrics

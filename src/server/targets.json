@@ -25,5 +25,14 @@
       "b-2-public.testingnew.gbme8y.c2.kafka.us-east-2.amazonaws.com:11001",
       "b-3-public.testingnew.gbme8y.c2.kafka.us-east-2.amazonaws.com:11001"
     ]
+  },
+  {
+    "labels": {
+      "job": "64809561dabb3476da2867a7"
+    },
+    "targets": [
+      "b-2-public.toystore.mtqla8.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-1-public.toystore.mtqla8.c2.kafka.us-east-2.amazonaws.com:11001"
+    ]
   }
 ]
