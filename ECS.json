@@ -17,7 +17,7 @@
         "environment": [
           {
             "name": "NEXTAUTH_SECRET",
-            "value": "{NEXTAUTH_SECRET}"
+            "value": "PL1Z4T/Ffvb8Uxy4dTu2PuOjfaJWQJySLH0uVCjXTxk="
           },
           {
               "name": "NEXTAUTH_URL",
@@ -25,15 +25,15 @@
           },
           {
               "name": "DATABASE_URL",
-              "value": "{DATABASE_URL}"
+              "value": "mongodb+srv://kafkanimbus:xBNSQoyc42ZceQlb@cluster0.ykykmay.mongodb.net/Cluster0?retryWrites=true&w=majority"
           },
           {
               "name": "GITHUB_ID",
-              "value": "{GITHUB_ID}"
+              "value": "347a65a263680343402d"
           },
           {
               "name": "GITHUB_SECRET",
-              "value": "{GITHUB_SECRET}"
+              "value": "331b3d5a2e05f819df6cec4e68fadda19d1c26df"
           }
         ],
         "mountPoints": [
