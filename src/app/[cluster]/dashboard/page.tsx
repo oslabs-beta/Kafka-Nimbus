@@ -33,7 +33,7 @@ const Page = ({ params }: PageProps) => {
   const { clusterInfo } = useAppSelector((state) => state);
   const [inFocus, setInFocus] = useState<string>("metrics");
   let result;
-
+  console.log(params.metrics)
   /**
    * Rendering the new page when you navigate using the side bar
    */
@@ -42,7 +42,7 @@ const Page = ({ params }: PageProps) => {
       result = <ClusterConsumers consumers={params.consumerGroups} />;
       break;
     case "metrics":
-      result = <ClusterMetrics clusterInfo={clusterInfo} />;
+      result = <ClusterMetrics clusterInfo={clusterInfo} metricsDashboard={params.metrics.metricsDashboard} />;
       break;
     case "topics":
       result = (

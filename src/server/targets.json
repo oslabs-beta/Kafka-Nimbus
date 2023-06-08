@@ -1,38 +1,38 @@
 [
   {
+    "targets": [
+      "b-2-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-1-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001"
+    ],
     "labels": {
-      "job": "node"
+      "job": "6480a07694c2332fad755a2a"
+    }
+  },
+  {
+    "labels": {
+      "job": "648201aea317e48a94ca5659"
     },
     "targets": [
-      "localhost:9100"
+      "b-1-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-2-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001"
     ]
   },
   {
     "labels": {
-      "job": "647f4580b1ab42ce7756d07a"
+      "job": "648201aea317e48a94ca5659"
     },
     "targets": [
-      "b-2-public.simon.can3a0.c2.kafka.us-east-2.amazonaws.com:9198",
-      "b-1-public.simon.can3a0.c2.kafka.us-east-2.amazonaws.com:9198"
+      "b-1-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-2-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001"
     ]
   },
   {
     "labels": {
-      "job": "647fb3cc2b2f93d537843ffc"
+      "job": "648201aea317e48a94ca5659"
     },
     "targets": [
-      "b-4-public.testingnew.gbme8y.c2.kafka.us-east-2.amazonaws.com:11001",
-      "b-2-public.testingnew.gbme8y.c2.kafka.us-east-2.amazonaws.com:11001",
-      "b-3-public.testingnew.gbme8y.c2.kafka.us-east-2.amazonaws.com:11001"
-    ]
-  },
-  {
-    "labels": {
-      "job": "64809561dabb3476da2867a7"
-    },
-    "targets": [
-      "b-2-public.toystore.mtqla8.c2.kafka.us-east-2.amazonaws.com:11001",
-      "b-1-public.toystore.mtqla8.c2.kafka.us-east-2.amazonaws.com:11001"
+      "b-2-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001",
+      "b-1-public.finaltest.n5ujmr.c2.kafka.us-east-2.amazonaws.com:11001"
     ]
   }
 ]

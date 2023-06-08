@@ -1,6 +1,20 @@
 import React from 'react';
-import { KafkaClient, DescribeClusterCommand, type DescribeClusterCommandInput, type DescribeClusterCommandOutput } from '@aws-sdk/client-kafka';
-import { Kafka, logLevel, AssignerProtocol, type ITopicMetadata, ConfigResourceTypes, type Admin, type DescribeConfigResponse } from 'kafkajs';
+import {
+  KafkaClient,
+  DescribeClusterCommand,
+  type DescribeClusterCommandInput,
+  type DescribeClusterCommandOutput,
+} from '@aws-sdk/client-kafka';
+import {
+  Kafka,
+  logLevel,
+  AssignerProtocol,
+  type ITopicMetadata,
+  ConfigResourceTypes,
+  type Admin,
+  type DescribeConfigResponse,
+} from 'kafkajs';
+import { getDash } from 'src/server/service/checkClusterService';
 import { createMechanism } from '@jm18457/kafkajs-msk-iam-authentication-mechanism';
 import { prisma } from '~/server/db';
 
@@ -11,31 +25,31 @@ export type metrics = {
   KafkaVersion: string;
   NumberOfBrokerNodes: number;
   State: string;
+  metricsDashboard: any
 };
 
 export type partitions = {
-  partitionErrorCode: number,
-  partitionId: number,
-  leader: number,
-  isr: any[],
-  offlineReplicas: any[]
-}
+  partitionErrorCode: number;
+  partitionId: number;
+  leader: number;
+  isr: any[];
+  offlineReplicas: any[];
+};
 
 export type topics = {
-  name: string,
-  partitions: partitions[]
+  name: string;
+  partitions: partitions[];
 };
 
 export type consumerGroups = {
-  groupId: string,
-  protocol: string,
-  state: string,
-  members: string[],
-  subscribedTopics: string[]
-}
+  groupId: string;
+  protocol: string;
+  state: string;
+  members: string[];
+  subscribedTopics: string[];
+};
 
 const layout = async (props) => {
-
   try {
     interface ResponseBody {
       Metrics: any;
@@ -55,8 +69,8 @@ const layout = async (props) => {
         id: props.params.cluster,
       },
       include: {
-        User: true
-      }
+        User: true,
+      },
     });
     if (!clusterInfo) {
       throw new Error('Error: Cluster does not exist in the database');
@@ -74,14 +88,13 @@ const layout = async (props) => {
     const authParams = {
       region,
       credentials: {
-        accessKeyId, secretAccessKey
-      }
-    }
+        accessKeyId,
+        secretAccessKey,
+      },
+    };
 
     //AWS kafka client
-    const client = new KafkaClient(
-      authParams
-    );
+    const client = new KafkaClient(authParams);
 
     //KafkaJS client
     const kafka: Kafka = new Kafka({
@@ -89,39 +102,58 @@ const layout = async (props) => {
       brokers,
       logLevel: logLevel.ERROR,
       ssl: true,
-      sasl: createMechanism(authParams)
+      sasl: createMechanism(authParams),
     });
 
-    /**
-     * Cluster Dashboard Information from MSK
-     */
+    // GETTING METRICS
+    const metricsDashboard = await getDash(
+      props.params.cluster,
+      process.env.GRAFANA_API_KEY || '',
+    );
+
+    // console.log('METRICSDASH: ', metricsDashboard);
+
+    //Cluster Dashboard Information from MSK
     const commInput: DescribeClusterCommandInput = {
-      ClusterArn: clusterInfo?.kafkaArn ? clusterInfo?.kafkaArn : "",
+      ClusterArn: clusterInfo?.kafkaArn ? clusterInfo?.kafkaArn : '',
     };
     const command = new DescribeClusterCommand(commInput);
-    const descClusterResponse: DescribeClusterCommandOutput = await client.send(command);
+    const descClusterResponse: DescribeClusterCommandOutput = await client.send(
+      command
+    );
     const cluster = descClusterResponse.ClusterInfo;
     if (!cluster) throw new Error('Error: MSK Cluster does not have info');
-    const { ClusterName, CreationTime, CurrentBrokerSoftwareInfo, NumberOfBrokerNodes, State } = cluster;
+    const {
+      ClusterName,
+      CreationTime,
+      CurrentBrokerSoftwareInfo,
+      NumberOfBrokerNodes,
+      State,
+    } = cluster;
+
+    //
 
     response.Metrics = {
+      metricsDashboard,
       ClusterName,
       CreationTimeString: CreationTime?.toLocaleDateString(),
       KafkaVersion: CurrentBrokerSoftwareInfo?.KafkaVersion,
       NumberOfBrokerNodes,
       State,
-      bootStrapServer
+      bootStrapServer,
     };
-
 
     //GETTING TOPICS using kafkajs
     const admin: Admin = kafka.admin();
 
     const fetchTopicMetaResponse = await admin.fetchTopicMetadata();
-    if (!fetchTopicMetaResponse) throw new Error('Error: No topics data received from KJS client');
+    if (!fetchTopicMetaResponse)
+      throw new Error('Error: No topics data received from KJS client');
 
     // Helper function to get specific information from a specific topic
-    const descTopicConfig = async function (name: string): Promise<DescribeConfigResponse> {
+    const descTopicConfig = async function (
+      name: string
+    ): Promise<DescribeConfigResponse> {
       return new Promise(async (resolve, reject) => {
         try {
           const responseConfig = await admin.describeConfigs({
@@ -130,29 +162,39 @@ const layout = async (props) => {
               {
                 type: ConfigResourceTypes.TOPIC,
                 name,
-                configNames: ['cleanup.policy', 'retention.ms', 'message.format.version', 'file.delete.delay.ms', 'max.message.bytes', 'index.interval.bytes'],
+                configNames: [
+                  'cleanup.policy',
+                  'retention.ms',
+                  'message.format.version',
+                  'file.delete.delay.ms',
+                  'max.message.bytes',
+                  'index.interval.bytes',
+                ],
               },
-            ]
+            ],
           });
-          resolve(responseConfig)
+          resolve(responseConfig);
         } catch (err) {
           reject(err);
         }
       });
-    }
+    };
 
     // Processing each topic's data and storing it in an array topicsData
     const kTopicsData: ITopicMetadata[] = fetchTopicMetaResponse.topics;
 
     const topicsData: any[] = [];
     for (const topic of kTopicsData) {
-      // add config description to topic
+      //add config description to topic
       const configData = await descTopicConfig(topic.name);
 
       // get offsetdata for each Topic
       const offSetData = await admin.fetchTopicOffsets(topic.name);
       if (configData != undefined) {
-        const config = (configData?.resources?.length != 0) ? configData?.resources[0]?.configEntries : [];
+        const config =
+          configData?.resources?.length != 0
+            ? configData?.resources[0]?.configEntries
+            : [];
         topicsData.push({
           ...topic,
           config,
@@ -162,11 +204,10 @@ const layout = async (props) => {
     }
     response.Topics = topicsData;
 
-
     // GETTING CONSUMER GROUPS
     const listGroups = await admin.listGroups();
     // getting list of consumer group Ids
-    const groupIds = listGroups.groups.map(group => group.groupId);
+    const groupIds = listGroups.groups.map((group) => group.groupId);
 
     const groupsData: any[] = [];
     const describeGroupsResponse = await admin.describeGroups(groupIds);
@@ -178,9 +219,11 @@ const layout = async (props) => {
       let membersId: string[] = [];
       const subscribedTopics: string[] = [];
       if (members.length > 0) {
-        membersId = members.map(member => member.memberId);
+        membersId = members.map((member) => member.memberId);
         if (members[0] !== undefined) {
-          const memberAssignmentInfo = AssignerProtocol.MemberAssignment.decode(members[0].memberAssignment) || { assignment: {} };
+          const memberAssignmentInfo = AssignerProtocol.MemberAssignment.decode(
+            members[0].memberAssignment
+          ) || { assignment: {} };
           const memberAssignment = memberAssignmentInfo?.assignment;
           for (const key of Object.keys(memberAssignment)) {
             subscribedTopics.push(key);
@@ -208,11 +251,7 @@ const layout = async (props) => {
     throw new Error('Error occurred when getting metrics for cluster');
   }
 
-  return (
-    <div>
-      {props.children}
-    </div>
-  );
+  return <div>{props.children}</div>;
 };
 
 export default layout;
