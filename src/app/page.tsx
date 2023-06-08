@@ -35,7 +35,7 @@ const Home: NextPage = () => {
         <div className=" hero flex flex-col items-center justify-center py-16">
           <div className="hero-content flex w-full max-w-md flex-col items-center align-middle">
             <h1 className="mt-20 text-center text-6xl font-bold">
-              Deploy your Clusters with Kafka Nimbus
+              Deploy your awesome Clusters with Kafka Nimbus
             </h1>
 
             <p className="py-6 text-center text-2xl">
