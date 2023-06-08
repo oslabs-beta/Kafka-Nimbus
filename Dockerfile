@@ -10,5 +10,5 @@ RUN npm i -g prisma
 RUN npx prisma generate --schema ./prisma/schema.prisma
 
 RUN npm run build
-EXPOSE 3000
+EXPOSE 80
 ENTRYPOINT npm run start
