@@ -1,0 +1,147 @@
+{
+  "family": "",
+  "taskRoleArn": "",
+  "executionRoleArn": "",
+  "networkMode": "bridge",
+  "containerDefinitions": [
+    {
+        "name": "webapp",
+        "image": "090574062077.dkr.ecr.us-east-1.amazonaws.com/kafka-nimbus-prod:latest",
+        "essential": true,
+        "portMappings": [
+            {
+                "hostPort": 3000,
+                "containerPort": 3000
+            }
+        ],
+        "environment": [
+          {
+            "name": "NEXTAUTH_SECRET",
+            "value": "PL1Z4T/Ffvb8Uxy4dTu2PuOjfaJWQJySLH0uVCjXTxk="
+          },
+          {
+              "name": "NEXTAUTH_URL",
+              "value": "http://localhost:3000"
+          },
+          {
+              "name": "DATABASE_URL",
+              "value": "mongodb+srv://kafkanimbus:xBNSQoyc42ZceQlb@cluster0.ykykmay.mongodb.net/Cluster0?retryWrites=true&w=majority"
+          },
+          {
+              "name": "GITHUB_ID",
+              "value": "347a65a263680343402d"
+          },
+          {
+              "name": "GITHUB_SECRET",
+              "value": "331b3d5a2e05f819df6cec4e68fadda19d1c26df"
+          }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "shared-volume",
+                "containerPath": "/usr/app/config"
+            }
+        ]
+    },
+    {
+        "name": "prometheus",
+        "image": "prom/prometheus:latest",
+        "essential": true,
+        "portMappings": [
+            {
+                "hostPort": 9090,
+                "containerPort": 9090
+            }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "shared-volume",
+                "containerPath": "/etc/prometheus"
+            },
+            {
+                "sourceVolume": "prometheus-data",
+                "containerPath": "/prometheus"
+            }
+        ]
+    },
+    {
+        "name": "grafana",
+        "image": "grafana/grafana-oss:latest",
+        "essential": true,
+        "portMappings": [
+            {
+                "hostPort": 3001,
+                "containerPort": 3000
+            }
+        ],
+        "environment": [
+            {
+                "name": "GF_USERS_ALLOW_SIGN_UP",
+                "value": "false"
+            }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "grafana-data",
+                "containerPath": "/var/lib/grafana"
+            }
+        ]
+    }
+],
+"volumes": [
+    {
+        "name": "shared-volume",
+        "host": {}
+    },
+    {
+        "name": "prometheus-data",
+        "host": {}
+    },
+    {
+        "name": "grafana-data",
+        "host": {}
+    }
+],
+  "placementConstraints": [
+      {
+          "type": "memberOf",
+          "expression": ""
+      }
+  ],
+  "requiresCompatibilities": [
+      "EC2"
+  ],
+  "cpu": "",
+  "memory": "",
+  "tags": [
+      {
+          "key": "",
+          "value": ""
+      }
+  ],
+  "pidMode": "host",
+  "ipcMode": "host",
+  "proxyConfiguration": {
+      "type": "APPMESH",
+      "containerName": "",
+      "properties": [
+          {
+              "name": "",
+              "value": ""
+          }
+      ]
+  },
+  "inferenceAccelerators": [
+      {
+          "deviceName": "",
+          "deviceType": ""
+      }
+  ],
+  "ephemeralStorage": {
+      "sizeInGiB": 0
+  },
+  "runtimePlatform": {
+      "cpuArchitecture": "X86_64",
+      "operatingSystemFamily": "WINDOWS_SERVER_2019_FULL"
+  }
+}

@@ -6,16 +6,17 @@ import {
   setAwsSecret,
 } from "~/app/redux/features/createClusterSlice";
 
+//  ProviderProps is the focus handler
 interface ProviderProps {
   inFocusHandler: (string: string) => void;
 }
 
 const AwsSecrets: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   const dispatch = useAppDispatch();
-  const [awsIdValue, setAwsIdValue] = useState<string>("");
+  const [awsIdValue, setAwsIdValue] = useState<string>("");   // states to handle input
   const [awsSecretValue, setAwsSecretValue] = useState<string>("");
 
-  // add current user info into to state
+  // add current user info from state to redux
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch(setAwsId(awsIdValue));
@@ -23,16 +24,20 @@ const AwsSecrets: React.FC<ProviderProps> = ({ inFocusHandler }) => {
     inFocusHandler("region");
   };
 
-    // changes the aws id stored in state
+  // changes the aws id stored in state
   const idChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
-    console.log(event.currentTarget.value);
     setAwsIdValue(event.currentTarget.value);
   };
 
-    // changes the aws secret stored in state
+  // changes the aws secret stored in state
   const secretChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
-    console.log(event.currentTarget.value);
     setAwsSecretValue(event.currentTarget.value);
+  };
+
+  // sets state to previous page
+  const backHandler = (event: React.FormEvent) => {
+    event.preventDefault();
+    inFocusHandler("provider");
   };
 
   return (
@@ -61,7 +66,13 @@ const AwsSecrets: React.FC<ProviderProps> = ({ inFocusHandler }) => {
             />
           </div>
           <button className="btn-primary btn mt-6 w-full" type="submit">
-            Button
+            Submit
+          </button>
+          <button
+            className="btn-primary btn mt-8 w-full max-w-xs"
+            onClick={backHandler}
+          >
+            Back
           </button>
         </form>
       </div>

@@ -76,23 +76,29 @@ export const createVPCRouter = createTRPCRouter({
           .createSubnet({
             CidrBlock: '10.0.0.0/24',
             VpcId: vpcId,
-            AvailabilityZone: 'us-east-2a', // change this so  that they can enter their specific region
+            AvailabilityZone: `${input.region}a`, // change this so  that they can enter their specific region
           })
           .promise();
         const subnet2Data = await ec2
           .createSubnet({
             CidrBlock: '10.0.1.0/24',
             VpcId: vpcId,
-            AvailabilityZone: 'us-east-2b',
+            AvailabilityZone: `${input.region}b`,
+          })
+          .promise();
+          const subnet3Data = await ec2
+          .createSubnet({
+            CidrBlock: '10.0.2.0/24',
+            VpcId: vpcId,
+            AvailabilityZone: `${input.region}c`,
           })
           .promise();
         const subnet1Id = subnet1Data.Subnet?.SubnetId;
         const subnet2Id = subnet2Data.Subnet?.SubnetId;
-        if (subnet1Id === undefined || subnet2Id === undefined) {
+        const subnet3Id = subnet3Data.Subnet?.SubnetId;
+        if (subnet1Id === undefined || subnet2Id === undefined || subnet3Id === undefined) {
           throw new Error('One or both of the subnets failed to create');
         }
-        console.log(`Created subnet with id ${subnet1Id}`);
-        console.log(`Created subnet with id ${subnet2Id}`);
 
         // Create route table connections
         const routeTables = await ec2.describeRouteTables({
@@ -147,7 +153,7 @@ export const createVPCRouter = createTRPCRouter({
         /**
          * Send required info to db
          */
-        const subnets: string[] = [subnet1Id, subnet2Id];
+        const subnets: string[] = [subnet1Id, subnet2Id, subnet3Id];
         try {
           // updates the user in the database with the vpc and subnet ids
           await prisma.user.update({

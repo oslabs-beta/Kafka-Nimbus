@@ -1,6 +1,6 @@
 'use client';
-import React, { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '~/app/redux/hooks';
+import React from 'react';
+import { useAppDispatch } from '~/app/redux/hooks';
 import { setStoragePerBroker } from '~/app/redux/features/createClusterSlice';
 
 interface ProviderProps {
@@ -8,21 +8,26 @@ interface ProviderProps {
   createClusterHandler: () => void
 }
 
+
 const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler, createClusterHandler }) => {
   const dispatch = useAppDispatch();
-  const { createCluster } = useAppSelector((state) => state);
 
+  // handles selection of storage and stores it in redux state
   const onSubmitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log(createCluster);
     createClusterHandler()
     inFocusHandler('loading')
   };
 
-  // chnages storage size stored in state
+  // changes storage size stored in state
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
     dispatch(setStoragePerBroker(value));
+  };
+
+  const backHandler = (event: React.FormEvent) => {
+    event.preventDefault();
+    inFocusHandler("brokers");
   };
   
 
@@ -46,8 +51,14 @@ const StoragePerBroker: React.FC<ProviderProps> = ({ inFocusHandler, createClust
             <span>GB</span>
           </label>
         </div>
-        <button type='submit' className='btn-primary btn mt-8 w-full'>
+        <button type='submit' className='btn-primary btn mt-8 w-full max-w-xs'>
           Submit
+        </button>
+        <button
+          className="btn-primary btn mt-8 w-full max-w-xs"
+          onClick={backHandler}
+        >
+          Back
         </button>
       </form>
     </div>
