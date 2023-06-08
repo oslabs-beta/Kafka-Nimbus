@@ -55,7 +55,7 @@ const Home: NextPage = () => {
 
       {/* List of Features */}
       <div className="flex justify-center pt-60 pb-10">
-        <h2 className="z-10 text-4xl font-bold">Features</h2>
+        <h2 id="features" className="z-10 text-4xl font-bold">Features</h2>
       </div>
       <div className="hero">
         <FeaturesList />
@@ -63,7 +63,7 @@ const Home: NextPage = () => {
 
       {/* List of Team Members */}
       <div className="flex justify-center pt-60 pb-1">
-        <h2 className="z-10 text-4xl font-bold">The Team</h2>
+        <h2 id="team" className="z-10 text-4xl font-bold">The Team</h2>
       </div>
       <div className="hero">
         <TeamList />
