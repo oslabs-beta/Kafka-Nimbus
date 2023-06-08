@@ -232,7 +232,7 @@ export const createDash = (
             builtIn: 1,
             datasource: {
               type: 'prometheus',
-              uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+              uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
             },
             enable: true,
             hide: true,
@@ -253,7 +253,7 @@ export const createDash = (
         {
           datasource: {
             type: 'prometheus',
-            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+            uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
           },
           fieldConfig: {
             defaults: {
@@ -314,7 +314,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
               },
               editorMode: 'builder',
               expr: `kafka_server_BrokerTopicMetrics_Count{name="TotalProduceRequestsPerSec", job="${clusterId}", topic="__consumer_offsets"}`,
@@ -332,7 +332,7 @@ export const createDash = (
         {
           datasource: {
             type: 'prometheus',
-            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+            uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
           },
           fieldConfig: {
             defaults: {
@@ -393,7 +393,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
               },
               editorMode: 'builder',
               expr: `up{job="${clusterId}"}`,
@@ -412,7 +412,7 @@ export const createDash = (
           dashes: false,
           datasource: {
             type: 'prometheus',
-            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+            uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
           },
           editable: true,
           error: false,
@@ -456,7 +456,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
               },
               editorMode: 'builder',
               expr: `kafka_server_group_coordinator_metrics_offset_commit_count{job="${clusterId}"}`,
@@ -504,7 +504,7 @@ export const createDash = (
           dashes: false,
           datasource: {
             type: 'prometheus',
-            uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+            uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
           },
           editable: true,
           error: false,
@@ -552,7 +552,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
               },
               editorMode: 'builder',
               expr: `kafka_server_BrokerTopicMetrics_Count{name="BytesInPerSec", job="${clusterId}"}`,
@@ -564,7 +564,7 @@ export const createDash = (
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'fb5e3835-a1d8-4d43-b348-65f0cd505078',
+                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
               },
               editorMode: 'builder',
               expr: `kafka_server_BrokerTopicMetrics_OneMinuteRate{name="BytesOutPerSec", job="${clusterId}"}`,
