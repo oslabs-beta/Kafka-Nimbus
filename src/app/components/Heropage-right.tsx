@@ -1,12 +1,9 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import Testvideo from "./InfoVideo";
 
 
 const Heroright = () => {
-
-  const { data: sessionData } = useSession();
   return (
     <>
     <div className="hero z-0 min-h-10">

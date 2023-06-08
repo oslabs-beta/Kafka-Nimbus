@@ -1,5 +1,4 @@
 "use client";
-import React, { useState } from "react";
 import logo from "../../../public/logoword.svg";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
@@ -11,16 +10,21 @@ const NavBar = () => {
   const { data: sessionData } = useSession();
 
   return (
+    <>
     <div className="navbar flex justify-between fixed top-0 left-0 right-0 bg-gray-100 bg-opacity-50 z-30 backdrop-blur-sm">
       <div className="flex cursor-pointer flex-row align-middle">
         <Link href="/"><Image width="60" height="60" src={logo} alt="logo" className="mr-2 h-8 w-8" /></Link>
         <Link className="btn btn-ghost text-xl normal-case" href="/">Kafka Nimbus</Link>
       </div>
 
+
       <div className="mr-5">
+      <div className="mx-4 hover:cursor-pointer hover:bg-slate-200" onClick={() => router.push('https://github.com/oslabs-beta/Kafka-Nimbus')}> Docs </div>
+
+
         {(!sessionData) ?
           <Link href="./api/auth/signin?callbackUrl=/cluster-dashboard"
-            className="overflow-hidden hover:bg-slate-300"
+            className="overflow-hidden hover:bg-slate-200"
           ><Image width="35"
             height="35"
             alt="logo-not-logged-in" src={"https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg"}></Image></Link> :
@@ -47,8 +51,9 @@ const NavBar = () => {
             </ul>
           </details>}
       </div>
-
     </div >
+
+    </>
   );
 };
 

@@ -2,217 +2,144 @@
 
 <a name="readme-top"></a>
 
-<div align="center" width="100%">   
-            
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-            
-</div>
-            
-<!-- PROJECT LOGO -->
-
-<!-- PROJECT LOGO -->
 <br />
-<div align="center">
-  <a href="https://github.com/oslabs-beta/Kafka-Nimbus">
-    <img src="assets/extended-dark.png" alt="Logo" width="550" height="auto">
-  </a>
-  <br />
-  https://kafka-nimbus.io/
-<br/>
-  
-   <br /> 
-  <p align="center">
-  Kafka Nimbus is a developer-friendly web application that provides a GUI(Graphical User Interface) to easily deploy 
-    <br />
-    <a href="https://github.com/open-source-labs/Docketeer"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/open-source-labs/Docketeer#about-the-project">View Demo</a>
-    ·
-    <a href="https://github.com/open-source-labs/Docketeer/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/open-source-labs/Docketeer/issues">Request Feature</a>
-  </p>
-</div>
-
-<br />
-<!-- TABLE OF CONTENTS -->
-
+  <div align="center">
+    <img src="./public/logo-black.png" alt="Logo" width="fit" height="auto">
+  </div>
 <br />
 
-## Table of Contents
+Kafka Nimbus is an open source product whose goal is to provide developers a method in which they can easily host their Kafka cluster onto. The user-friendly GUI allows direct visibility and modification of data like topic partitions and consumer group information, which are typically not readily accessible through the AWS interface.
 
-  <ol>
-      <br />
-    <li>
-    <a href="#about-the-project">About Docketeer</a></li>
-    <li><a href="#installation">Prerequisites</a></li>
-    <li><a href="#in-development">In Development</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#authors">Authors</a></li>
-  </ol>
 
-<!-- ABOUT THE PROJECT -->
+For more information, visit our [website](https://kafka-nimbus.vercel.app/).
+<br />
 <br />
 
-## About The Project
+## Tech Stacks
 
 <div align="center" width="100%">
             
 [![Typescript][TS.js]][TS-url][![JavaScript][JavaScript]][JavaScript-url][![React][React.js]][React-url][![Redux][Redux]][Redux-url][![ReduxTK][ReduxTK]][ReduxTK-url][![Grafana][Grafana]][Grafana-url][![Prometheus][Prometheus]][Prometheus-url][![Jest][Jest]][Jest-url][![][Git]][Git-url][![Tailwind][Tailwind]][Tailwind-url][![trpc][tRPC]](https://trpc.io/)[![NextJS][NextJs]](NextJS-url)[![Prisma][Prisma]][Prisma-url][![NextAuth][NextAuth]][NextAuth-url][![KafkaJS][KafkaJS]][KafkaJS-url][![Docker][Docker]][Docker-url][![AWS][AWS]][AWS-url]
 
-
-
 </div>
 
+
 <br />
-  <div align="center">
-    <img src="assets/FullDemo.gif" alt="Logo" width="fit" height="auto">
-  </div>
 <br />
 
+## Table of Contents
 
-Docketeer is an open source initiative comprising contributions from dozens of talented and passionate software engineers. Our application provides a simple interface to manage Docker resources & visualize both host and container metric data, along with Kubernetes cluster data. Docketeer is a containerized application that can be deployed alongside your application cluster with hardly any effort. To learn more about our application and how to get started, keep reading!
+  <ol>
+    <li>
+    <a href="#about-the-project">About Kafka Nimbus</a></li>
+    <li><a href="#Features">Features</a></li>
+    <li><a href="#Prerequisites">User Guide</a></li>
+    <li><a href="#authors">Authors</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Features:
-
-- Simplifies the process of creating and hosting Apache Kafka cluster onto the cloud
-- Compatible with 
-- Allows you to filter through both your running and stopped container logs. 
-- Docketeer provides an easy-to-use command-line interface for managing Docker containers, images, and networks.
-- With Docketeer, developers can quickly create, start, stop, and delete containers, as well as manage Docker networks and images.
-- Docketeer includes a variety of features, including automatic container naming, customizable configurations, and support for multiple Docker Compose - files.
-- Docketeer offers Node and kubelet metrics visualizations for your Kubernetes clusters, along with an easy set up process to get your cluster connected to the application. 
-- Docketeer also offers built-in support for popular development frameworks like Rails and Node.js, making it easy to get started with these technologies.
-- Docketeer is highly customizable, and developers can configure it to suit their specific needs.
-- It's a community-maintained project, with frequent updates and bug fixes.
-- Docketeer is licensed under the MIT license, meaning it can be used and modified freely, even for commercial projects.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- INSTALLATION -->
-
-## Installation
-
-The local configuration for Docketeer was setup to be as simple as possible for the end-user. <br />
-Follow the steps below to get started with Docketeer.
-
-#### Prerequisites:
-You must have Docker Desktop installed!
-<br></br>
-
-#### STEP 1 — Clone the repository
-
-```sh
-git clone https://github.com/open-source-labs/Docketeer.git
-```
-
-#### STEP 2 — Docker compose up
-
-Making sure you're in your Docketeer directory, run:
-```sh
-docker compose up
-```
-
-#### STEP 2.5 — Need to set up your Kubernetes cluster to work with Docketeer?
-
-Open up a new tab in your terminal, run the following command, and then navigate to [localhost:4001/api/k8](http://localhost:4001/api/k8):
-```sh
-npm run dev
-``` 
-
-If you haven't set up Prometheus-Operator with us before, click the first button to install. 
 <br />
-Otherwise, you can skip the first button and go on with the next two!
+
 <br />
-P.S. Make sure to keep this terminal open!
-
-#### STEP 3 — Navigate to localhost:4000 to sign-up & login!
-
-```sh
-http://localhost:4000
-```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
+### Features
 
-<!-- IN DEVELOPMENT -->
+- No download or installation required! Simply sign in using Github and start managing your clusters right away.
+- Streamlines cluster creation by eliminating the reliance on AWS Managed Streaming for Apache Kafka (MSK) and provides a simplified, self-hosted solution.
+- Intuitive interface that simplifies the management of multiple clusters at the same time.
+- Real-time cluster health metrics monitoring, such as broker health, network usage, and message throughput.
+- Offers precise customization of parameters when creating new clusters and topics.
+- Delivers a secure and scalable solution by leveraging cloud infrastructure providers like AWS, ensuring clusters are fault tolerant and highly scalable.
 
-## In Development
+<br />
 
-- [ ] Support for more development frameworks and languages, such as Next.JS.
-- [ ] Improved support for Docker networking, including more advanced configurations and better integration with other network tools.
-- [ ] Expand Docker networking capabilities within Docketeer to provide more sophisticated networking configurations and better interoperability with other network tools.
-- [ ] Develop more advanced container configuration options within Docketeer, such as load balancing or high availability setups.
-- [ ] Integrate Docketeer with popular development tools like IDEs or continuous integration/delivery systems for better automation and workflow efficiency.
-- [ ] Add support for more advanced Docker features, like multi-stage builds or Docker secrets, to expand the capabilities of Docketeer.
-- [ ] Develop integration with cloud services like AWS or Azure to simplify the deployment of Docker-based applications.
-- [ ] Display additional metrics for Kubernetes clusters.
+### User Guide
 
-See the [open issues](https://github.com/open-source-labs/Docketeer/issues) for a full list of proposed features (and known issues).
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+If you do not have an AWS account, follow these steps. Otherwise, proceed to step 5.
 
-<!-- CONTRIBUTING -->
+<br />
 
-## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+#### STEP 1 — Create an AWS account
 
-If you have a suggestion that would make this better, please fork the repository and create a pull request. You can also simply open an issue describing your contribution.
-Don't forget to give the project a star! Thanks again!
+- Visit the AWS Management Console at https://aws.amazon.com/console/ and make a Root user account.
 
-1. Fork the project and clone onto your local machine
-3. Create your Feature Branch (`git checkout -b feature/NewFeatureName`)
-4. Commit your Changes (`git commit -m '(feature/bugfix/style/etc.): [commit message here]'`)
-5. Push to the Branch (`git push origin feature/NewFeatureName`)
-6. Open a Pull Request
-7. Create an issue on GitHub (as mentioned above!)
+<br />
 
-Read our [contributing guide](https://github.com/open-source-labs/Docketeer/blob/master/CONTRIBUTING.md) for more information on how to purpose bugfixes and improvements to Docketeer.
 
+#### STEP 2 — Create a Group
+
+- Go to the IAM dashboard in the searchbar, and click User Groups. Create a group and attach the `AdministratorAccess` policy.
+
+<br />
+
+#### STEP 3 — Create new users
+
+- On the left bar, click Users, and make a new user, checking off the box saying `Provide user access to the AWS Management Console` and `I want to create an IAM user`. Don't forget to make a new user for yourself.
+
+<br />
+
+
+#### STEP 4 — Add users to Group
+
+- Go to the newly created group, add add new team members to the group
+
+<br />
+
+
+#### STEP 5 — Generating New Access Keys
+
+- Log into the IAM user, and click on security credentials on the top right. As you scroll down, you should see a button called created `Create Access Key`. Make sure to keep this information somewhere safe as it is not recoverable.
+
+<br />
+
+
+#### STEP 6 — Creating a new cluster
+
+- Click on the create a cluster card input the AWS credentials that you have saved. It will only ask you for the first time you create a new cluster.
+
+<br />
+
+
+#### STEP 7 — View cluster Metrics
+
+- Navigate to different pages to view different cluster informoation through the menu on the left
+
+<br />
+
+
+
+
+
+<br />
+<br />
+<br />
+
+______________________________________________________
 
 ## Authors
 
-| Developed By       | Github          | LinkedIn        |
-| :------------------: | :-------------: | :-------------: |
-| Andrew Kim | [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Akim97) | [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/andrew-kim1520/) |
-| Jackson Dahl | [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/JacksonDahl2) | [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jackson-dahl/) |
-| Ariel Lin | [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ariellinn) | [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ariellinn/) |
-| Paul Vachon | [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/paulrvach) | [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/paul-vachon/) |
-| Ijoo Yoon | [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ijoo123) | [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ijooyoon/) |
+| Developed By |                                                                     Github                                                                      |                                                                   LinkedIn                                                                    |
+| :----------: | :---------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------: |
+|  Andrew Kim  |    [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Akim97)    | [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/andrew-kim1520/) |
+| Jackson Dahl | [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/JacksonDahl2) |  [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jackson-dahl/)  |
+|  Ariel Lin   |  [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ariellinn)   |   [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ariellinn/)    |
+| Paul Vachon  |  [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/paulrvach)   |  [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/paul-vachon/)   |
+|  Ijoo Yoon   |   [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ijoo123)    |    [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ijooyoon/)    |
 
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<br />
+<br />
+<br />
 
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-[contributors-shield]: https://img.shields.io/github/contributors/open-source-labs/Docketeer.svg?style=for-the-badge
-[contributors-url]: https://github.com/open-source-labs/Docketeer/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/open-source-labs/Docketeer.svg?style=for-the-badge
-[forks-url]: https://github.com/open-source-labs/Docketeer/network/members
-[stars-shield]: https://img.shields.io/github/stars/open-source-labs/Docketeer.svg?style=for-the-badge
-[stars-url]: https://github.com/open-source-labs/Docketeer/stargazers
-[issues-shield]: https://img.shields.io/github/issues/open-source-labs/Docketeer.svg?style=for-the-badge
-[issues-url]: https://github.com/open-source-labs/Docketeer/issues
-[license-shield]: https://img.shields.io/github/license/open-source-labs/Docketeer.svg?style=for-the-badge
-[license-url]: https://github.com/open-source-labs/Docketeer/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://www.linkedin.com/company/docketeer
-[product-screenshot]: images/screenshot.png
+
 [React.js]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
 [React-url]: https://reactjs.org/
 [TS.js]: https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white
@@ -237,23 +164,13 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 [tRPC-url]: https://www.w3schools.com/css/
 [Tailwind]: https://img.shields.io/badge/Tailwind-%231DA1F2.svg?style=for-the-badge&logo=tailwind-css&logoColor=white
 [Tailwind-url]: https://tailwindcss.com/
-[NextJS]:https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[NextJS-url]:https://nextjs.org/
-[Prisma]:https://img.shields.io/badge/Prisma-%233b3e44?style=for-the-badge&logo=prisma&logoColor=white
+[NextJS]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
+[NextJS-url]: https://nextjs.org/
+[Prisma]: https://img.shields.io/badge/Prisma-%233b3e44?style=for-the-badge&logo=prisma&logoColor=white
 [Prisma-url]: https://www.prisma.io/
-[NextAuth]:https://img.shields.io/badge/NextAuth-%23F05033.svg?style=for-the-badge&logo=nextdotjs&logoColor=white   
-[NextAuth-url]:https://next-auth.js.org/
-[KafkaJS]:https://img.shields.io/badge/KafkaJS-%2316AB39.svg?style=for-the-badge&logo=kafkajs&logoColor=white
-[KafkaJS-url]:https://kafka.js.org/
-[AWS]:https://img.shields.io/badge/AWS-%231E73BE.svg?style=for-the-badge&logo=amazon-aws&logoColor=white:
-[AWS-url]:https://aws.amazon.com/
-
-
-
-
-
-
-
-
-
-
+[NextAuth]: https://img.shields.io/badge/NextAuth-%23F05033.svg?style=for-the-badge&logo=nextdotjs&logoColor=white
+[NextAuth-url]: https://next-auth.js.org/
+[KafkaJS]: https://img.shields.io/badge/KafkaJS-%2316AB39.svg?style=for-the-badge&logo=kafkajs&logoColor=white
+[KafkaJS-url]: https://kafka.js.org/
+[AWS]: https://img.shields.io/badge/AWS-%231E73BE.svg?style=for-the-badge&logo=amazon-aws&logoColor=white:
+[AWS-url]: https://aws.amazon.com/

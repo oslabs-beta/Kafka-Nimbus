@@ -6,11 +6,9 @@ import Demovideo from "./components/Demovideo";
 import FeaturesList from "./components/Features";
 import TeamList from "./components/TeamMembers";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
-import Heroright from "./components/Herpage-right";
+import Heroright from "./components/Heropage-right";
 
 const Home: NextPage = () => {
-  const { data: sessionData } = useSession();
   return (
     <>
       {/** Background video for hero page */}
@@ -52,6 +50,7 @@ const Home: NextPage = () => {
         </div>
       </div>
 
+      {/* Second Demo Video */}
       <Heroright />
 
       {/* List of Features */}
