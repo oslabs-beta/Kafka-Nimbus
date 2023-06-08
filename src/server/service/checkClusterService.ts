@@ -188,7 +188,7 @@ export const getBoostrapBrokers = async (
     });
     console.log('----CHECKING HERE----');
     // store in the targets.json file for prometheus
-    await addToPrometheusTarget(splitBrokers, id);
+    addToPrometheusTarget(splitBrokers, id);
   } catch (err) {
     throw new Error('Error going from updating to active, ');
   }
@@ -205,12 +205,12 @@ interface Job {
 
 export const createDash = (clusterUuid: string) => {
   // create dash
-
+  const datasource = 'a801b372-378e-4365-9654-c24561d9b858'
   const myHeaders = new Headers();
   myHeaders.append('Content-Type', 'application/json');
   myHeaders.append(
     'Authorization',
-    'Bearer glsa_2ZSDdFPeEQ378NsxsbEFZSj0PoARo40G_2a086d87'
+    `Bearer ${process.env.GRAFANA_API_KEY || ''}`
   );
 
   const raw = JSON.stringify({
@@ -231,7 +231,7 @@ export const createDash = (clusterUuid: string) => {
             builtIn: 1,
             datasource: {
               type: 'prometheus',
-              uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+              uid: datasource,
             },
             enable: true,
             hide: true,
@@ -252,7 +252,7 @@ export const createDash = (clusterUuid: string) => {
         {
           datasource: {
             type: 'prometheus',
-            uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+            uid: datasource,
           },
           fieldConfig: {
             defaults: {
@@ -313,7 +313,7 @@ export const createDash = (clusterUuid: string) => {
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+                uid: datasource,
               },
               editorMode: 'builder',
               expr: `kafka_server_BrokerTopicMetrics_Count{name="TotalProduceRequestsPerSec", job="${clusterUuid}", topic="__consumer_offsets"}`,
@@ -331,7 +331,7 @@ export const createDash = (clusterUuid: string) => {
         {
           datasource: {
             type: 'prometheus',
-            uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+            uid: datasource,
           },
           fieldConfig: {
             defaults: {
@@ -392,7 +392,7 @@ export const createDash = (clusterUuid: string) => {
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+                uid: datasource,
               },
               editorMode: 'builder',
               expr: `up{job="${clusterUuid}"}`,
@@ -411,7 +411,7 @@ export const createDash = (clusterUuid: string) => {
           dashes: false,
           datasource: {
             type: 'prometheus',
-            uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+            uid: datasource,
           },
           editable: true,
           error: false,
@@ -455,7 +455,7 @@ export const createDash = (clusterUuid: string) => {
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+                uid: datasource,
               },
               editorMode: 'builder',
               expr: `kafka_server_group_coordinator_metrics_offset_commit_count{job="${clusterUuid}"}`,
@@ -503,7 +503,7 @@ export const createDash = (clusterUuid: string) => {
           dashes: false,
           datasource: {
             type: 'prometheus',
-            uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+            uid: datasource,
           },
           editable: true,
           error: false,
@@ -551,7 +551,7 @@ export const createDash = (clusterUuid: string) => {
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+                uid: datasource,
               },
               editorMode: 'builder',
               expr: `kafka_server_BrokerTopicMetrics_Count{name="BytesInPerSec", job="${clusterUuid}"}`,
@@ -563,7 +563,7 @@ export const createDash = (clusterUuid: string) => {
             {
               datasource: {
                 type: 'prometheus',
-                uid: 'a0301391-f81b-45dc-afcb-dfc7b6bafdeb',
+                uid: datasource,
               },
               editorMode: 'builder',
               expr: `kafka_server_BrokerTopicMetrics_OneMinuteRate{name="BytesOutPerSec", job="${clusterUuid}"}`,
