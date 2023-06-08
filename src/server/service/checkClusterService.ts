@@ -188,7 +188,7 @@ export const getBoostrapBrokers = async (
     });
     console.log('----CHECKING HERE----');
     // store in the targets.json file for prometheus
-    addToPrometheusTarget(splitBrokers, id);
+    await addToPrometheusTarget(splitBrokers, id);
   } catch (err) {
     throw new Error('Error going from updating to active, ');
   }

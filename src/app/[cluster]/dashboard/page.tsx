@@ -33,7 +33,7 @@ const Page = ({ params }: PageProps) => {
   const { clusterInfo } = useAppSelector((state) => state);
   const [inFocus, setInFocus] = useState<string>("metrics");
   let result;
-
+  console.log(params.metrics)
   /**
    * Rendering the new page when you navigate using the side bar
    */

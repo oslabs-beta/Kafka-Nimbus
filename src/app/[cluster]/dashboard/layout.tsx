@@ -25,6 +25,7 @@ export type metrics = {
   KafkaVersion: string;
   NumberOfBrokerNodes: number;
   State: string;
+  metricsDashboard: any
 };
 
 export type partitions = {

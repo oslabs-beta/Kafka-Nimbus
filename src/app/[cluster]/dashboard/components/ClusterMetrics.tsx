@@ -68,33 +68,34 @@ const ClusterMetrics = ({
         </div>
         <div className='flew-col mt-4 flex flex-nowrap justify-center gap-4'>
           {/* Consumer Offset */}
-          <iframe
-            src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686167549782&to=1686169349782&theme=light&panelId=1`}
-            width={`${450}`}
-            height={`${200 * 2}`}
-            // frameborder='0'
-          ></iframe>
-          {/* Kafka Broker Uptime */}
-          <iframe
-            src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686167549782&to=1686169349782&theme=light&panelId=15`}
-            width={`${450}`}
-            height={`${200 * 2}`}
-            // frameborder='0'
-          ></iframe>
-          {/* Offset Commit Count */}
-          <iframe
-            src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686167549782&to=1686169349782&theme=light&panelId=6`}
-            width={`${450 * 2}`}
-            height={`${200 * 2}`}
-            // frameborder='0'
-          ></iframe>
-          {/* Topic BytesIn to BytesOut Rate */}
-          <iframe
-            src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686167549782&to=1686169349782&theme=light&panelId=2`}
-            width={`${450 * 2}`}
-            height={`${200 * 2}`}
-            // frameborder='0'
-          ></iframe>
+          {metricsDashboard.meta.slug ? (
+            <div>
+              <iframe
+                src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686167549782&to=1686169349782&theme=light&panelId=1`}
+                width={`${450}`}
+                height={`${200 * 2}`}
+                // frameborder='0'
+              ></iframe>
+              <iframe
+                src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686167549782&to=1686169349782&theme=light&panelId=15`}
+                width={`${450}`}
+                height={`${200 * 2}`}
+                // frameborder='0'
+              ></iframe>
+              <iframe
+                src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686167549782&to=1686169349782&theme=light&panelId=6`}
+                width={`${450 * 2}`}
+                height={`${200 * 2}`}
+                // frameborder='0'
+              ></iframe>
+              <iframe
+                src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686167549782&to=1686169349782&theme=light&panelId=2`}
+                width={`${450 * 2}`}
+                height={`${200 * 2}`}
+                // frameborder='0'
+              ></iframe>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
