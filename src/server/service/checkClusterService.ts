@@ -697,20 +697,20 @@ export const addToPrometheusTarget = async (
 
   // const destPath = path.resolve('/usr/app/config', 'targets.json');
   // fs.copyFileSync(srcPath, destPath);
-  await fetch('http://157.230.13.68:9090/-/reload', {
-    method: 'POST',
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('HTTP request failed.');
-      }
-      // Process the successful response here
-      console.log('Refreshed Prometheus');
-    })
-    .catch((error) => {
-      // Handle any errors that occurred during the request
-      console.error(error);
-    });
+  // await fetch('http://157.230.13.68:9090/-/reload', {
+  //   method: 'POST',
+  // })
+  //   .then((response) => {
+  //     if (!response.ok) {
+  //       throw new Error('HTTP request failed.');
+  //     }
+  //     // Process the successful response here
+  //     console.log('Refreshed Prometheus');
+  //   })
+  //   .catch((error) => {
+  //     // Handle any errors that occurred during the request
+  //     console.error(error);
+  //   });
 
   console.log('---ADDED TO PROMETHEUS---');
   createDash(clusterUuid);
