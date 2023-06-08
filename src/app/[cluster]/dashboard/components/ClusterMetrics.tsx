@@ -68,7 +68,7 @@ const ClusterMetrics = ({
         </div>
         <div className='flew-col mt-4 flex flex-nowrap justify-center gap-4'>
           {/* Consumer Offset */}
-          {metricsDashboard.meta.slug ? (
+          {metricsDashboard.meta?.slug ? (
             <div>
               <iframe
                 src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686167549782&to=1686169349782&theme=light&panelId=1`}

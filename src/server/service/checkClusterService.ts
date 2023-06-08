@@ -203,16 +203,15 @@ interface Job {
   targets: string[];
 }
 
-export const createDash = (
-  clusterName: string,
-  apiKey: string,
-  clusterId: string
-) => {
+export const createDash = (clusterName: string) => {
   // create dash
 
   const myHeaders = new Headers();
   myHeaders.append('Content-Type', 'application/json');
-  myHeaders.append('Authorization', `Bearer ${process.env.GRAFANA_API_KEY || ''}`);
+  myHeaders.append(
+    'Authorization',
+    'Bearer glsa_2ZSDdFPeEQ378NsxsbEFZSj0PoARo40G_2a086d87'
+  );
 
   const raw = JSON.stringify({
     dashboard: {
@@ -662,10 +661,7 @@ export const createDash = (
   };
 
   fetch('http://157.230.13.68:3000/api/dashboards/db', requestOptions)
-    .then((response) => {
-      console.log('--RESPONSE--', response);
-      return response.text();
-    })
+    .then((response) => response.text())
     .then((result) => console.log(result))
     .catch((error) => console.log('error', error));
 };
@@ -709,7 +705,7 @@ export const addToPrometheusTarget = async (
         throw new Error('HTTP request failed.');
       }
       // Process the successful response here
-      console.log('Refreshed Prometheus')
+      console.log('Refreshed Prometheus');
     })
     .catch((error) => {
       // Handle any errors that occurred during the request
@@ -717,7 +713,7 @@ export const addToPrometheusTarget = async (
     });
 
   console.log('---ADDED TO PROMETHEUS---');
-  createDash(clusterUuid, process.env.GRAFANA_API_KEY || '', clusterUuid);
+  createDash(clusterUuid);
 };
 
 export const getDash = async (uuid: string, apiKey: string) => {
