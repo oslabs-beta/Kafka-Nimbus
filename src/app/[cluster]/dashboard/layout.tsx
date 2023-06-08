@@ -107,7 +107,8 @@ const layout = async (props) => {
     // GETTING METRICS
     const metricsDashboard = await getDash(
       props.params.cluster,
-      'eyJrIjoiVkJodDVwSkg0SXB5RlZUMjdGVVkwSUpxdGNxZko0UzEiLCJuIjoiYXBpa2V5Y3VybCIsImlkIjoyfQ=='
+      'eyJrIjoiVkJodDVwSkg0SXB5RlZUMjdGVVkwSUpxdGNxZko0UzEiLCJuIjoiYXBpa2V5Y3VybCIsImlkIjoyfQ==',
+      clusterInfo.name
     );
 
     // console.log('METRICSDASH: ', metricsDashboard);

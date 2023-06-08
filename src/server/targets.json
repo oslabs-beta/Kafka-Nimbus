@@ -1,55 +1,11 @@
 [
   {
-    "labels": {
-      "job": "node"
-    },
-    "targets": [
-      "localhost:9100"
-    ]
-  },
-  {
-    "labels": {
-      "job": "6480a07694c2332fad755a2a"
-    },
     "targets": [
       "b-2-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001",
       "b-1-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001"
-    ]
-  },
-  {
+    ],
     "labels": {
       "job": "6480a07694c2332fad755a2a"
-    },
-    "targets": [
-      "b-1-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001",
-      "b-2-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001"
-    ]
-  },
-  {
-    "labels": {
-      "job": "6480a07694c2332fad755a2a"
-    },
-    "targets": [
-      "b-2-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001",
-      "b-1-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001"
-    ]
-  },
-  {
-    "labels": {
-      "job": "6480a07694c2332fad755a2a"
-    },
-    "targets": [
-      "b-1-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001",
-      "b-2-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001"
-    ]
-  },
-  {
-    "labels": {
-      "job": "6480a07694c2332fad755a2a"
-    },
-    "targets": [
-      "b-2-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001",
-      "b-1-public.paulprometheus.4gqv22.c2.kafka.us-east-2.amazonaws.com:11001"
-    ]
+    }
   }
 ]

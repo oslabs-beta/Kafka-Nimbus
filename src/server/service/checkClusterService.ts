@@ -213,19 +213,6 @@ export const createDash = (
 ) => {
   // create dash
 
-  const {
-    annotations,
-    editable,
-    gnetId,
-    graphTooltip,
-    links,
-    panels,
-    style,
-    templating,
-    time,
-    timepicker,
-  } = metricsGraphJson;
-
   const myHeaders = new Headers();
   myHeaders.append('Content-Type', 'application/json');
   myHeaders.append(
@@ -266,7 +253,6 @@ export const createDash = (
       editable: true,
       fiscalYearStartMonth: 0,
       graphTooltip: 0,
-      id: 13,
       links: [],
       liveNow: false,
       panels: [
@@ -337,7 +323,7 @@ export const createDash = (
                 uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
               },
               editorMode: 'builder',
-              expr: `kafka_server_BrokerTopicMetrics_Count{name="TotalProduceRequestsPerSec", job=${clusterId}, topic="__consumer_offsets"}`,
+              expr: `kafka_server_BrokerTopicMetrics_Count{name="TotalProduceRequestsPerSec", job="${clusterId}", topic="__consumer_offsets"}`,
               intervalFactor: 2,
               legendFormat: '',
               metric: '',
@@ -416,7 +402,7 @@ export const createDash = (
                 uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
               },
               editorMode: 'builder',
-              expr: `up{job=${clusterId}}`,
+              expr: `up{job="${clusterId}"}`,
               legendFormat: '__auto',
               range: true,
               refId: 'A',
@@ -479,7 +465,7 @@ export const createDash = (
                 uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
               },
               editorMode: 'builder',
-              expr: `kafka_server_group_coordinator_metrics_offset_commit_count{job=${clusterId}}`,
+              expr: `kafka_server_group_coordinator_metrics_offset_commit_count{job="${clusterId}"}`,
               intervalFactor: 2,
               range: true,
               refId: 'A',
@@ -575,7 +561,7 @@ export const createDash = (
                 uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
               },
               editorMode: 'builder',
-              expr: `kafka_server_BrokerTopicMetrics_Count{name="BytesInPerSec", job=${clusterId}}`,
+              expr: `kafka_server_BrokerTopicMetrics_Count{name="BytesInPerSec", job="${clusterId}"}`,
               intervalFactor: 2,
               range: true,
               refId: 'A',
@@ -587,7 +573,7 @@ export const createDash = (
                 uid: 'ca3a6bcb-925a-40d0-acaa-7cc089de07d6',
               },
               editorMode: 'builder',
-              expr: `kafka_server_BrokerTopicMetrics_OneMinuteRate{name="BytesOutPerSec", job=${clusterId}}`,
+              expr: `kafka_server_BrokerTopicMetrics_OneMinuteRate{name="BytesOutPerSec", job="${clusterId}"}`,
               intervalFactor: 2,
               legendFormat: '',
               range: true,
