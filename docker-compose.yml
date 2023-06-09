@@ -3,9 +3,12 @@ version: '3'
 
 services:
   webapp:
-    image: 090574062077.dkr.ecr.us-east-1.amazonaws.com/kafka-nimbus-prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: [sh, -c, "cd /usr/app && npx prisma db push && npm run dev"]
     ports:
-      - 8000:8000
+      - 3000:3000
     volumes:
       - shared-volume:/usr/app/config
     env_file:
@@ -23,16 +26,18 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--web.enable-lifecycle"
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana-oss:latest
     container_name: grafana
     ports:
-      - 3000:3000
+      - 3001:3000
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
 
 
 volumes:
