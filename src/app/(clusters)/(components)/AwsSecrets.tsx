@@ -41,7 +41,7 @@ const AwsSecrets: React.FC<ProviderProps> = ({ inFocusHandler }) => {
   };
 
   return (
-    <div className="flex h-[70vh] flex-col items-center justify-center py-16">
+    <div className="flex h-[70vh] flex-col items-center justify-center py-30">
       <h1 className="mb-8 text-2xl font-bold">AWS Credentials</h1>
       <div className="form-control w-full max-w-xs ">
         <form id="aws-form" onSubmit={onSubmitHandler}>

@@ -8,6 +8,9 @@
   </div>
 <br />
 
+### About Kafka Nimbus
+
+
 Kafka Nimbus is an open source product whose goal is to provide developers a method in which they can easily host their Kafka cluster onto. The user-friendly GUI allows direct visibility and modification of data like topic partitions and consumer group information, which are typically not readily accessible through the AWS interface.
 
 
@@ -31,9 +34,9 @@ For more information, visit our [website](https://kafka-nimbus.vercel.app/).
 
   <ol>
     <li>
-    <a href="#about-the-project">About Kafka Nimbus</a></li>
-    <li><a href="#Features">Features</a></li>
-    <li><a href="#Prerequisites">User Guide</a></li>
+    <a href="#about-kafka-nimbus">About Kafka Nimbus</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#user-guide">User Guide </a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#license">License</a></li>
   </ol>
@@ -54,58 +57,63 @@ For more information, visit our [website](https://kafka-nimbus.vercel.app/).
 
 <br />
 
-### User Guide
+### User guide
 
 
 If you do not have an AWS account, follow these steps. Otherwise, proceed to step 5.
 
-<br />
 
 
 #### STEP 1 — Create an AWS account
 
-- Visit the AWS Management Console at https://aws.amazon.com/console/ and make a Root user account.
-
-<br />
+- Visit the AWS Management Console at https://aws.amazon.com/console/ and create a Root user account.
 
 
-#### STEP 2 — Create a Group
-
-- Go to the IAM dashboard in the searchbar, and click User Groups. Create a group and attach the `AdministratorAccess` policy.
-
-<br />
-
-#### STEP 3 — Create new users
+#### STEP 2 — Create new users
 
 - On the left bar, click Users, and make a new user, checking off the box saying `Provide user access to the AWS Management Console` and `I want to create an IAM user`. Don't forget to make a new user for yourself.
 
+#### STEP 3 — 
+
+- Navigate to the IAM dashboard through the searchbar click on users. Add the following permissions to each new user created.
+    - `Amazon MSK full access`
+    - `Amazon VPC full access` 
+
+    <br />
+  <div align="center">
+    <img src="./public/permissions.png" alt="Logo">
+  </div>
 <br />
 
+#### STEP 4 — Generating New Access Keys
 
-#### STEP 4 — Add users to Group
-
-- Go to the newly created group, add add new team members to the group
-
-<br />
+- Create an secret access key for the new user.
 
 
-#### STEP 5 — Generating New Access Keys
+#### STEP 5 — Add users to Group
 
-- Log into the IAM user, and click on security credentials on the top right. As you scroll down, you should see a button called created `Create Access Key`. Make sure to keep this information somewhere safe as it is not recoverable.
-
-<br />
+- Go to the newly created group, add new team members to the group
 
 
 #### STEP 6 — Creating a new cluster
 
 - Click on the create a cluster card input the AWS credentials that you have saved. It will only ask you for the first time you create a new cluster.
 
-<br />
 
+#### STEP 7 — View cluster metrics
 
-#### STEP 7 — View cluster Metrics
+- Navigate to different pages to view different cluster information through the menu on the left
 
-- Navigate to different pages to view different cluster informoation through the menu on the left
+  <div align="center">
+      <video
+        autoPlay
+        playsInline
+        muted
+        loop
+      >
+        <source src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1686184697/ViewingData_el3gp8.mov" />
+      </video>
+  </div>
 
 <br />
 
