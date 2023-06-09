@@ -73,7 +73,7 @@ If you do not have an AWS account, follow these steps. Otherwise, proceed to ste
 
 - On the left bar, click Users, and make a new user, checking off the box saying `Provide user access to the AWS Management Console` and `I want to create an IAM user`. Don't forget to make a new user for yourself.
 
-#### STEP 3 — 
+#### STEP 3 — Assigning policies to user
 
 - Navigate to the IAM dashboard through the searchbar click on users. Add the following permissions to each new user created.
     - `Amazon MSK full access`
@@ -81,7 +81,7 @@ If you do not have an AWS account, follow these steps. Otherwise, proceed to ste
 
     <br />
   <div align="center">
-    <img src="./public/permissions.png" alt="Logo">
+    <img src="https://res.cloudinary.com/dpqdqryvo/image/upload/v1686340287/Permissions_kb8p2j.png" alt="Logo">
   </div>
 <br />
 
@@ -111,7 +111,7 @@ If you do not have an AWS account, follow these steps. Otherwise, proceed to ste
         muted
         loop
       >
-        <source src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1686184697/ViewingData_el3gp8.mov" />
+        <source src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1686340611/ViewingData_we9gqj.mp4" />
       </video>
   </div>
 
