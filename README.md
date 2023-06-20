@@ -110,8 +110,7 @@ If you do not have an AWS account, follow these steps. Otherwise, proceed to ste
         playsInline
         muted
         loop
-      >
-        <source src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1686340611/ViewingData_we9gqj.mp4" />
+        src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1686340611/ViewingData_we9gqj.mp4"
       </video>
   </div>
 
