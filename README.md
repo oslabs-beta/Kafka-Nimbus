@@ -60,10 +60,6 @@ For more information, visit our [website](https://kafka-nimbus.vercel.app/) and 
 ### User guide
 
 
-If you do not have an AWS account, follow these steps. Otherwise, proceed to step 5.
-
-
-
 #### STEP 1 — Create an AWS account
 
 - Visit the AWS Management Console at https://aws.amazon.com/console/ and create a Root user account.
