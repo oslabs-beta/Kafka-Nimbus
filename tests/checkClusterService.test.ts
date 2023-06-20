@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import AWS from 'aws-sdk';
-import * as checkService from '../service/checkClusterService';
-import { prisma } from '../db';
+import * as checkService from '../src/server/service/checkClusterService';
+import { prisma } from '../src/server/db';
 import { KafkaClient, DescribeClusterCommand, UpdateConnectivityCommand } from "@aws-sdk/client-kafka";
 import * as kafka from "@aws-sdk/client-kafka";
 
@@ -47,7 +47,7 @@ jest.mock('@aws-sdk/client-kafka', () => ({
 }));
 
 // mock prisma module
-jest.mock('../db', () => ({
+jest.mock('../src/server/db', () => ({
   prisma: {
     cluster: {
       findUnique: jest.fn(),

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import AWS from 'aws-sdk';
-import * as awsService from '../service/createClusterService';
+import * as awsService from '../src/server/service/createClusterService';
 // import { mocked } from 'jest-mock-extended';
 import { v4 as uuidv4 } from 'uuid';
 
