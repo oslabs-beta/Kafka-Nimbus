@@ -11,10 +11,10 @@
 ### About Kafka Nimbus
 
 
-Kafka Nimbus is an open source product whose goal is to provide developers a method in which they can easily host their Kafka cluster onto. The user-friendly GUI allows direct visibility and modification of data like topic partitions and consumer group information, which are typically not readily accessible through the AWS interface.
+Kafka Nimbus is an open source product whose goal is to provide developers a method in which they can easily host their Kafka cluster onto the cloud. The user-friendly GUI allows direct visibility and modification of data like topic partitions and consumer group information, which are typically not readily accessible through the AWS interface.
 
 
-For more information, visit our [website](https://kafka-nimbus.vercel.app/).
+For more information, visit our [website](https://kafka-nimbus.vercel.app/) and our [medium article](https://medium.com/@ijooyoon/kafkanimbus-a-simpler-way-to-deploy-your-kafka-clusters-dab567609651).
 <br />
 <br />
 
@@ -110,8 +110,7 @@ If you do not have an AWS account, follow these steps. Otherwise, proceed to ste
         playsInline
         muted
         loop
-      >
-        <source src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1686340611/ViewingData_we9gqj.mp4" />
+        src="https://res.cloudinary.com/dpqdqryvo/video/upload/v1686340611/ViewingData_we9gqj.mp4"
       </video>
   </div>
 
