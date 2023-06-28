@@ -4,7 +4,7 @@ import { prisma } from '../../db';
 import path from 'path';
 import { v4 } from 'uuid'
 
-
+import { EC2Client, CreateVpcCommand } from '@aws-sdk/client-ec2';
 import { KafkaClient, CreateConfigurationCommand } from '@aws-sdk/client-kafka';
 import fs from 'fs';
 
@@ -22,14 +22,22 @@ export const createVPCRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input }) => {
-      AWS.config.update({
-        accessKeyId: input.aws_access_key_id,
-        secretAccessKey: input.aws_secret_access_key,
+      // AWS.config.update({
+      //   accessKeyId: input.aws_access_key_id,
+      //   secretAccessKey: input.aws_secret_access_key,
+      //   region: input.region,
+      // });
+      // // it is important to instantaiate ec2 instance after updating the 
+      // // aws config.
+      // const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' });
+
+      const ec2Client = new EC2Client({
         region: input.region,
-      });
-      // it is important to instantaiate ec2 instance after updating the 
-      // aws config.
-      const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' });
+        credentials: {
+          accessKeyId: input.aws_access_key_id,
+          secretAccessKey: input.aws_secret_access_key,
+        }
+    })
 
       const client = new KafkaClient({
         region: input.region,
