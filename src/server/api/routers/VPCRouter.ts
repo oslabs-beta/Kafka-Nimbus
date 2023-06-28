@@ -4,11 +4,13 @@ import { prisma } from '../../db';
 import path from 'path';
 import { v4 } from 'uuid'
 
-import { EC2Client, CreateVpcCommand } from '@aws-sdk/client-ec2';
+import { EC2Client } from '@aws-sdk/client-ec2';
 import { KafkaClient, CreateConfigurationCommand } from '@aws-sdk/client-kafka';
 import fs from 'fs';
 
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc';
+
+import { createVPC } from '../../service/createVPCService';
 
 
 export const createVPCRouter = createTRPCRouter({
@@ -22,30 +24,26 @@ export const createVPCRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input }) => {
-      // AWS.config.update({
-      //   accessKeyId: input.aws_access_key_id,
-      //   secretAccessKey: input.aws_secret_access_key,
-      //   region: input.region,
-      // });
-      // // it is important to instantaiate ec2 instance after updating the 
-      // // aws config.
-      // const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' });
-
-      const ec2Client = new EC2Client({
+      AWS.config.update({
+        accessKeyId: input.aws_access_key_id,
+        secretAccessKey: input.aws_secret_access_key,
         region: input.region,
-        credentials: {
-          accessKeyId: input.aws_access_key_id,
-          secretAccessKey: input.aws_secret_access_key,
-        }
-    })
+      });
+      // it is important to instantaiate ec2 instance after updating the 
+      // aws config.
+      const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' });
 
-      const client = new KafkaClient({
+      const config = {
         region: input.region,
         credentials: {
           accessKeyId: input.aws_access_key_id,
           secretAccessKey: input.aws_secret_access_key,
         },
-      });
+      }
+
+      // const ec2Client = new EC2Client(config);
+
+      const client = new KafkaClient(config);
 
       try {
         // create the vpc
@@ -54,6 +52,8 @@ export const createVPCRouter = createTRPCRouter({
             CidrBlock: '10.0.0.0/16',
           })
           .promise();
+
+        // const vpcId = createVPC(ec2Client);
         // make sure data is correct
         if (!vpcData.Vpc || !vpcData.Vpc.VpcId) {
           throw new Error('VPC creation failed');

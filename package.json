@@ -11,6 +11,7 @@
     "test": "jest --verbose"
   },
   "dependencies": {
+    "@aws-sdk/client-ec2": "^3.362.0",
     "@aws-sdk/client-kafka": "^3.335.0",
     "@clerk/nextjs": "^4.17.3",
     "@heroicons/react": "^2.0.18",
