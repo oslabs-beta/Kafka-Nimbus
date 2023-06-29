@@ -11,6 +11,7 @@
     "test": "jest --verbose"
   },
   "dependencies": {
+    "@aws-sdk/client-ec2": "^3.362.0",
     "@aws-sdk/client-kafka": "^3.335.0",
     "@clerk/nextjs": "^4.17.3",
     "@heroicons/react": "^2.0.18",
@@ -40,6 +41,7 @@
     "react-dom": "18.2.0",
     "react-query": "^3.39.3",
     "react-redux": "^8.0.5",
+    "sharp": "^0.32.1",
     "superjson": "1.12.2",
     "uuid": "^9.0.0",
     "zod": "^3.21.4"
