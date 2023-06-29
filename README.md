@@ -4,7 +4,7 @@
 
 <br />
   <div align="center">
-    <img src="./public/logo-black.png" alt="Logo" width="fit" height="auto">
+    <img src="linkedin-background.png" alt="Logo" width="fit" height="auto">
   </div>
 <br />
 
