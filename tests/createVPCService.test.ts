@@ -30,4 +30,12 @@ describe("createVPC", () => {
     const result = await createVPC(new EC2Client({}));
     expect(result).toEqual(vpcId);
   })
+
+  it("Throws an error when VPC creation fails", async () => {
+    ec2Mock 
+      .on(CreateVpcCommand, { CidrBlock: '10.0.0.0/16' })
+      .resolves({});
+
+    await expect(createVPC(new EC2Client({}))).rejects.toThrow('Failed to create VPC');
+  })
 })
