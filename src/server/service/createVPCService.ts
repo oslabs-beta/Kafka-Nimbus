@@ -58,8 +58,8 @@ export const connectIGWandVPC = async (client: EC2Client, vpcId: string, igwId: 
       VpcId: vpcId
     }
     const command = new AttachInternetGatewayCommand(input);
-    const response = await client.send(command);
-    return;
+    await client.send(command);
+    return 'success';
   }
   catch (err){
     throw new Error('Failed to attach IGW to VPC');

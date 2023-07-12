@@ -6,14 +6,19 @@ import {
   EC2Client, 
   CreateVpcCommand, 
   CreateInternetGatewayCommand,
+  AttachInternetGatewayCommand,
+  CreateSubnetCommand,
 } from '@aws-sdk/client-ec2';
 
 import { 
   createVPC, 
   createIGW,
+  connectIGWandVPC,
+  createSubnets,
 } from '../src/server/service/createVPCService'
 
 import { mockClient } from 'aws-sdk-client-mock'
+import { connect } from 'http2';
 
 describe("Tests for the createVPC route", () => {
   describe("createVPC", () => {
@@ -73,4 +78,48 @@ describe("Tests for the createVPC route", () => {
       await expect(createIGW(new EC2Client({}))).rejects.toThrow('Failed to create IGW');
     });
   });
+
+  describe("connectIGWandVPC", () => {
+    const igwId = 'igw-1234abcd';
+    const vpcId = 'vpc-1234abcd';
+
+    afterEach(() => {
+      mockClient(EC2Client).reset();
+    });
+    
+    it('Succefully attaches the IGW to VPC', async () => {
+      mockClient(EC2Client)
+        .on(AttachInternetGatewayCommand, {
+          InternetGatewayId: igwId,
+          VpcId: vpcId
+        })
+        .resolves('success')
+
+      const result = await connectIGWandVPC(new EC2Client({}), vpcId, igwId);
+      expect(result).toEqual('success');
+    });
+  })
+
+  describe('createSubnets', () => {
+    const vpcId = 'vpc-1234abcd';
+    const region = 'us-east1'
+    const subnetIdArr = ['sub-1','sub-1','sub-1']
+
+    afterEach(() => {
+      mockClient(EC2Client).reset();
+    })
+
+    xit('Successfully creates 3 subnets', async () => {
+      mockClient(EC2Client)
+      .on(CreateSubnetCommand, {
+        CidrBlock: '10.0.0.0/24',
+        VpcId: vpcId,
+        AvailabilityZone: `us-east-1`
+      })
+      .resolves(subnetIdArr[0])
+
+      const result = await createSubnets(new EC2Client({}), vpcId, region);
+      expect(result).toEqual(subnetIdArr);
+    })
+  })
 })
