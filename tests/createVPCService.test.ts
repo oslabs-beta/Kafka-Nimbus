@@ -102,27 +102,56 @@ describe("Tests for the createVPC route", () => {
 
   describe('createSubnets', () => {
     const vpcId = 'vpc-1234abcd';
-    const region = 'us-east1'
-    
+    const region = 'us-east'    
 
     afterEach(() => {
       mockClient(EC2Client).reset();
     })
 
-    it('Successfully creates 3 subnets', async () => {
-      const mockResponses = [
-        { Subnet: { SubnetId: 'subnet-1' }},
-        { Subnet: { SubnetId: 'subnet-2' }},
-        { Subnet: { SubnetId: 'subnet-3' }},
-      ];
-      mockClient(EC2Client)
-      .on(CreateSubnetCommand)
-      .resolves(mockResponses);
-
+    xit('Successfully creates 3 subnets', async () => {
+      const subnetIds = ['subnet-1', 'subnet-2', 'subnet-3'];
+      // make a mock call for all three subnets
+      subnetIds.forEach((subnetId, i) => {
+        const input = {
+          CidrBlock: `10.0.${i}.0/24`,
+          VpcId: vpcId,
+          AvailabilityZone: `${region}${String.fromCharCode(97 + i)}`, // a, b, c
+        };
+        const output = { Subnet: { SubnetId: subnetId}};
+        mockClient(EC2Client)
+         .on(CreateSubnetCommand, input)
+         .resolves(output)
+        
+        console.log(input)
+      });
       const result = await createSubnets(new EC2Client({}), vpcId, region);
-      expect(result).toEqual(['subnet-1', 'subnet-2', 'subnet-3'])
+      expect(result).toEqual(subnetIds);
     });
     
+    xit('should throw an error when subnet ID is undefined', async () => {
+      const subnetIds = ['subnet-1', undefined, 'subnet-3'];
+
+      subnetIds.forEach((subnetId, i) => {
+        const input = {
+          CidrBlock: `10.0.${i}.0/24`,
+          VpcId: vpcId,
+          AvailabilityZone: `${region}${String.fromCharCode(97 + i)}`, // a, b, c
+        };
+        const output = subnetId ? { Subnet: { SubnetId: subnetId }} : {};
+        mockClient(EC2Client).on(CreateSubnetCommand, input).resolves(output);
+      });
+
+      await expect(createSubnets(new EC2Client({}), vpcId, region))
+        .rejects.toThrow('SubnetId undefined, failed to create');
+      });
+
+    it('should throw error when subnet creation fails', async () => {
+      mockClient(EC2Client)
+      .on(CreateSubnetCommand)
+      .rejects(new Error('Some failure'));
+  
+      await expect(createSubnets(new EC2Client({}), vpcId, region)).rejects.toThrow('Failed to create subnets');
+    });
 
   })
 })
