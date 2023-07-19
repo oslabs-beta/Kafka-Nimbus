@@ -126,6 +126,7 @@ export const createRouteTables = async(client: EC2Client, vpcId: string) => {
     }
     const command = new DescribeRouteTablesCommand(input);
     const response = await client.send(command);
+    console.log(response);
     if (!response || response.RouteTables === undefined || response.RouteTables?.length === 0) {
       throw new Error('Failed to create route table');
     }
