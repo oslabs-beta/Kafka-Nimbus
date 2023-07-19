@@ -8,6 +8,7 @@ import {
   CreateInternetGatewayCommand,
   AttachInternetGatewayCommand,
   CreateSubnetCommand,
+  DescribeRouteTablesCommand,
 } from '@aws-sdk/client-ec2';
 
 import { 
@@ -15,6 +16,7 @@ import {
   createIGW,
   connectIGWandVPC,
   createSubnets,
+  createRouteTables
 } from '../src/server/service/createVPCService'
 
 import { mockClient } from 'aws-sdk-client-mock'
@@ -102,24 +104,102 @@ describe("Tests for the createVPC route", () => {
 
   describe('createSubnets', () => {
     const vpcId = 'vpc-1234abcd';
-    const region = 'us-east1'
-    const subnetIdArr = ['sub-1','sub-1','sub-1']
+    const region = 'us-east'    
 
     afterEach(() => {
       mockClient(EC2Client).reset();
     })
 
     xit('Successfully creates 3 subnets', async () => {
-      mockClient(EC2Client)
-      .on(CreateSubnetCommand, {
-        CidrBlock: '10.0.0.0/24',
-        VpcId: vpcId,
-        AvailabilityZone: `us-east-1`
-      })
-      .resolves(subnetIdArr[0])
-
+      const subnetIds = ['subnet-1', 'subnet-2', 'subnet-3'];
+      // make a mock call for all three subnets
+      subnetIds.forEach((subnetId, i) => {
+        const input = {
+          CidrBlock: `10.0.${i}.0/24`,
+          VpcId: vpcId,
+          AvailabilityZone: `${region}${String.fromCharCode(97 + i)}`, // a, b, c
+        };
+        const output = { Subnet: { SubnetId: subnetId}};
+        mockClient(EC2Client)
+         .on(CreateSubnetCommand, input)
+         .resolves(output)
+        
+        console.log(input)
+      });
       const result = await createSubnets(new EC2Client({}), vpcId, region);
-      expect(result).toEqual(subnetIdArr);
+      expect(result).toEqual(subnetIds);
+    });
+    
+    xit('should throw an error when subnet ID is undefined', async () => {
+      const subnetIds = ['subnet-1', undefined, 'subnet-3'];
+
+      subnetIds.forEach((subnetId, i) => {
+        const input = {
+          CidrBlock: `10.0.${i}.0/24`,
+          VpcId: vpcId,
+          AvailabilityZone: `${region}${String.fromCharCode(97 + i)}`, // a, b, c
+        };
+        const output = subnetId ? { Subnet: { SubnetId: subnetId }} : {};
+        mockClient(EC2Client).on(CreateSubnetCommand, input).resolves(output);
+      });
+
+      await expect(createSubnets(new EC2Client({}), vpcId, region))
+        .rejects.toThrow('SubnetId undefined, failed to create');
+      });
+
+    it('should throw error when subnet creation fails', async () => {
+      mockClient(EC2Client)
+      .on(CreateSubnetCommand)
+      .rejects(new Error('Some failure'));
+  
+      await expect(createSubnets(new EC2Client({}), vpcId, region)).rejects.toThrow('Failed to create subnets');
+    });
+  })
+
+  describe('createRouteTable', () => {
+    const vpcId = 'vpc-1234abcd';
+
+    afterEach(() => {
+      mockClient(EC2Client).reset();
     })
+
+    it('successfully creates a route table', async () => {
+      const mockResponse = { RouteTables: [{ RouteTableId: 'rtb-1'}]}
+      mockClient(EC2Client)
+        .on(DescribeRouteTablesCommand, {
+          Filters: [{ 
+            Name: 'vpc-id', 
+            Values: [vpcId] 
+          }],
+        })
+        .resolves(mockResponse);
+
+        const result = await createRouteTables(new EC2Client({}), vpcId);
+        expect(result).toEqual('rtb-1')
+    })
+
+    it('throws an error when no route tables found', async() => {
+      const mockResponse = { RouteTables: [] };
+
+      mockClient(EC2Client)
+        .on(DescribeRouteTablesCommand, {
+          Filters: [{ Name: 'vpc-id', Values: [vpcId] }],
+        })
+        .resolves(mockResponse);
+
+      await expect(createRouteTables(new EC2Client({}), vpcId)).rejects.toThrow('Failed to create route table');
+    });
+
+    it('Throws error when RouteTableId is not defined', async () => {
+      const mockResponse = { RouteTables: [{}] };
+  
+      mockClient(EC2Client)
+        .on(DescribeRouteTablesCommand, {
+          Filters: [{ Name: 'vpc-id', Values: [vpcId] }],
+        })
+        .resolves(mockResponse);
+  
+      await expect(createRouteTables(new EC2Client({}), vpcId)).rejects.toThrow('Failed to create route table');
+    });
   })
 })

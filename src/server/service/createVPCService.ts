@@ -96,6 +96,9 @@ export const createSubnets = async (client: EC2Client, vpcId: string, region: st
       client.send(command3),
     ]);
     const [response1, response2, response3] = responses;
+    if (response1 === undefined || response2 === undefined || response3 === undefined) {
+      throw new Error('SubnetId undefined, failed to create')
+    }
     const subnet1Id = response1.Subnet?.SubnetId;
     const subnet2Id = response2.Subnet?.SubnetId;
     const subnet3Id = response3.Subnet?.SubnetId;
@@ -123,6 +126,7 @@ export const createRouteTables = async(client: EC2Client, vpcId: string) => {
     }
     const command = new DescribeRouteTablesCommand(input);
     const response = await client.send(command);
+    console.log(response);
     if (!response || response.RouteTables === undefined || response.RouteTables?.length === 0) {
       throw new Error('Failed to create route table');
     }
