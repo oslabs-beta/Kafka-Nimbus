@@ -103,23 +103,26 @@ describe("Tests for the createVPC route", () => {
   describe('createSubnets', () => {
     const vpcId = 'vpc-1234abcd';
     const region = 'us-east1'
-    const subnetIdArr = ['sub-1','sub-1','sub-1']
+    
 
     afterEach(() => {
       mockClient(EC2Client).reset();
     })
 
-    xit('Successfully creates 3 subnets', async () => {
+    it('Successfully creates 3 subnets', async () => {
+      const mockResponses = [
+        { Subnet: { SubnetId: 'subnet-1' }},
+        { Subnet: { SubnetId: 'subnet-2' }},
+        { Subnet: { SubnetId: 'subnet-3' }},
+      ];
       mockClient(EC2Client)
-      .on(CreateSubnetCommand, {
-        CidrBlock: '10.0.0.0/24',
-        VpcId: vpcId,
-        AvailabilityZone: `us-east-1`
-      })
-      .resolves(subnetIdArr[0])
+      .on(CreateSubnetCommand)
+      .resolves(mockResponses);
 
       const result = await createSubnets(new EC2Client({}), vpcId, region);
-      expect(result).toEqual(subnetIdArr);
-    })
+      expect(result).toEqual(['subnet-1', 'subnet-2', 'subnet-3'])
+    });
+    
+
   })
 })
