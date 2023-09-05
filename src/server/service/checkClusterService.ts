@@ -205,12 +205,12 @@ interface Job {
 
 export const createDash = (clusterUuid: string) => {
   // create dash
-  const datasource = 'a801b372-378e-4365-9654-c24561d9b858'
+  const datasource = 'f1c0cef6-c83d-40a8-a184-b1271cd24a86'
   const myHeaders = new Headers();
   myHeaders.append('Content-Type', 'application/json');
   myHeaders.append(
     'Authorization',
-    `Bearer ${process.env.GRAFANA_API_KEY || ''}`
+    `Bearer glsa_PFpPPeRYQWpEAmWdrrD5imgBQT5P8sEF_f8e6a442`
   );
 
   const raw = JSON.stringify({
@@ -660,7 +660,7 @@ export const createDash = (clusterUuid: string) => {
     redirect: 'follow',
   };
 
-  fetch('http://157.230.13.68:3000/api/dashboards/db', requestOptions)
+  fetch('http://167.99.154.48:3000/api/dashboards/db', requestOptions)
     .then((response) => response.text())
     .then((result) => console.log(result))
     .catch((error) => console.log('error', error));
@@ -678,7 +678,7 @@ export const addToPrometheusTarget = (
     newBrokerArr.push(broker.slice(0, broker.length - 4) + '11001');
   }
 
-  // define the newjob obj that we are going to store in targets.json so that
+  // define the newjob obj that we are goin g to store in targets.json so that
   // prometheus tracks it
   const newJob = {
     labels: {
@@ -719,13 +719,13 @@ export const addToPrometheusTarget = (
 export const getDash = async (uuid: string, apiKey: string) => {
   try {
     const fetchDashboard = await fetch(
-      'http://157.230.13.68:3000/api/dashboards/uid/' + uuid,
+      'http://167.99.154.48:3000/api/dashboards/uid/' + uuid,
       {
         method: 'GET',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer glsa_PFpPPeRYQWpEAmWdrrD5imgBQT5P8sEF_f8e6a442`,
         },
       }
     );

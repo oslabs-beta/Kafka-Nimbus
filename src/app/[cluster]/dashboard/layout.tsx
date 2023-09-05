@@ -33,7 +33,7 @@ export type partitions = {
   partitionId: number;
   leader: number;
   isr: any[];
-  offlineReplicas: any[];
+  offlineReplicas: any[]; 
 };
 
 export type topics = {
@@ -108,10 +108,10 @@ const layout = async (props) => {
     // GETTING METRICS
     const metricsDashboard = await getDash(
       props.params.cluster,
-      'glsa_nYo8nYS97KqWEKu47Nrp4nXyKpOb9fSb_ea068e36',
+      'glsa_PFpPPeRYQWpEAmWdrrD5imgBQT5P8sEF_f8e6a442'
     );
 
-    // console.log('METRICSDASH: ', metricsDashboard);
+    console.log('METRICSDASH: ', metricsDashboard);
 
     //Cluster Dashboard Information from MSK
     const commInput: DescribeClusterCommandInput = {
