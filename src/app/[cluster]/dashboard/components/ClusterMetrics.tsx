@@ -70,25 +70,25 @@ const ClusterMetrics = ({
         {metricsDashboard.meta?.slug ? (
           <div className='flew-col mt-4 flex flex-nowrap justify-center gap-4'>
             <iframe
-              src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686257335095&to=1686259135095&panelId=1`}
+              src={`http://167.99.154.48:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=25s&from=1693870689049&to=1693872489049&panelId=1`}
               width={`${450}`}
               height={`${200 * 2}`}
               // frameborder='0'
             ></iframe>
             <iframe
-              src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686257404700&to=1686259204700&panelId=15`}
+              src={`http://167.99.154.48:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=25s&from=1693870792548&to=1693872592548&panelId=15`}
               width={`${450}`}
               height={`${200 * 2}`}
               // frameborder='0'
             ></iframe>
             <iframe
-              src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686257461414&to=1686259261414&panelId=6`}
+              src={`http://167.99.154.48:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=25s&from=1693870821598&to=1693872621598&panelId=6`}
               width={`${450 * 2}`}
               height={`${200 * 2}`}
               // frameborder='0'
             ></iframe>
             <iframe
-              src={`http://157.230.13.68:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=5s&from=1686257479764&to=1686259279764&panelId=2`}
+              src={`http://167.99.154.48:3000/d-solo/${metricsDashboard.meta.slug}/${metricsDashboard.meta.slug}?orgId=1&refresh=25s&from=1693870834881&to=1693872634881&panelId=2`}
               width={`${450 * 2}`}
               height={`${200 * 2}`}
               // frameborder='0'
