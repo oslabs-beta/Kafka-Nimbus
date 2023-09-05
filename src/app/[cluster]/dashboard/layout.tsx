@@ -111,7 +111,7 @@ const layout = async (props) => {
       'glsa_PFpPPeRYQWpEAmWdrrD5imgBQT5P8sEF_f8e6a442'
     );
 
-    console.log('METRICSDASH: ', metricsDashboard);
+    // console.log('METRICSDASH: ', metricsDashboard);
 
     //Cluster Dashboard Information from MSK
     const commInput: DescribeClusterCommandInput = {

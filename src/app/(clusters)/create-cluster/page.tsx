@@ -26,7 +26,6 @@ export type ComponentState = {
 
 const CreateClusterPage = () => {
   const router = useRouter();   // use router hook
-
   const [inFocus, setInFocus] = useState<ComponentState["inFocus"]>("provider");  // state that switches which component is in focus
   const [loadingState, setLoadingState] =
     useState<ComponentState["loadingState"]>("Creating VPC");   // loading state when the user creates cluster

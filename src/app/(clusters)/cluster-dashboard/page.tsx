@@ -7,7 +7,6 @@ import { prisma } from '../../../server/db'
 import ClusterCard from "~/app/components/ClusterCard";
 import CreateClusterCard from "~/app/components/CreateClusterCard";
 
-
 const ClusterDashboard = async () => {
   // gets sessiondata on the server side
   const sessionData = await getServerAuthSession();   
