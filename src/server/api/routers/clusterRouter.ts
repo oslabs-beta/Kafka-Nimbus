@@ -52,7 +52,7 @@ export const clusterRouter = createTRPCRouter({
         const awsSecretAccessKey = userResponse.awsSecretAccessKey;
         const region = userResponse.region;
         // config update has to be before instantializing ec2 and kafka
-        AWS.config.update({
+        AWS.config.update({ 
           accessKeyId: awsAccessKey,
           secretAccessKey: awsSecretAccessKey,
           region: region,

@@ -3,6 +3,18 @@
 
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
+export type initialState = {
+  provider: "",
+  awsId: "",
+  awsSecret: "",
+  region: "",
+  clusterName: string,
+  brokerNumbers: 1,
+  storagePerBroker: 1,
+  clusterSize: '',
+  zones: 2,
+};
+
 // Define initial state
 const initialState = {
   provider: "",

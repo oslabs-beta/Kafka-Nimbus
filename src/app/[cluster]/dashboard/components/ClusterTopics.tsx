@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 
 
 // Caclulates total offset for each topic
-const calculateOffset = (offsets: any[]): number => {
+export const calculateOffset = (offsets: any[]): number => {
   let totalOffset = 0;
   for (let i = 0; i < offsets.length; i++) {
     const offset = Number(offsets[i].offset);

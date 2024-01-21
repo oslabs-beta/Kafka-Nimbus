@@ -34,6 +34,7 @@ const ClusterNameInput: React.FC<ProviderProps> = ({ inFocusHandler }) => {
       <h1 className="mb-8 text-2xl font-bold">Name Cluster</h1>
       <form onSubmit={onSubmitHandler}>
         <input
+          required
           type="text"
           placeholder="my-cluster"
           className="input w-full max-w-xs shadow-xl"
