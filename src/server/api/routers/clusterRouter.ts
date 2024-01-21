@@ -13,7 +13,7 @@ import {
   DeleteClusterCommand,
   type DeleteClusterCommandInput,
   type DeleteClusterCommandOutput,
-} from "@aws-sdk/client-kafk a";
+} from "@aws-sdk/client-kafka";
 
 // importing functionality
 import * as awsService from '../../service/createClusterService';
